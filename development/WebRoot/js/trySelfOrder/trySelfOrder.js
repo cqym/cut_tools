@@ -516,7 +516,7 @@ store.baseParams.year = new Date().format('Y');
 						}
 						para.push('orderType=8');
 						new Ext.ffc.ExpTempleteSelectWindow({
-							templeteType:'32',
+							templeteType:'33',
 							exportDataMethod:function(tempId){
 								window.open(PATH + "/dataExp/ExpTempleteAction.do?m=expertListExcel&" + para.join('&') + "&tempId=" + tempId);
 							}

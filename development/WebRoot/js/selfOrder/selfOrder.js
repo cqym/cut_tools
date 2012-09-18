@@ -593,7 +593,7 @@ Ext.apply(_config, getConfig());
 						}
 						para.push('orderType=3');
 						new Ext.ffc.ExpTempleteSelectWindow({
-							templeteType:'32',
+							templeteType:'33',
 							exportDataMethod:function(tempId){
 								window.open(PATH + "/dataExp/ExpTempleteAction.do?m=expertListExcel&" + para.join('&') + "&tempId=" + tempId);
 							}
