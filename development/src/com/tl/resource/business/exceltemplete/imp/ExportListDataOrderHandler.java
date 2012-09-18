@@ -14,11 +14,14 @@ import com.tl.resource.dao.pojo.TOrderInfor;
 public class ExportListDataOrderHandler implements IExportListDataBusinessHandler {
   private ContractOrderService contractOrderService = (ContractOrderService) SystemInstance.getInstance().getBean("ContractOrderServiceImpl");
 
+  private String orderType = null;
+
   @Override
   public Map<String, Object> getBusinessData(Map para) {
     // TODO Auto-generated method stub
     para.put("startIndex", 0);
     para.put("pageSize", Integer.MAX_VALUE);
+    orderType = (String) para.get("orderType");
     List inforList = contractOrderService.getContractOrderList(para);
     for (Iterator iterator = inforList.iterator(); iterator.hasNext();) {
       TOrderInfor orderInfor = (TOrderInfor) iterator.next();
@@ -37,7 +40,9 @@ public class ExportListDataOrderHandler implements IExportListDataBusinessHandle
   @Override
   public String getMainCode() {
     // TODO Auto-generated method stub
+    if ("3".equals(orderType) || "8".equals(orderType) || "7".equals(orderType)) {
+      return "orderSelfDetail";
+    }
     return "orderDetail";
   }
-
 }

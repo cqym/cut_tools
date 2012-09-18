@@ -32,7 +32,7 @@ public class ExportListDataQuotationHandler implements IExportListDataBusinessHa
   @Override
   public String getMainCode() {
     // TODO Auto-generated method stub
-    return "contractDetail";
+    return "quotationDetail";
   }
 
 }
