@@ -861,6 +861,35 @@ Ext.ftl.protools.ProToolsTree = Ext.extend(Ext.tree.ColumnTree, {
 	 * 修改产品
 	 */
 	onModifySubmit : function() {
+		var selNode = this.getSelected();
+		var qx = this.canUpdate;
+		var _this = this;
+		Ext.Ajax.request({
+					url: PATH + '/proTools/checkToolsBeEditQuoAction.do',
+					params: { toolsId: selNode.id },
+					success : function(response) {
+						if((response.responseText == 'true' || response.responseText == true) && !qx){
+							Ext.Msg.show({
+								title : '系统提示',
+								msg : '当前工具信息，已被报价单引用过，请联系管理员进行修改！',
+								width : 260,
+								buttons : Ext.Msg.OK,
+								icon : Ext.MessageBox.INFO
+							});
+						    return ;
+						}
+						if((response.responseText == 'true' || response.responseText == true) && qx){
+							Ext.MessageBox.confirm('系统提示', '当前工具信息，已被报价单引用过，如果继续修改，系统将同步修改其对应业务单据中的数据，是否继续？', function(btn){
+								if(btn != 'yes'){return ;}
+								_this.onModify();
+							});
+						}else{
+						    _this.onModify();
+						}
+					},scope : this
+				});
+	},
+	onModify : function(){
 		var modifyWindow = new Ext.ftl.ProductWindow({
 			title : '修改产品信息'
 		});
@@ -929,38 +958,35 @@ Ext.ftl.protools.ProToolsTree = Ext.extend(Ext.tree.ColumnTree, {
 		}
 		
 		modifyWindow.on('submit', function(_form, _r) {
-			var _proSortRecord = _form.productForm.proSort.getRecordById(_r.data.sortCode);
-			if(!Ext.isEmpty(_proSortRecord)) {
-				Ext.apply(_r.data, {productSortId : _proSortRecord.get('id')})
-				_r.data.sortCode = _proSortRecord.get('sortCode');
-			}
-			var paramStr = Ext.encode(_r.data);
-			Ext.Ajax.request({
-				url : PATH + '/proTools/updateProAction.do',
-				params : {
-					content : paramStr
-				},
-				success : function(response) {
-					var responseArray = Ext.util.JSON.decode(response.responseText);
-					if (responseArray.success == true) {
-						this.store.reload();
-						modifyWindow.hide();//隐藏修改窗口
-					} else {
-						Ext.Msg.show({
-							title : '信息提示',
-							msg : responseArray.message,
-							width : 260,
-							buttons : Ext.Msg.OK,
-							icon : Ext.MessageBox.ERROR
-						});
-					}
-				},scope : this
-			});
-			
-		},this)
-		
+								var _proSortRecord = _form.productForm.proSort.getRecordById(_r.data.sortCode);
+								if(!Ext.isEmpty(_proSortRecord)) {
+									Ext.apply(_r.data, {productSortId : _proSortRecord.get('id')})
+									_r.data.sortCode = _proSortRecord.get('sortCode');
+								}
+								var paramStr = Ext.encode(_r.data);
+								Ext.Ajax.request({
+									url : PATH + '/proTools/updateProAction.do',
+									params : {
+										content : paramStr
+									},
+									success : function(response) {
+										var responseArray = Ext.util.JSON.decode(response.responseText);
+										if (responseArray.success == true) {
+											this.store.reload();
+											modifyWindow.hide();//隐藏修改窗口
+										} else {
+											Ext.Msg.show({
+												title : '信息提示',
+												msg : responseArray.message,
+												width : 260,
+												buttons : Ext.Msg.OK,
+												icon : Ext.MessageBox.ERROR
+											});
+										}
+									},scope : this
+								});								
+		},this);
 	},
-	
 	/**
 	 * 删除产品
 	 */

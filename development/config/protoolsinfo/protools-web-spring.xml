@@ -62,5 +62,9 @@
 			<ref bean="importToolsService"/>
 		</property>
 	</bean>
-	
+	<bean name="/proTools/checkToolsBeEditQuoAction" class="com.tl.resource.web.toolsInfor.CheckToolsBeEditQuoAction">
+		<property name="proToolsInforService">
+			<ref bean="ProToolsInforServiceImpl"/>
+		</property>
+	</bean>
 </beans>

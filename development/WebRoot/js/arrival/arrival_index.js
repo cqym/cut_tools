@@ -532,6 +532,9 @@ Ext.ftl.arrival.ArrivalListGrid = Ext.extend(Ext.grid.GridPanel, {
 					})
 					//加载数据
 					//_store.load({params : {start : 0, limit : PAGESIZE}});
+				},
+				rowdblclick : function(grid, rowIndex, e){
+					grid.onDetailClick();
 				}
 			}
 		});

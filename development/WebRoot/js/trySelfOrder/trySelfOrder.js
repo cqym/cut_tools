@@ -558,7 +558,12 @@ store.baseParams.year = new Date().format('Y');
 							Ext.MessageBox.show({title:'系统提示',msg: '请确认要作废当前订单!',buttons: Ext.MessageBox.OKCANCEL,fn: handleDelete,width: 300});													
 					}
 		 		}
-			}]
+			}],
+			listeners : {
+				rowdblclick : function(grid, rowIndex, e){
+					grid.getTopToolbar().find('text','查看订单')[0].fireEvent('click',null);
+				}
+			}
 	});	
 
 Ext.ffc.showSlaveFillWindow = function (data){

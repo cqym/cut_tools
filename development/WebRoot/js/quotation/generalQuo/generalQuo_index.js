@@ -838,7 +838,7 @@ Ext.ftl.generalQuo.QuoGrid = Ext.extend(Ext.grid.GridPanel, {
 				xtype:'tbseparator',
 				hidden : this.isDetailHide
 			},{
-				text : '查看详细',
+				text : '查看报价',
 				hidden : this.isDetailHide,
 				iconCls : 'icon-detail',
 				handler : function() {
@@ -1009,6 +1009,9 @@ Ext.ftl.generalQuo.QuoGrid = Ext.extend(Ext.grid.GridPanel, {
 							}
 						},scope : this
 					})
+				},
+				rowdblclick : function(grid, rowIndex, e){
+					grid.onDetailClick();
 				}
 			}
 		})

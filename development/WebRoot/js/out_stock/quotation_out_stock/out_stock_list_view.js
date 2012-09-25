@@ -483,7 +483,12 @@ Ext.apply(_config, getConfig());
 					}
 				}
         	}
-		]
+		],
+		listeners : {
+		    rowdblclick : function(grid, rowIndex, e){
+				grid.getTopToolbar().find('text','查看出库单')[0].fireEvent('click',null);
+			}
+		}
     });
 
 

@@ -321,6 +321,11 @@ var expander = new Ext.ux.grid.RowExpander({
 				}
 			}
         ],
+		listeners : {
+		    rowdblclick : function(grid, rowIndex, e){
+				grid.getTopToolbar().find('text','查看合同')[0].fireEvent('click',null);
+			}
+		},
 		tbar:[{
         		text:'新增合同',
 				hidden : _config.isAddHide,

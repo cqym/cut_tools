@@ -806,35 +806,35 @@ Ext.zhj.qutation.projectQuo.GridList = Ext.extend(Ext.grid.GridPanel, {
 						xtype:'tbseparator',
 						hidden : this.isDetailHide
 					}, {
-						text : '查看详细',
+						text : '查看报价',
 						iconCls : 'icon-detail',
 						hidden : this.isDetailHide,
-						handler : function() {
-							if (this.isSelectedRecord()) {
-								var array = this.getSelections();
-								if (array.length > 1) {
-									Ext.Msg.show({
-												title : '错误提示',
-												msg : '只能对一条记录进行查看操作！',
-												buttons : Ext.Msg.OK,
-												icon : Ext.MessageBox.INFO,
-												width : 300
-											});
-									return;
-								} else {
-									var selRecord = this.getSelectionModel()
-											.getSelected();
-									Ext.zhj.onClickDetail(selRecord.id);
-								}
-							}
-
-						},
-						scope : this
+						listeners : {
+							'click' : function() {
+									if (this.isSelectedRecord()) {
+										var array = this.getSelections();
+										if (array.length > 1) {
+											Ext.Msg.show({
+														title : '错误提示',
+														msg : '只能对一条记录进行查看操作！',
+														buttons : Ext.Msg.OK,
+														icon : Ext.MessageBox.INFO,
+														width : 300
+													});
+											return;
+										} else {
+											var selRecord = this.getSelectionModel()
+													.getSelected();
+											Ext.zhj.onClickDetail(selRecord.id);
+										}
+									}
+							},scope:this
+						}
 					},{
 						xtype:'tbseparator',
 						hidden : this.isModifyHide
 					}, {
-						text : "修改报价单",
+						text : "修改报价",
 						iconCls : 'icon-modify',
 						hidden : this.isModifyHide,
 						name : 'editQuo',
@@ -885,7 +885,7 @@ Ext.zhj.qutation.projectQuo.GridList = Ext.extend(Ext.grid.GridPanel, {
 						xtype:'tbseparator',
 						hidden : this.isCopyHide
 					},{
-						text : '复制报价单',
+						text : '复制报价',
 						hidden : this.isCopyHide,
 						iconCls : 'icon-add',
 						handler : function() {
@@ -896,7 +896,7 @@ Ext.zhj.qutation.projectQuo.GridList = Ext.extend(Ext.grid.GridPanel, {
 						xtype:'tbseparator',
 						hidden : this.isDelHide
 					}, {
-						text : "删除报价单",
+						text : "删除报价",
 						iconCls : 'icon-delete',
 						hidden : this.isDelHide,
 						name : 'deleteQuo',
@@ -1074,8 +1074,12 @@ Ext.zhj.qutation.projectQuo.GridList = Ext.extend(Ext.grid.GridPanel, {
 								store : ds
 							}),
 					tbar : tbar,
-					cm : cm
-
+					cm : cm,
+					listeners : {
+						rowdblclick : function(grid, rowIndex, e){
+						    grid.getTopToolbar().find('text','查看报价')[0].fireEvent('click',null);
+					    }
+					}
 				});
 	},
 	

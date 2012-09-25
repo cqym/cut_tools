@@ -13,6 +13,7 @@
 		<action path="/proTools/getProSortByCode" scope="request" validate="false"></action>
 		<action path="/proTools/updateNonStandAction" scope="request" validate="false"></action>
 		<action path="/proTools/importToolsAction" scope="request" validate="false"></action>
+		<action path="/proTools/checkToolsBeEditQuoAction" scope="request" validate="false"></action>
 	</action-mappings>
 
 	<controller>

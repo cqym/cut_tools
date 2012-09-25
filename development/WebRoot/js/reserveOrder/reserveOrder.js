@@ -212,6 +212,11 @@ Ext.apply(_config, getConfig());
 				}	
 			}
 		],
+		listeners : {
+		    rowdblclick : function(grid, rowIndex, e){
+				grid.getTopToolbar().find('text','查看订单')[0].fireEvent('click',null);
+			}
+		},
 		autoExpandColumn: "remark",
 			 tbar : [{
 				text:'添加订单',
@@ -228,7 +233,7 @@ Ext.apply(_config, getConfig());
 				xtype:'tbseparator',
 				hidden : _config.isDetailHide
 			},{
-				text:'查看订单明细',
+				text:'查看订单',
 				hidden : _config.isDetailHide,
 				iconCls:'icon-detail',
 				listeners: {
@@ -612,7 +617,12 @@ Ext.apply(_config, getConfig());
 						window.open(PATH + '/printViewAction.do?id='+arr[0].id);
 					}
 		 		}
-			}]
+			}],
+			listeners : {
+				rowdblclick : function(grid, rowIndex, e){
+					grid.getTopToolbar().find('text','查看订单')[0].fireEvent('click',null);
+				}
+			}
 	});	
 
 	Ext.ffc.showSlaveFillWindow = function (data){

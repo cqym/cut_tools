@@ -198,6 +198,11 @@ Ext.apply(_config, getConfig());
 				}	
 			}
 		],
+		listeners : {
+		    rowdblclick : function(grid, rowIndex, e){
+				grid.getTopToolbar().find('text','查看订单')[0].fireEvent('click',null);
+			}
+		},
 			 tbar : [
 			{
 				text:'添加订单',
@@ -213,7 +218,7 @@ Ext.apply(_config, getConfig());
 				xtype:'tbseparator',
 				hidden : _config.isDetailHide
 			},{
-				text:'查看订单明细',
+				text:'查看订单',
 				hidden : _config.isDetailHide,
 				iconCls:'icon-detail',
 				listeners: {

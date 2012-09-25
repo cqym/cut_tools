@@ -378,7 +378,12 @@ var gridCheckSele = new Ext.grid.CheckboxSelectionModel();
 					}
 				}
         	}
-		]
+		],
+		listeners : {
+		    rowdblclick : function(grid, rowIndex, e){
+				grid.getTopToolbar().find('text','查看计划')[0].fireEvent('click',null);
+			}
+		}
     });
 
 
