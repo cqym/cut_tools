@@ -140,25 +140,22 @@ public class ProToolsInforServiceImpl implements ProToolsInforService {
 
   @Override
   public void updateProToolsById(TProductToolsInfor proTools) throws Exception {
-    TQuotationProductDetailExample example = new TQuotationProductDetailExample();
-    example.createCriteria().andToolsIdEqualTo(proTools.getId());
-    int cnt = quoDetailDAO.countByExample(example);
-    if (cnt == 0) {
-      proToolsInforDAO.updateProToolsById(proTools);
 
-      TReserveInforExample exam = new TReserveInforExample();
-      exam.createCriteria().andToolsIdEqualTo(proTools.getId());
+    proToolsInforDAO.updateProToolsById(proTools);
 
-      TReserveInfor record = new TReserveInfor();
-      proTools.setAmount(BigDecimal.ZERO);
-      BeanUtils.copyProperties(record, proTools);
-      record.setId(null);
-      record.setAmount(null);
+    proToolsInforDAO.sycToolsInfor(proTools.getId());
 
-      reserveInfoDao.updateByExampleSelective(record, exam);
-    } else {
-      throw new Exception("该工具信息已做报价");
-    }
+    TReserveInforExample exam = new TReserveInforExample();
+    exam.createCriteria().andToolsIdEqualTo(proTools.getId());
+
+    TReserveInfor record = new TReserveInfor();
+    proTools.setAmount(BigDecimal.ZERO);
+    BeanUtils.copyProperties(record, proTools);
+    record.setId(null);
+    record.setAmount(null);
+
+    reserveInfoDao.updateByExampleSelective(record, exam);
+
   }
 
   @Override
@@ -192,6 +189,13 @@ public class ProToolsInforServiceImpl implements ProToolsInforService {
   }
 
   @Override
+  public boolean isToolsBeEditedQuotation(String toolsId) {
+    TQuotationProductDetailExample example = new TQuotationProductDetailExample();
+    example.createCriteria().andToolsIdEqualTo(toolsId);
+    return quoDetailDAO.countByExample(example) > 0;
+  }
+
+  @Override
   public void updateNonStandPro(JSONArray jsonArray) throws Exception {
     Iterator<JSONObject> iterator = jsonArray.iterator();
     while (iterator.hasNext()) {
@@ -201,38 +205,30 @@ public class ProToolsInforServiceImpl implements ProToolsInforService {
       proToolsDto = (TProductToolsInfor) JSONObject.toBean(proTools, TProductToolsInfor.class);
       TreeDto treeDto = this.getProductToolsInfoById(proToolsDto.getId());
 
-      TQuotationProductDetailExample example = new TQuotationProductDetailExample();
-      example.createCriteria().andToolsIdEqualTo(proToolsDto.getId());
-      int cnt = quoDetailDAO.countByExample(example);
-      boolean flag = proToolsDto.equals(proToolsInforDAO.selectByPrimaryKey(proToolsDto.getId()));
+      Date createDate = treeDto.getStockPriceDate();
+      this.deletePro(treeDto);
 
-      if (flag || (!flag && cnt == 0)) {
-        Date createDate = treeDto.getStockPriceDate();
-        this.deletePro(treeDto);
+      proToolsDto.setProductCode(new StringBuffer(proToolsDto.getProductSortCode()).append("-").append(proToolsDto.getId()).toString());
+      proToolsDto.setStockPriceDate(createDate);
 
-        proToolsDto.setProductCode(new StringBuffer(proToolsDto.getProductSortCode()).append("-").append(proToolsDto.getId()).toString());
-        proToolsDto.setStockPriceDate(createDate);
+      this.proToolsInforDAO.updateProToolsById(proToolsDto);
 
-        this.proToolsInforDAO.updateProToolsById(proToolsDto);
-
-        if (proTools.has("children")) {
-          insertChildrenProtools(proTools, proToolsDto);
-        }
-        proToolsInforDAO.sycNotStandardToolsInfor(proToolsDto.getId());
-
-        TReserveInforExample exam = new TReserveInforExample();
-        exam.createCriteria().andToolsIdEqualTo(proToolsDto.getId());
-
-        TReserveInfor record = new TReserveInfor();
-        proToolsDto.setAmount(BigDecimal.ZERO);
-        BeanUtils.copyProperties(record, proToolsDto);
-        record.setId(null);
-        record.setAmount(null);
-
-        reserveInfoDao.updateByExampleSelective(record, exam);
-      } else {
-        throw new Exception("该工具信息已做报价");
+      if (proTools.has("children")) {
+        insertChildrenProtools(proTools, proToolsDto);
       }
+      proToolsInforDAO.sycNotStandardToolsInfor(proToolsDto.getId());
+      proToolsInforDAO.sycToolsInfor(proToolsDto.getId());
+      TReserveInforExample exam = new TReserveInforExample();
+      exam.createCriteria().andToolsIdEqualTo(proToolsDto.getId());
+
+      TReserveInfor record = new TReserveInfor();
+      proToolsDto.setAmount(BigDecimal.ZERO);
+      BeanUtils.copyProperties(record, proToolsDto);
+      record.setId(null);
+      record.setAmount(null);
+
+      reserveInfoDao.updateByExampleSelective(record, exam);
+
     }
   }
 
