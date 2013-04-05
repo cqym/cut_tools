@@ -211,41 +211,72 @@ Ext.apply(_config, getConfig());
 				listeners: {
 					'click' : function(){
 						try{
-						Ext.ffc.select_process_plans(function(arr,select_process_orders_win){
+						Ext.ffc.select_process_plans(function(arr,select_process_orders_win,brand){
 							
+
 							var idsArr = [];
-							for(var i = 0 ;i < arr.length ;i++ )
-							{
+							for(var i = 0 ;i < arr.length ;i++ ){
 								idsArr.push(arr[i].get("id"));
 							}
-							
-							var win = new pOsupplierWin({planId:"'" + idsArr.join("','") + "'",planIdArr:idsArr});
-						    win.supplier_grid.store.load({start:0,limit:15});	
-						    win.show();
-
-							select_process_orders_win.close();//关闭合同选择窗口
-							/*
 							Ext.Ajax.request({
-												method: "post",
-												params: { 'orderId' : process_orderId},
-												url: PATH + '/reservePlan/ReservePlanEditAction.do?ffc=consultReserveInfors',
-												success: function(response){
-													try{
-														eval("var ReservePlanMainInfor=" + response.responseText);
-														var conEditWin = new Ext.ffc.ReservePlanEditWindow(
-															{
-																ReservePlanInfor:ReservePlanMainInfor,isAddWin:true
-															}
-														);
-														conEditWin.on("close", function(){
-															ReservePlanListStore.reload();
-															EventMger.fireEvent("createdPlanEvent");
+								method: "post",
+								params: { 'planIds' : idsArr},
+								url: PATH + '/outStock/materialOutStockViewAction.do?ffc=consultPlanoducts',
+								success: function(response){
+										eval("var dto=" + response.responseText);
+										if(dto.outStockDetails.length == 0){
+											var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+															planIds:idsArr,
+															//brand:brand,
+															leaf:1,
+															callBackMethod:function(suppid){
+															   win.close();
+																 loadOrderWindowByConsult({
+																 title:'材料采购订单',
+																 listGrid:cut_tools.plan_order.index_grid,
+																 loadDataParam:{
+																		planId:idsArr,
+																		supplierId:suppid,
+																		//brand:brand,
+																		loadActionMethod:'consultPlans'
+																 }
+															});					     
+														}
 														});
-														conEditWin.show();
-													}catch(e){alert(e);}
+											win.show();  
+										}else{
+											var conEditWin = new Ext.ffc.MaterialOutStockEditWindow({
+												title: '新增出库单',
+												'materialOutStockInfor' : dto,
+												listeners : {
+													'close' : function(){
+														var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+															planIds:idsArr,
+															//brand:brand,
+															leaf:1,
+															callBackMethod:function(suppid){
+															   win.close();
+																 loadOrderWindowByConsult({
+																 title:'材料采购订单',
+																 listGrid:cut_tools.plan_order.index_grid,
+																 loadDataParam:{
+																		planId:idsArr,
+																		supplierId:suppid,
+																		//brand:brand,
+																		loadActionMethod:'consultPlans'
+																 }
+															});					     
+														}});
+														win.show();  
+													}
 												}
-										});
-							*/
+											});
+											conEditWin.show();
+										}
+								}
+							});
+								
+							select_process_orders_win.close();			
 						},{planStatus:'2',needToOrder:true});
 						}catch(e){alert(e);}
 
@@ -272,9 +303,13 @@ Ext.apply(_config, getConfig());
 								});
 							return;
 						};
-						 var win = new DetailWindow({orderId:arr[0].id});
-						 win.show();
-
+						loadOrderWindowById({
+							    title:'材料采购订单',
+							    SaveBtnHidden : true,
+							    btToolsHidden:true,
+							    auditButtonHiden:true,
+							    loadDataParam:{orderId:arr[0].id}
+							});
 					}
 		 		}
 			},{
@@ -320,9 +355,14 @@ Ext.apply(_config, getConfig());
 								});
 								return;
 							}
-							var win = new pOUpdateWin({orderId:record.get('id')});
-							 win.show();
-						
+						  loadOrderWindowById({
+							    title:'材料采购订单',
+							    SaveBtnHidden : false,
+							    btToolsHidden:false,
+							    auditButtonHiden:true,
+							    listGrid:cut_tools.plan_order.index_grid,
+							    loadDataParam:{orderId:record.get('id')}
+							});
 					}
 				}
 			},{

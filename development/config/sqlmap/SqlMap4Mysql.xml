@@ -111,4 +111,7 @@
 	<sqlMap resource="sqlmap/mysql/t_mat_reserve_infor_SqlMap.xml" />
 	<sqlMap resource="sqlmap/mysql/t_user_message_record_SqlMap.xml" />
 	<sqlMap resource="sqlmap/mysql/query_statistics_SqlMap.xml" />
+    <sqlMap resource="sqlmap/mysql/company_reports_SqlMap.xml" />
+    <sqlMap resource="sqlmap/mysql/t_forum_SqlMap.xml" />
+    
 </sqlMapConfig>

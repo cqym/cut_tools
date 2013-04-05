@@ -139,11 +139,12 @@ public class ProToolsInforServiceImpl implements ProToolsInforService {
   }
 
   @Override
-  public void updateProToolsById(TProductToolsInfor proTools) throws Exception {
+  public void updateProToolsById(TProductToolsInfor proTools, String sycQuoToosInfor) throws Exception {
 
     proToolsInforDAO.updateProToolsById(proTools);
-
-    proToolsInforDAO.sycToolsInfor(proTools.getId());
+    if (isToolsBeEditedQuotation(proTools.getId()) && "true".equals(sycQuoToosInfor)) {
+      proToolsInforDAO.sycToolsInfor(proTools.getId());
+    }
 
     TReserveInforExample exam = new TReserveInforExample();
     exam.createCriteria().andToolsIdEqualTo(proTools.getId());
@@ -196,7 +197,7 @@ public class ProToolsInforServiceImpl implements ProToolsInforService {
   }
 
   @Override
-  public void updateNonStandPro(JSONArray jsonArray) throws Exception {
+  public void updateNonStandPro(JSONArray jsonArray, String sycQuoToosInfor) throws Exception {
     Iterator<JSONObject> iterator = jsonArray.iterator();
     while (iterator.hasNext()) {
       JSONObject proTools = iterator.next();
@@ -216,8 +217,13 @@ public class ProToolsInforServiceImpl implements ProToolsInforService {
       if (proTools.has("children")) {
         insertChildrenProtools(proTools, proToolsDto);
       }
+
       proToolsInforDAO.sycNotStandardToolsInfor(proToolsDto.getId());
-      proToolsInforDAO.sycToolsInfor(proToolsDto.getId());
+
+      if (isToolsBeEditedQuotation(proToolsDto.getId()) && "true".equals(sycQuoToosInfor)) {
+        proToolsInforDAO.sycToolsInfor(proToolsDto.getId());
+      }
+
       TReserveInforExample exam = new TReserveInforExample();
       exam.createCriteria().andToolsIdEqualTo(proToolsDto.getId());
 
@@ -395,6 +401,10 @@ public class ProToolsInforServiceImpl implements ProToolsInforService {
     //		paramMap.put("brandName", brandName);
 
     TProductBrandExample example = new TProductBrandExample();
+    if (brandName != null) {
+      example.createCriteria().andNameLike("%" + brandName.toUpperCase() + "%");
+    }
+
     return proBrandDao.selectByExample(example);//.getProBrandBySorce(paramMap);
   }
 

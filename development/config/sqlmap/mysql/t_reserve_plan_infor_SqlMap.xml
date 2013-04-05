@@ -40,17 +40,8 @@
     <result column="arrival_amount" jdbcType="DECIMAL" property="arrivalAmount" />
   </resultMap>
   <resultMap id="resultHasReserve" class="reservePlanDetailDto" extends="ibatorgenerated_BaseResultMap">
-    <result property="children" column="stock_order_detail_id" select="t_reserve_plan_infor.getReservePlanDetailChildren"/>
     <result property="reserveAmount" column="reserve_amount" jdbcType="DECIMAL"/>
-    <result property="orderAmount" column="order_amount" jdbcType="DECIMAL"/>
-    <result property="serialNumber" column="serial_number" jdbcType="DECIMAL"/>
-    <result property="projectCode" column="project_code" jdbcType="VARCHAR"/>
-    <result property="proSortName" column="pro_sort_name" jdbcType="VARCHAR"/>
-  </resultMap>
-  
-   <resultMap id="resultHasReservePlan" class="reservePlanDetailDto" extends="ibatorgenerated_BaseResultMap">
-    <result property="children" column="stock_order_detail_id" select="t_reserve_plan_infor.getReservePlanDetailChildren"/>
-    
+    <result property="reserveInforId" column="reserve_Infor_Id" jdbcType="VARCHAR"/>
   </resultMap>
   
    <resultMap id="resultMap" class="reservePlanDetailDto" extends="ibatorgenerated_BaseResultMap">
@@ -628,37 +619,21 @@
       arrival_amount = #arrivalAmount:DECIMAL#
     where id = #id:VARCHAR#
   </update>
-  <select id="getReservePlanDetailChildren" parameterClass="java.lang.String" resultClass="java.util.List" resultMap="resultHasReserve">
-  	select pl.id ,detail.id stock_order_detail_id,pl.order_infor_id,pl.order_code,pl.contract_id,pl.edit_date,pl.user_id,pl.user_name,pl.contract_code,
-  	pl.status,pl.plan_code,
-     detail.leaf,detail.contract_product_detail_id ,detail.stock_order_infor_id ,detail.brand_code ,detail.tools_id ,
-		detail.parent_tools_id ,
-		detail.serial_number,
-		detail.project_code,
-		detail.product_name ,detail.contract_amount,detail.order_amount,detail.product_unit, detail.price,
-		detail.product_money, detail.product_code,     
-		ifnull((select i.amount from t_reserve_infor i where i.product_code = detail.product_code),0) reserve_amount,
-	   ifnull(pl.plan_amount,0) plan_amount,detail.product_brand,pl.mat_stock_order_detail_id,
-	   '' pro_sort_name,pl.memo,pl.memo2,pl.main_id,pl.delivery_Date,out_amount, order_amount,arrival_amount
-      from t_order_detail detail left join t_reserve_plan_infor pl      
-		on pl.stock_order_detail_id = detail.id
-		where detail.parent_tools_id=#value# 
-  </select>
-  <select id="getReservePlanDetail" parameterClass="java.lang.String" resultClass="java.util.List" resultMap="resultHasReserve">
-  select pl.id,detail.id stock_order_detail_id,pl.order_infor_id,pl.order_code, detail.leaf,pl.contract_id,pl.edit_date,pl.user_id,pl.user_name,pl.contract_code,
-  pl.status,pl.plan_code,
-  detail.contract_product_detail_id ,detail.stock_order_infor_id ,detail.brand_code ,detail.tools_id ,
-		detail.parent_tools_id ,
-		detail.serial_number,
-		detail.project_code,
-		detail.product_name ,detail.contract_amount,detail.order_amount,detail.product_unit, detail.price,
-		detail.product_money, detail.product_code,detail.pro_sort_name,     
-		ifnull((select i.amount from t_reserve_infor i where i.product_code = detail.product_code),0) reserve_amount,
-	   ifnull(pl.plan_amount,0) plan_amount,detail.product_brand,pl.mat_stock_order_detail_id,pl.memo,pl.memo2,pl.main_id,pl.delivery_Date,pl.out_amount, pl.order_amount,pl.arrival_amount
-      from t_order_detail detail left join t_reserve_plan_infor pl      
-		on pl.stock_order_detail_id = detail.id
-		where detail.parent_tools_id = 'root' and detail.stock_order_infor_id=#value#
-		order by pro_sort_name,serial_number
+  
+  <select id="getReservePlanDetail" parameterClass="java.util.List" resultClass="java.util.List" resultMap="resultHasReserve">
+	SELECT
+	  pl.*,
+	  IFNULL(ri.amount,0) reserve_amount,
+	  ri.id reserve_Infor_Id 
+	FROM  t_reserve_plan_infor pl LEFT JOIN t_reserve_infor ri
+	ON pl.product_code = ri.product_code
+	WHERE  IFNULL(pl.plan_amount,0) - IFNULL(pl.out_amount,0) - IFNULL(pl.order_amount,0)
+	and pl.main_id in 
+    <iterate conjunction="," open="(" close=")">  
+            #value[]#  
+   </iterate>  
+	AND IFNULL(ri.amount,0) > 0
+	ORDER BY pl.id
   </select>
   
   <!-- 根据供应商ID得到储备计划列表 -->

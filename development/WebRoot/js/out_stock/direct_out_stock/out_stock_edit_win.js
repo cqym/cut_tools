@@ -426,7 +426,9 @@ Ext.ffc.DirectOutStockEditWindow = Ext.extend(Ext.Window, {
 				text : "保  存",
 				hidden : this.readOnly,
 				handler : function() {
-						var form = this.topPanel.simpleForm;//obj.ownerCt.ownerCt;
+					this.buttons[0].disabled = true;
+					var self = this;
+						var form = self.topPanel.simpleForm;//obj.ownerCt.ownerCt;
 						var currWin = form.ownerCt.ownerCt;
 						var formValues = form.getForm().getValues();
 						var gridStore = currWin.DirectOutStockEditCenterGridStore;
@@ -473,13 +475,14 @@ Ext.ffc.DirectOutStockEditWindow = Ext.extend(Ext.Window, {
 													break;
 											}
 										}
-										Ext.Msg.alert("消息", "有超量出库!");	
+										Ext.Msg.alert("消息", "有超量出库!");
+										self.buttons[0].disabled = false;
 									}
 								}
 						});
 				},scope : this
 			},{
-				text : "取 消",
+				text : "关  闭",
 				handler : function() {
 					this.close();
 				},scope : this

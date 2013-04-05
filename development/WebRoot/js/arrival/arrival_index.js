@@ -305,7 +305,8 @@ Ext.ftl.arrival.ArrivalListGrid = Ext.extend(Ext.grid.GridPanel, {
 				root : 'arrivalInfo',
 				fields : ['arrivalCode','supplierName','orderCode','contractCode','userName',
 					'deliveryDate','memo', 'orderInforId', 'id','editDateString','status','customerName',
-					'quotationCode','quotationId']
+					'quotationCode','quotationId','confirmUserName',
+					'confirmDate']
 			})
 		this.sm = new Ext.grid.CheckboxSelectionModel();//复选框
 		
@@ -357,6 +358,15 @@ Ext.ftl.arrival.ArrivalListGrid = Ext.extend(Ext.grid.GridPanel, {
 				{header : '客户名称' ,  dataIndex : 'customerName',sortable: true},
 				{header : '编制人', dataIndex : 'userName',sortable: true},
 				{header : '编制时间', dataIndex : 'editDateString',sortable: true},
+				{header : '确认人', dataIndex : 'confirmUserName',sortable: true},
+				{header : '确认时间', dataIndex : 'confirmDate',sortable: true,
+					renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){
+									if(!value) return '';
+									if(typeof(value) == 'string') return value;
+									else{
+										return new Date(value.time).format('Y-m-d');
+									}
+				}},
 				{header : '备注', dataIndex : 'memo',sortable: true},
 				
 				{header : 'orderId', dataIndex : 'orderInforId', hidden : true},

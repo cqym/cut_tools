@@ -322,7 +322,9 @@ public class ReservePlanServiceImp implements ReservePlanService {
     reservePlanInforDAO.deleteByExample(example);
     TReservePlanMain po = reservePlanMainDAO.selectByPrimaryKey(id);
     reservePlanMainDAO.deleteByPrimaryKey(id);
-    setOrderStatus(po.getOrderId());
+    if (po != null) {
+      setOrderStatus(po.getOrderId());
+    }
   }
 
   @SuppressWarnings("unchecked")

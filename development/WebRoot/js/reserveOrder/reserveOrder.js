@@ -224,9 +224,23 @@ Ext.apply(_config, getConfig());
 				iconCls:'icon-add',
 				listeners: {
 					'click' : function(){
-						var win = new supplierWin();
-						win.supplier_grid.store.load({params:{start:0,limit:15}});	
-						win.show();
+						var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+															//planIds:idsArr,
+															//brand:brand,
+															//leaf:1,
+															callBackMethod:function(suppid){
+															   win.close();
+																 loadOrderWindowByConsult({
+																 title:'产品储备订单',
+																 listGrid:cut_tools.reserve_order.index_grid,
+																 loadDataParam:{
+																 	    supplierId:suppid,
+																 	    loadActionMethod:'consultReserver'
+																 }
+														});					     
+													}
+													});
+										win.show();
 					}
 				}
 			},{
@@ -241,20 +255,15 @@ Ext.apply(_config, getConfig());
 						var arr = gridCheckSele.getSelections();
 						if(arr.length != 1){
 							Ext.Msg.show({title: '系统提示',msg: '请选择要查看的一条订单',width: 300,buttons: Ext.MessageBox.OK,icon: Ext.MessageBox.INFO});
-							return;}
-						/**订单信息**/
-						var store = new contractOrderStore();
-						store.baseParams.orderId = arr[0].id;
-						store.load();
-						/**订单修改页面**/
-						var win = new Ext.ls.reserveOrder.addWin({orderId:arr[0].id,detailFlag:true,URL:Ext.ls.reserveOrder.detailUrl});
-						/**设置窗口的标题**/
-						win.setTitle('查看产品储备订单明细');
-						/**将store的数据加载到页面**/
-						store.on('load',function(){
-								win.form.getForm().loadRecord(store.getAt(0));
-						},this);
-						win.show();
+							return;
+						}
+						loadOrderWindowById({
+							    title:'产品储备订单',
+							    SaveBtnHidden : true,
+							    btToolsHidden:true,
+							    auditButtonHiden:true,
+							    loadDataParam:{orderId:arr[0].id}
+							});
 					}
 		 		}
 			},{
@@ -300,19 +309,14 @@ Ext.apply(_config, getConfig());
 								});
 								return;
 							}
-							/**订单信息**/
-							var store = new contractOrderStore();
-							store.baseParams.orderId = record.get('id');
-							store.load();
-							/**订单修改页面**/
-							var win = new Ext.ls.reserveOrder.addWin({orderId:record.get('id'),supplierId:record.get('supplierId'),updateFlag:true,URL:Ext.ls.reserveOrder.updateUrl});
-							/**设置窗口的标题**/
-							win.setTitle('修改产品储备订单');
-							/**将store的数据加载到页面**/
-							store.on('load',function(){
-									win.form.getForm().loadRecord(store.getAt(0));
-							},this);
-							win.show();
+							loadOrderWindowById({
+							    title:'产品储备订单',
+							    SaveBtnHidden : false,
+							    btToolsHidden:false,
+							    auditButtonHiden:true,
+							    listGrid:cut_tools.reserve_order.index_grid,
+							    loadDataParam:{orderId:record.get('id')}
+							});
 					}
 				}
 			},{
@@ -548,9 +552,21 @@ Ext.apply(_config, getConfig());
 				iconCls:'icon-excel',
 				listeners: {
 					'click' : function(){	
-					var record  =  new Ext.data.Record(selectForm2.getForm().getValues());;
-							Ext.apply(record.data,{'userName':"",'ownContactPerson':"",'contractCode':"",'customerName':"",'quotationCode':""});
-						window.open(PATH + '/contractOrder/orderListExcel.do?orderType=2&searchForm='+Ext.util.JSON.encode(record));
+					  var values = selectForm2.getForm().getValues();
+						var para = [];
+						for(var i in values){
+							if(values[i] && values[i] != ''){
+						       para.push(i + "=" + values[i]);
+							}
+						}
+						para.push('orderType=2');
+					  new Ext.ffc.ExpTempleteSelectWindow({
+							templeteType:'32',
+							exportDataMethod:function(tempId){
+								window.open(PATH + "/dataExp/ExpTempleteAction.do?m=expertListExcel&" + para.join('&') + "&tempId=" + tempId);
+							}
+						}).show();
+						
 					}
 		 		}
 			},{

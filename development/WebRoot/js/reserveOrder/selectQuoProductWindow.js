@@ -52,7 +52,7 @@
 					{header:'品牌',width:100,dataIndex:'productBrand',sortable:true},
 					{header:'采购价格',width:80,dataIndex:'price',sortable:true},
 					{header:'来源',width:100,dataIndex:'productSource',sortable:true},
-		        	{header:'备注',width:180,dataIndex:'memo',sortable:true},
+		       {header:'备注',width:180,dataIndex:'memo',sortable:true},
 					{header:'父ID',width:100,hidden : true,dataIndex:'parentToolsId'},
 					{header:'工具ID',width:100,hidden : true,dataIndex:'toolsId'},
 					{header:'叶子节点',width:100,hidden : true,dataIndex:'leaf'},

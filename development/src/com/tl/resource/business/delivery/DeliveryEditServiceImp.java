@@ -96,7 +96,8 @@ public class DeliveryEditServiceImp implements DeliveryEditService {
       para.put("quotationCode", dto.getQuotationCode());
       quotationProductDetailDAO.updateQuotationDetailDeliveryAmount(para);
     }
-    if (DeliveryInforDto.DELIVERY_TYPE_SCHEDULE.equals(dto.getDeliveryType().toString())) {
+    if (DeliveryInforDto.DELIVERY_TYPE_SCHEDULE.equals(dto.getDeliveryType().toString())
+      || DeliveryInforDto.DELIVERY_TYPE_TRY.equals(dto.getDeliveryType().toString())) {
       contractProductDetailDAO.sycContractDeliveryDetail(dto.getQuotationCode());
     }
   }
@@ -114,6 +115,7 @@ public class DeliveryEditServiceImp implements DeliveryEditService {
     dto.setDeliveryType(0);
     dto.setContactPerson(po.getOwnContactPerson());
     dto.setDeliveryAddressType(po.getDeliveryAddressType());
+    dto.setTrafficMode(po.getTrafficMode());
     //initCustomerProperty(dto, po.getCustomerCode());
     dto.setCustomerFax(po.getCustomerFax());
     dto.setCustomerPhone(po.getCustomerPhone());
@@ -210,6 +212,7 @@ public class DeliveryEditServiceImp implements DeliveryEditService {
       TContractInfor po = contractInforDAO.selectByPrimaryKey(dto.getContractInforId());
       if (po != null) {
         dto.setDeliveryAddressType(po.getDeliveryAddressType());
+        dto.setTrafficMode(po.getTrafficMode());
       }
     } catch (IllegalAccessException e) {
       // TODO Auto-generated catch block

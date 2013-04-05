@@ -118,18 +118,19 @@ Ext.ls.scheduleSelfOrder.setupDate = function(btn,e)
 						{header:'',width:100,dataIndex:''},
 						{header:'加工订单ID',width:0,dataIndex:'id',hidden:true},
 						{header:'报价单详细ID',width:0,dataIndex:'contractProductDetailId',hidden:true},
+						{header:'项目',width:100,dataIndex:'projectCode',sortable:true},
 						{header:'序号',width:100,dataIndex:'serialNumber',disEnableEdit:true},
-						{header:'工具牌号',width:190,dataIndex:'brandCode',disEnableEdit:true},
 						{header:'货品编号',width:100,dataIndex:'productCode',disEnableEdit:true},
 						{header:'名称',width:100,dataIndex:'productName',disEnableEdit:true},
-						{header:'价格',width:70,dataIndex:'price'},
+						{header:'牌号',width:190,dataIndex:'brandCode',disEnableEdit:true},
 						{header:'计量单位',width:60,dataIndex:'productUnit',disEnableEdit:true},
 						{header:'报价单数量',width:70,dataIndex:'contractAmount',disEnableEdit:true},
-						{header:'剩余采购数量',width:80,dataIndex:'remainAmount',disEnableEdit:true},
+						{header:'报价剩余数量',width:80,dataIndex:'remainAmount',disEnableEdit:true},
 						{header:'采购数量',width:70,dataIndex:'orderAmount'},
-						{header:'货品金额',width:80,dataIndex:'productMoney',disEnableEdit:true},
-						{header:'合同交货期',width:80,dataIndex:'contractDeliveryDate',disEnableEdit:true},
-						{header:'交货日期',width:100,dataIndex:'deliveryDate',disEnableEdit:true,
+						{header:'采购单价',width:70,dataIndex:'price'},
+						{header:'小计金额',width:80,dataIndex:'productMoney',disEnableEdit:true},
+						{header:'品牌',width:100,dataIndex:'productBrand',disEnableEdit:true},
+						{header:'采购交货日期',width:100,dataIndex:'deliveryDate',disEnableEdit:true,
 								listeners : {
 									'click' : function() {
 										try{
@@ -151,11 +152,11 @@ Ext.ls.scheduleSelfOrder.setupDate = function(btn,e)
 									}
 							}
 						},
-						{header:'货品编号',width:100,dataIndex:'productCode',disEnableEdit:true},
-						{header:'品牌',width:100,dataIndex:'productBrand',disEnableEdit:true},
-						{header:'备注',width:100,dataIndex:'memo',disEnableEdit:false},
+						
+						{header:'报价交货期',width:80,dataIndex:'contractDeliveryDate',disEnableEdit:true},
+						{header:'备注1',width:100,dataIndex:'memo',disEnableEdit:false},
 						{header:'备注2',width:100,dataIndex:'memo2',disEnableEdit:false},
-						{header:'附件',width:100,dataIndex:'fileCount', renderer : function(colValue, node, data) {
+						{header:'客户确认方案图',width:100,dataIndex:'fileCount', renderer : function(colValue, node, data) {
 							if(data.parentToolsId != 'root')
 									return;
 								if(colValue > 0) {
@@ -509,7 +510,7 @@ Ext.ffc.contractOrderDetailUpdate = function(obj,ed,value,oldValue){
   		}
 		var remian_amount = ed.editNode.cols['remainAmount']*1;
 		if(ed.editColIndex == "orderAmount"){
-			if(orderAmount>remian_amount) {
+			if(orderAmount - oldValue > remian_amount) {
 					Ext.MessageBox.alert('系统提示', '采购数量超出需采购数量!');
 					ed.editNode.cols['orderAmount'] = oldValue;
 					ed.editNode.attributes['orderAmount'] = oldValue;

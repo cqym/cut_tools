@@ -6,13 +6,16 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.tl.common.util.GenerateSerial;
 import com.tl.common.util.PaginationSupport;
@@ -20,15 +23,21 @@ import com.tl.resource.business.dto.OutStockDetailDto;
 import com.tl.resource.business.dto.OutStockInforDto;
 import com.tl.resource.business.dto.UserDto;
 import com.tl.resource.dao.TAccountsInforDAO;
+import com.tl.resource.dao.TMatReserveInforDAO;
 import com.tl.resource.dao.TOutStockDetailDAO;
 import com.tl.resource.dao.TOutStockInforDAO;
 import com.tl.resource.dao.TReserveInforDAO;
+import com.tl.resource.dao.TReservePlanInforDAO;
+import com.tl.resource.dao.TReservePlanMainDAO;
 import com.tl.resource.dao.pojo.TAccountsInfor;
 import com.tl.resource.dao.pojo.TAccountsInforExample;
 import com.tl.resource.dao.pojo.TOutStockDetail;
 import com.tl.resource.dao.pojo.TOutStockDetailExample;
 import com.tl.resource.dao.pojo.TOutStockInfor;
 import com.tl.resource.dao.pojo.TReserveInfor;
+import com.tl.resource.dao.pojo.TReservePlanInfor;
+import com.tl.resource.dao.pojo.TReservePlanInforExample;
+import com.tl.resource.dao.pojo.TReservePlanMain;
 
 public class MaterialOutStockEditServiceImp implements OutStockService {
   private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -40,6 +49,12 @@ public class MaterialOutStockEditServiceImp implements OutStockService {
   private TAccountsInforDAO accountsInforDAO;
 
   private TReserveInforDAO reserveInforDAO;
+
+  private TMatReserveInforDAO matReserveInforDAO;
+
+  private TReservePlanInforDAO reservePlanInforDAO;
+
+  private TReservePlanMainDAO reservePlanMainDAO;
 
   @Override
   public void addOutStockInfor(OutStockInforDto dto) throws Exception {
@@ -60,7 +75,7 @@ public class MaterialOutStockEditServiceImp implements OutStockService {
     try {
       for (Iterator iterator = list.iterator(); iterator.hasNext();) {
         OutStockDetailDto outStockDetailDto = (OutStockDetailDto) iterator.next();
-        if (outStockDetailDto.getReserveInforId() == null || "".equals(outStockDetailDto.getReserveInforId())) {
+        if (StringUtils.isEmpty(outStockDetailDto.getReserveInforId())) {
           continue;
         }
         TReserveInfor reserveInRec = new TReserveInfor();
@@ -86,7 +101,7 @@ public class MaterialOutStockEditServiceImp implements OutStockService {
         accountRecord.setInvoiceCode(record.getOutStockCode());
         accountRecord.setCreateAccountTime(new Date());
         accountsInforDAO.insert(accountRecord);
-
+        //
         accountRecord = new TAccountsInfor();
         BeanUtils.copyProperties(accountRecord, outStockDetailDto);
         accountRecord.setId(GenerateSerial.getUUID());
@@ -94,20 +109,24 @@ public class MaterialOutStockEditServiceImp implements OutStockService {
         accountRecord.setAccountType(5);
         accountRecord.setInvoiceCode(record.getOutStockCode());
         accountRecord.setCreateAccountTime(new Date());
-        accountRecord.setAmount(BigDecimal.ZERO);
+        accountRecord.setAmount(outStockDetailDto.getMatOutAmount());
+        accountRecord.setProductCode(outStockDetailDto.getProductCode());
         accountsInforDAO.insert(accountRecord);
 
-        TAccountsInfor accountRecordt = new TAccountsInfor();
-        accountRecordt.setAmount(outStockDetailDto.getMatOutAmount());
-        accountRecordt.setProductCode(outStockDetailDto.getProductCode());
-        accountRecordt.setInvoiceId(outStockDetailDto.getId());
-        int rowcount = accountsInforDAO.updateMatAmountByInvoiceId(accountRecordt);
-        if (rowcount == 0) {
-          BigDecimal tresult = accountsInforDAO.selectMatOutAmountByProductCode(outStockDetailDto.getProductCode());
-          outStockDetailDto.setMatReserveAmount(tresult);
-          throw new RuntimeException(JSONObject.fromObject(outStockDetailDto).toString());//如果修改材料账页数量失败，则返回当前材料库存数量
-        }
+        // matReserveInforDAO.updateByPrimaryKey(record);
+        //        TAccountsInfor accountRecordt = new TAccountsInfor();
+        //        accountRecordt.setAmount(outStockDetailDto.getMatOutAmount());
+        //        accountRecordt.setProductCode(outStockDetailDto.getProductCode());
+        //        accountRecordt.setInvoiceId(outStockDetailDto.getId());
+        //        int rowcount = accountsInforDAO.updateMatAmountByInvoiceId(accountRecordt);
+        //        if (rowcount == 0) {
+        //          BigDecimal tresult = accountsInforDAO.selectMatOutAmountByProductCode(outStockDetailDto.getProductCode());
+        //          outStockDetailDto.setMatReserveAmount(tresult);
+        //          throw new RuntimeException(JSONObject.fromObject(outStockDetailDto).toString());//如果修改材料账页数量失败，则返回当前材料库存数量
+        //        }
+        updateReservePlan(outStockDetailDto);
       }
+      updateReserveMain(dto);
     } catch (IllegalAccessException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -115,6 +134,36 @@ public class MaterialOutStockEditServiceImp implements OutStockService {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+  }
+
+  private void updateReserveMain(OutStockInforDto dto) {
+    Set<String> mainIds = new HashSet<String>();
+    for (OutStockDetailDto d : dto.getOutStockDetails()) {//获取所有mainId
+      TReservePlanInfor plan = reservePlanInforDAO.selectByPrimaryKey(d.getContractProductDetailId());
+      if (plan != null) {
+        mainIds.add(plan.getMainId());
+      }
+    }
+    for (String mainId : mainIds) {//查每一个mainId对应的明细，是否有状态为2的，如果没有，则修改主表为4
+      TReservePlanInforExample example = new TReservePlanInforExample();
+      example.createCriteria().andIdEqualTo(mainId).andStatusEqualTo(2);
+      int cnt = reservePlanInforDAO.countByExample(example);
+      if (cnt == 0) {
+        TReservePlanMain record = new TReservePlanMain();
+        record.setId(mainId);
+        record.setStatus(4);
+        reservePlanMainDAO.updateByPrimaryKeySelective(record);
+      }
+    }
+  }
+
+  private void updateReservePlan(OutStockDetailDto outStockDetailDto) {
+    TReservePlanInfor plan = reservePlanInforDAO.selectByPrimaryKey(outStockDetailDto.getContractProductDetailId());
+    plan.setOutAmount((outStockDetailDto.getAmount()).add(outStockDetailDto.getMatOutAmount()));
+    if (plan.getOutAmount().add(plan.getOrderAmount()).compareTo(plan.getPlanAmount()) >= 0) {
+      plan.setStatus(4);
+    }
+    reservePlanInforDAO.updateByPrimaryKey(plan);
   }
 
   @Override
@@ -185,18 +234,6 @@ public class MaterialOutStockEditServiceImp implements OutStockService {
 
   @Override
   public OutStockInforDto getOutStockInforDtoById(String id) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public List<OutStockDetailDto> getWillOutStockContractDetail(String contractId) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public List<OutStockDetailDto> getWillOutStockQuotationDetail(String quotationInforId) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -344,6 +381,42 @@ public class MaterialOutStockEditServiceImp implements OutStockService {
 
   public void setReserveInforDAO(TReserveInforDAO reserveInforDAO) {
     this.reserveInforDAO = reserveInforDAO;
+  }
+
+  @Override
+  public List<OutStockDetailDto> getWillOutStockContractDetail(String contractId, String leaf) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<OutStockDetailDto> getWillOutStockQuotationDetail(String quotationInforId, String leaf) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public TMatReserveInforDAO getMatReserveInforDAO() {
+    return matReserveInforDAO;
+  }
+
+  public void setMatReserveInforDAO(TMatReserveInforDAO matReserveInforDAO) {
+    this.matReserveInforDAO = matReserveInforDAO;
+  }
+
+  public TReservePlanInforDAO getReservePlanInforDAO() {
+    return reservePlanInforDAO;
+  }
+
+  public void setReservePlanInforDAO(TReservePlanInforDAO reservePlanInforDAO) {
+    this.reservePlanInforDAO = reservePlanInforDAO;
+  }
+
+  public TReservePlanMainDAO getReservePlanMainDAO() {
+    return reservePlanMainDAO;
+  }
+
+  public void setReservePlanMainDAO(TReservePlanMainDAO reservePlanMainDAO) {
+    this.reservePlanMainDAO = reservePlanMainDAO;
   }
 
 }

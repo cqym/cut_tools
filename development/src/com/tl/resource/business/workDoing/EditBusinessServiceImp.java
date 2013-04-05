@@ -11,6 +11,7 @@ import com.tl.resource.business.dto.BusinessInforDto;
 import com.tl.resource.business.dto.ContractInforDto;
 import com.tl.resource.business.dto.LoginInforDto;
 import com.tl.resource.business.dto.ModulesDto;
+import com.tl.resource.business.dto.QuotationDto;
 import com.tl.resource.dao.TContractInforDAO;
 import com.tl.resource.dao.TModulesDefDAO;
 import com.tl.resource.dao.TOrderInforDAO;
@@ -386,8 +387,11 @@ public class EditBusinessServiceImp implements EditBusinessService {
     }
     if (userIdList.size() == 0)
       return null;
+    List<Integer> tcList = new ArrayList<Integer>();
+    tcList.add(QuotationDto.TRANSFER_CONTRACT_NEVER);
+    tcList.add(QuotationDto.TRANSFER_CONTRACT_PART);
     TQuotationInforExample example = new TQuotationInforExample();
-    example.createCriteria().andStatusEqualTo(4).andEditorIdIn(userIdList);
+    example.createCriteria().andStatusEqualTo(4).andTransferContractIn(tcList).andEditorIdIn(userIdList);
     List<TQuotationInfor> quolist = quotationInforDAO.selectByExample(example);
     List<BusinessInforDto> blist = new ArrayList<BusinessInforDto>();
     for (Iterator iterator = quolist.iterator(); iterator.hasNext();) {
@@ -427,8 +431,11 @@ public class EditBusinessServiceImp implements EditBusinessService {
     }
     if (userIdList.size() == 0)
       return 0;
+    List<Integer> tcList = new ArrayList<Integer>();
+    tcList.add(QuotationDto.TRANSFER_CONTRACT_NEVER);
+    tcList.add(QuotationDto.TRANSFER_CONTRACT_PART);
     TQuotationInforExample example = new TQuotationInforExample();
-    example.createCriteria().andStatusEqualTo(4).andEditorIdIn(userIdList);
+    example.createCriteria().andStatusEqualTo(4).andTransferContractIn(tcList).andEditorIdIn(userIdList);
     int count = quotationInforDAO.countByExample(example);
     return count;
   }

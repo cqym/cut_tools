@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.tl.common.util.GenerateSerial;
 import com.tl.common.util.PaginationSupport;
@@ -95,35 +96,7 @@ public class ContractEditServiceImp implements ContractEditService {
       List<ContractProductSortDto> sortList = dto.getContractProductSorts();
       for (Iterator iterator = sortList.iterator(); iterator.hasNext();) {
         ContractProductSortDto contractProductSortDto = (ContractProductSortDto) iterator.next();
-
-        TQuotationInforExample quoExp = new TQuotationInforExample();
-        quoExp.createCriteria().andQuotationCodeEqualTo(contractProductSortDto.getName());
-        List<TQuotationInfor> quos = quotationInforDAO.selectByExample(quoExp);
-        TQuotationInfor quo = new TQuotationInfor();
-        if (quos.size() > 0) {
-          quo = quos.get(0);
-        }
-        if (ContractInforDto.CONTRACT_TYPE_GENERAL.equals(dto.getContractType())) {//如果是一般报价单生成合同
-          TQuotationInfor quoInfor = new TQuotationInfor();
-          quoInfor.setId(quo.getId());
-          quoInfor.setContractInforId(conInfor.getId());
-          quoInfor.setStatus(5);
-          quoInfor.setBigDecimal2Null();
-          quotationInforDAO.updateByPrimaryKeySelective(quoInfor);//设定报价单状态，报价单建立关联关系
-        } else if (exeFlag) {//如果是项目报价单生成合同,exeFlag用来控制只执行一次
-          exeFlag = false;
-          TQuotationProjectSortInfor qpsi = quotationProjectSortInforDAO.selectByPrimaryKey(contractProductSortDto.getId());
-          if (qpsi != null) {
-            TQuotationInfor quoInfor = new TQuotationInfor();
-            quoInfor.setId(qpsi.getQuotationInforId());
-            quoInfor.setContractInforId(conInfor.getId());
-            quoInfor.setStatus(5);
-            quoInfor.setBigDecimal2Null();
-            quotationInforDAO.updateByPrimaryKeySelective(quoInfor);
-          }
-        }
         TContractProjectSortInfor sortpo = new TContractProjectSortInfor();
-        //sortpo.setId(GenerateSerial.getUUID());
         sortpo.setContractInforId(conInfor.getId());
         sortpo.setId(contractProductSortDto.getId());
         sortpo.setProSortName(contractProductSortDto.getName());
@@ -142,6 +115,7 @@ public class ContractEditServiceImp implements ContractEditService {
         }
       }
 
+      changeQuotationStatus(conInfor.getId(), conInfor.getContractType());
     } catch (IllegalAccessException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -150,6 +124,59 @@ public class ContractEditServiceImp implements ContractEditService {
       e.printStackTrace();
     }
 
+  }
+
+  /**
+   * 非项目报价单转的合同，修改对应报价单状态
+   * @param contractId
+   */
+  private void changeNoProjConsQuotaionTransferStatus(String contractId) {
+    List<TContractProjectSortInfor> sortList = getContarctSortByContarctId(contractId);
+    for (Iterator iterator = sortList.iterator(); iterator.hasNext();) {
+      TContractProjectSortInfor sortInfor = (TContractProjectSortInfor) iterator.next();
+      TQuotationInforExample example = new TQuotationInforExample();
+      example.createCriteria().andQuotationCodeEqualTo(sortInfor.getProSortName());
+      List<TQuotationInfor> quoInforList = quotationInforDAO.selectByExample(example);
+      if (quoInforList.size() > 0) {
+        changeQuotationTransferContractStataus(contractId, quoInforList.get(0).getId(), quoInforList.get(0).getQuotationType());
+      }
+    }
+  }
+
+  /**
+   * 获取合同的产品分类数据，根据合同id
+   * @param contractId
+   * @return
+   */
+  private List<TContractProjectSortInfor> getContarctSortByContarctId(String contractId) {
+    TContractProjectSortInforExample example = new TContractProjectSortInforExample();
+    example.createCriteria().andContractInforIdEqualTo(contractId);
+    return contractProjectSortInforDAO.selectByExample(example);
+  }
+
+  private void changeQuotationTransferContractStataus(String contractId, String quoInforId, Integer quoType) {
+    if (quoType.intValue() == Integer.valueOf(QuotationDto.QUO_TYPE_GENERAL)) {
+      updateTransferContract(quoInforId, QuotationDto.TRANSFER_CONTRACT_ALL, contractId);
+      return;
+    }
+    Integer quoDetailCount = quotationProductDetailDAO.getYuDingQuoDetail2CreateContractCount(quoInforId);
+    TQuotationInfor quoInfor = new TQuotationInfor();
+    quoInfor.setId(quoInforId);
+    quoInfor.setContractInforId(contractId);
+    if (quoDetailCount > 0) {//如果有 则转了一部分
+      updateTransferContract(quoInforId, QuotationDto.TRANSFER_CONTRACT_PART, contractId);
+    } else {//如果没有则全转了
+      updateTransferContract(quoInforId, QuotationDto.TRANSFER_CONTRACT_ALL, contractId);
+    }
+  }
+
+  private void updateTransferContract(String quoInforId, Integer transfer, String contractId) {
+    TQuotationInfor quoInfor = new TQuotationInfor();
+    quoInfor.setId(quoInforId);
+    quoInfor.setContractInforId(contractId);
+    quoInfor.setTransferContract(transfer);
+    quoInfor.setBigDecimal2Null();
+    quotationInforDAO.updateByPrimaryKeySelective(quoInfor);//设定报价单状态，报价单建立关联关系
   }
 
   private void saveProductsChildren(String conid, String conSortid, List<ContractProductDetailDto> children) throws IllegalAccessException,
@@ -197,6 +224,7 @@ public class ContractEditServiceImp implements ContractEditService {
       conInfor.setCustomerPhone(tqinfor.getCustomerPhone());
       conInfor.setCusContactPerson(tqinfor.getCusContactPerson());
       conInfor.setCurrencyId(tqinfor.getCurrency());
+      conInfor.setExemplarInvoice(tqinfor.getExemplarInvoice());
       //conInfor.setMemo(tqinfor.getMemo());
     }
     TQuotationInforExample example = new TQuotationInforExample();
@@ -247,6 +275,9 @@ public class ContractEditServiceImp implements ContractEditService {
         if (quotationDetailDto.isLeaf()) {
           cpdd.setLeaf(1);
         }
+        if (StringUtils.isNumeric(quotationDetailDto.getSlaveFile())) {
+          cpdd.setFileCount(Integer.valueOf(quotationDetailDto.getSlaveFile()));
+        }
         cpddtos.add(cpdd);
         if (quotationDetailDto.getChildren() != null && quotationDetailDto.getChildren().size() > 0) {
           cpdd.setChildren(convertToContractProductDetailDtos(quotationDetailDto.getChildren()));
@@ -285,7 +316,7 @@ public class ContractEditServiceImp implements ContractEditService {
     conInfor.setSignAddress("无");
     conInfor.setMemo(qinfor.getMemo());
     conInfor.setClosingAccountMode(qinfor.getPaymentCondition());
-
+    conInfor.setExemplarInvoice(qinfor.getExemplarInvoice());
     TCustomersInforExample custExample = new TCustomersInforExample();
     custExample.createCriteria().andCustomerCodeEqualTo(qinfor.getCustomerCode());
     List<TCustomersInfor> cusList = customersInforDAO.selectByExample(custExample);
@@ -324,7 +355,8 @@ public class ContractEditServiceImp implements ContractEditService {
     for (Iterator iterator = list.iterator(); iterator.hasNext();) {
       TQuotationInfor quotationInfor = (TQuotationInfor) iterator.next();
       quotationInfor.setContractInforId(null);
-      quotationInfor.setStatus(2);
+      //quotationInfor.setStatus(2);
+      quotationInfor.setTransferContract(QuotationDto.TRANSFER_CONTRACT_NEVER);
       quotationInforDAO.updateByPrimaryKey(quotationInfor);//删除合同后，将对应报价单状态置为 ’提交合同‘，将合同号设置为空
     }
 
@@ -396,82 +428,98 @@ public class ContractEditServiceImp implements ContractEditService {
       contractInforDAO.updateByPrimaryKeySelective(po);
 
       List<ContractProductSortDto> sortList = dto.getContractProductSorts();
-      TContractProjectSortInforExample sortEx = new TContractProjectSortInforExample();
-      sortEx.createCriteria().andContractInforIdEqualTo(dto.getId());
-      List<TContractProjectSortInfor> sortpoList = contractProjectSortInforDAO.selectByExample(sortEx);//得到当前合同，所有分类
-      for (Iterator iterator = sortpoList.iterator(); iterator.hasNext();) {
-        TContractProjectSortInfor contractProjectSortInfor = (TContractProjectSortInfor) iterator.next();
-        boolean flag = false;
-        for (Iterator iterator2 = sortList.iterator(); iterator2.hasNext();) {
-          ContractProductSortDto contractProductSortDto = (ContractProductSortDto) iterator2.next();
-          if (contractProjectSortInfor.getId().equals(contractProductSortDto.getId())) {
-            flag = true;
-            break;
-          }
-        }
-        if (!flag) {//如果在当前提交数据中，找不到库中的分类，则表明将其删除
-          TContractProductDetailExample sortExp = new TContractProductDetailExample();
-          sortExp.createCriteria().andContractProjectSortIdEqualTo(contractProjectSortInfor.getId());
-          contractProductDetailDAO.deleteByExample(sortExp);
-          contractProjectSortInforDAO.deleteByPrimaryKey(contractProjectSortInfor.getId());
-        }
-      }
+      checkContractSortAndDelete(dto, sortList);//删除一在界面删除的分类
+      checkInertAndUpdate(dto, sortList);//修改或保存
 
-      for (Iterator iterator = sortList.iterator(); iterator.hasNext();) {
-        ContractProductSortDto contractProductSortDto = (ContractProductSortDto) iterator.next();
-        TContractProjectSortInforExample sortExp = new TContractProjectSortInforExample();
-        sortExp.createCriteria().andIdEqualTo(contractProductSortDto.getId());
-        int count = contractProjectSortInforDAO.countByExample(sortExp);
-        if (count > 0) {//如果原先就有，则修改
-          List<ContractProductDetailDto> detailList = contractProductSortDto.getConProductDetail();
-          for (Iterator iterator2 = detailList.iterator(); iterator2.hasNext();) {
-            ContractProductDetailDto contractProductDetailDto = (ContractProductDetailDto) iterator2.next();
-            TContractProductDetail record = new TContractProductDetail();
-            BeanUtils.copyProperties(record, contractProductDetailDto);
-            contractProductDetailDAO.updateByPrimaryKeySelective(record);
-
-            //如果当前合同明细数量发生变化，修改对应订单明细的合同数量
-            TOrderDetailExample orderDeEx = new TOrderDetailExample();
-            orderDeEx.createCriteria().andContractProductDetailIdEqualTo(record.getId()).andContractAmountNotEqualTo(record.getAmount());
-            TOrderDetail orderDe = new TOrderDetail();
-            orderDe.setContractAmount(record.getAmount());
-            orderDetailDAO.updateByExampleSelective(orderDe, orderDeEx);
-          }
-        } else {//如果原先没有，则新增
-          TQuotationInfor quoInfor = new TQuotationInfor();
-          quoInfor.setId(contractProductSortDto.getId());
-          quoInfor.setContractInforId(dto.getId());
-          quoInfor.setStatus(5);
-          quoInfor.setBigDecimal2Null();
-          quotationInforDAO.updateByPrimaryKeySelective(quoInfor);//设定报价单状态，报价单建立关联关系
-
-          TContractProjectSortInfor sortpo = new TContractProjectSortInfor();
-          //sortpo.setId(GenerateSerial.getUUID());
-          sortpo.setContractInforId(dto.getId());
-          sortpo.setId(contractProductSortDto.getId());
-          sortpo.setProSortName(contractProductSortDto.getName());
-          contractProjectSortInforDAO.insert(sortpo);
-          List<ContractProductDetailDto> deList = contractProductSortDto.getConProductDetail();
-          for (Iterator iterator2 = deList.iterator(); iterator2.hasNext();) {
-            ContractProductDetailDto contractProductDetailDto = (ContractProductDetailDto) iterator2.next();
-            contractProductDetailDto.setContractInforId(dto.getId());
-            contractProductDetailDto.setContractProjectSortId(sortpo.getId());
-            TContractProductDetail detPo = new TContractProductDetail();
-            BeanUtils.copyProperties(detPo, contractProductDetailDto);
-            contractProductDetailDAO.insert(detPo);
-            if (contractProductDetailDto.getLeaf() == 0) {
-              saveProductsChildren(dto.getId(), sortpo.getId(), contractProductDetailDto.getChildren());
-            }
-          }
-        }
-      }
-
+      changeQuotationStatus(dto.getId(), dto.getContractType());
     } catch (IllegalAccessException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (InvocationTargetException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    }
+  }
+
+  private void checkInertAndUpdate(ContractInforDto dto, List<ContractProductSortDto> sortList) throws IllegalAccessException,
+    InvocationTargetException {
+    for (Iterator iterator = sortList.iterator(); iterator.hasNext();) {
+      ContractProductSortDto contractProductSortDto = (ContractProductSortDto) iterator.next();
+      TContractProjectSortInforExample sortExp = new TContractProjectSortInforExample();
+      sortExp.createCriteria().andIdEqualTo(contractProductSortDto.getId());
+      int count = contractProjectSortInforDAO.countByExample(sortExp);
+      if (count > 0) {//如果原先就有，则修改
+        List<ContractProductDetailDto> detailList = contractProductSortDto.getConProductDetail();
+        for (Iterator iterator2 = detailList.iterator(); iterator2.hasNext();) {
+          ContractProductDetailDto contractProductDetailDto = (ContractProductDetailDto) iterator2.next();
+          TContractProductDetail record = new TContractProductDetail();
+          BeanUtils.copyProperties(record, contractProductDetailDto);
+          contractProductDetailDAO.updateByPrimaryKeySelective(record);
+
+          //如果当前合同明细数量发生变化，修改对应订单明细的合同数量
+          TOrderDetailExample orderDeEx = new TOrderDetailExample();
+          orderDeEx.createCriteria().andContractProductDetailIdEqualTo(record.getId()).andContractAmountNotEqualTo(record.getAmount());
+          TOrderDetail orderDe = new TOrderDetail();
+          orderDe.setContractAmount(record.getAmount());
+          orderDetailDAO.updateByExampleSelective(orderDe, orderDeEx);
+        }
+      } else {//如果原先没有，则新增
+        TContractProjectSortInfor sortpo = new TContractProjectSortInfor();
+        sortpo.setContractInforId(dto.getId());
+        sortpo.setId(contractProductSortDto.getId());
+        sortpo.setProSortName(contractProductSortDto.getName());
+        contractProjectSortInforDAO.insert(sortpo);
+        List<ContractProductDetailDto> deList = contractProductSortDto.getConProductDetail();
+        for (Iterator iterator2 = deList.iterator(); iterator2.hasNext();) {
+          ContractProductDetailDto contractProductDetailDto = (ContractProductDetailDto) iterator2.next();
+          contractProductDetailDto.setContractInforId(dto.getId());
+          contractProductDetailDto.setContractProjectSortId(sortpo.getId());
+          TContractProductDetail detPo = new TContractProductDetail();
+          BeanUtils.copyProperties(detPo, contractProductDetailDto);
+          contractProductDetailDAO.insert(detPo);
+          if (contractProductDetailDto.getLeaf() == 0) {
+            saveProductsChildren(dto.getId(), sortpo.getId(), contractProductDetailDto.getChildren());
+          }
+        }
+
+      }
+    }
+  }
+
+  private void checkContractSortAndDelete(ContractInforDto dto, List<ContractProductSortDto> sortList) {
+    TContractProjectSortInforExample sortEx = new TContractProjectSortInforExample();
+    sortEx.createCriteria().andContractInforIdEqualTo(dto.getId());
+    List<TContractProjectSortInfor> sortpoList = contractProjectSortInforDAO.selectByExample(sortEx);//得到当前合同，所有分类
+    for (Iterator iterator = sortpoList.iterator(); iterator.hasNext();) {
+      TContractProjectSortInfor contractProjectSortInfor = (TContractProjectSortInfor) iterator.next();
+      boolean flag = false;
+      for (Iterator iterator2 = sortList.iterator(); iterator2.hasNext();) {
+        ContractProductSortDto contractProductSortDto = (ContractProductSortDto) iterator2.next();
+        if (contractProjectSortInfor.getId().equals(contractProductSortDto.getId())) {
+          flag = true;
+          break;
+        }
+      }
+      if (!flag) {//如果在当前提交数据中，找不到库中的分类，则表明将其删除
+        TContractProductDetailExample sortExp = new TContractProductDetailExample();
+        sortExp.createCriteria().andContractProjectSortIdEqualTo(contractProjectSortInfor.getId());
+        contractProductDetailDAO.deleteByExample(sortExp);
+        contractProjectSortInforDAO.deleteByPrimaryKey(contractProjectSortInfor.getId());
+      }
+    }
+  }
+
+  /**
+   * 修改合同所对应报价单的 转合同状态
+   * @param dto
+   */
+  private void changeQuotationStatus(String contractId, Integer contractType) {
+    if (ContractInforDto.CONTRACT_TYPE_PROJECT.equals(contractType)) {
+      List<TContractProjectSortInfor> sortsList = this.getContarctSortByContarctId(contractId);
+      TQuotationProjectSortInfor qpsi = quotationProjectSortInforDAO.selectByPrimaryKey(sortsList.get(0).getId());
+      updateTransferContract(qpsi.getQuotationInforId(), QuotationDto.TRANSFER_CONTRACT_ALL, contractId);
+    } else {
+      changeNoProjConsQuotaionTransferStatus(contractId);
     }
   }
 
@@ -587,7 +635,8 @@ public class ContractEditServiceImp implements ContractEditService {
       List quolist = quotationInforDAO.selectByExample(quoExp);
       for (Iterator iterator2 = quolist.iterator(); iterator2.hasNext();) {
         TQuotationInfor quo = (TQuotationInfor) iterator2.next();
-        if (QuotationDto.QUO_TYPE_SCHEDULE.equals(quo.getQuotationType().toString())) {
+        if (QuotationDto.QUO_TYPE_SCHEDULE.equals(quo.getQuotationType().toString())
+          || QuotationDto.QUO_TYPE_TRY.equals(quo.getQuotationType().toString())) {
           contractProductDetailDAO.sycContractOrderDetail(quo.getQuotationCode());/*将预定报价单的后续业务数量同步过来*/
           contractProductDetailDAO.sycContractOutDetail(quo.getQuotationCode());
           contractProductDetailDAO.sycContractDeliveryDetail(quo.getQuotationCode());
@@ -754,6 +803,9 @@ public class ContractEditServiceImp implements ContractEditService {
     record.setOverallRebate(overallRebate);
     record.setFinalMoney(record.getTotalMoney().multiply(new BigDecimal("100").subtract(overallRebate).divide(new BigDecimal("100"))));
     contractInforDAO.updateByPrimaryKey(record);
+
+    changeQuotationStatus(contractId, record.getContractType());
+
   }
 
   @Override
@@ -797,6 +849,7 @@ public class ContractEditServiceImp implements ContractEditService {
       conInfor.setSellerName(tqinfor.getSellerName());
       conInfor.setTaxRate(contractTaxRate != null ? contractTaxRate : tqinfor.getTaxRate());
       conInfor.setClosingAccountMode(tqinfor.getPaymentCondition());
+      conInfor.setExemplarInvoice(tqinfor.getExemplarInvoice());
     }
     TQuotationInforExample example = new TQuotationInforExample();
     example.createCriteria().andIdIn(idss);

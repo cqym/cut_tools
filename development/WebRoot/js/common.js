@@ -151,13 +151,14 @@ Ext.ffc.gridTreeEditorkeyMove = {
 };
 
 
-Ext.ffc.showSlaveFillWindow = function (data){
+Ext.ffc.showSlaveFillWindow = function (data,callBackFunction){
 	try {
 			var slaveWindow = new Slave.SlaveManageWindow({busId : data.id, busType : data.busType});
 			var _slaveStore = slaveWindow.listPanel.listView.store;
 			_slaveStore.baseParams.busId = data.id;
 			slaveWindow.show();
 			_slaveStore.load();
+			callBackFunction
 		} catch(_err) {
 			Ext.Msg.show({
 				title : '信息提示',

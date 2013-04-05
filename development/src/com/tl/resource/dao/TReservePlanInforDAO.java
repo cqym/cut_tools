@@ -96,7 +96,7 @@ public interface TReservePlanInforDAO {
    */
   int updateByPrimaryKey(TReservePlanInfor record);
 
-  List<ReservePlanDetailDto> getReservePlanDetail(String orderId);
+  List<ReservePlanDetailDto> getReservePlanDetail(List mainIds);
 
   /**
   * 根据供应商ID得到储备计划

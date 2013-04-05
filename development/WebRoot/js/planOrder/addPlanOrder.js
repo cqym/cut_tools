@@ -76,10 +76,13 @@
 			columns:[
 					 new Ext.grid.RowNumberer(),
 					pOAddTree_Check,
+					{header:'货品编号',width:100,dataIndex:'productCode',sortable:true},
 					{header:'名称',width:125,dataIndex:'productName',sortable:true},
-					{header:'工具牌号',width:190,dataIndex:'brandCode',sortable:true},
+					{header:'牌号',width:190,dataIndex:'brandCode',sortable:true},
 					{header:'计量单位',width:60,dataIndex:'productUnit',sortable:true},
-					{header:'单价',width:70,dataIndex:'price',editor: new Ext.form.NumberField({
+					{header:'采购数量',width:70,dataIndex:'orderAmount',sortable:true},
+					
+					{header:'采购单价',width:70,dataIndex:'price',editor: new Ext.form.NumberField({
 						   allowBlank: false,
 						   allowNegative: false,
 						   style: 'text-align:left'
@@ -90,9 +93,7 @@
 							}
 						}
 					},
-					{header:'品牌',width:80,dataIndex:'productBrand',sortable:true},
-					{header:'采购数量',width:70,dataIndex:'orderAmount',sortable:true},
-					{header:'货品金额',width:80,dataIndex:'productMoney',sortable:true,
+					{header:'小计金额',width:80,dataIndex:'productMoney',sortable:true,
 						renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){
 						    var _price = record.get("price");
 							var _orderAmount = record.get("orderAmount");
@@ -102,12 +103,15 @@
 							return (_price * _orderAmount).toFixed(2);
 						}
 					},
-					{header:'计划交货期',width:100,dataIndex:'contractDeliveryDate'},
+					{header:'品牌',width:80,dataIndex:'productBrand',sortable:true},
+					
+					
+					{header:'采购交货期',width:100,dataIndex:'contractDeliveryDate'},
 					{header:'交货日期',width:100,dataIndex:'deliveryDate'},
 					{header:'货品工具主键',width:100,hidden : true,dataIndex:'toolsId',sortable:true},
 					{header:'货品工具父节点id',width:100,hidden : true,dataIndex:'parentToolsId',sortable:true},
 					{header:'货品工具叶子节点',width:100,hidden : true,dataIndex:'leaf',sortable:true},
-					{header:'货品编号',width:100,dataIndex:'productCode',sortable:true},
+					
 					{header:'备注',width:100,dataIndex:'memo',editor:new Ext.form.TextField()},
 					{header:'计划id',width:100,dataIndex:'contractProductDetailId',hidden:true}
 			],
@@ -308,7 +312,7 @@ var pOAddGrid = Ext.extend(Ext.FormPanel,{
 					 {xtype:'label',text: '最终金额:',x:800,y:155,style:this.lableStyle_},
 					 {xtype:'numberfield', name: 'finalMoney', allowBlank : false, x:900,y:152,width:170,value:0},
 					 //7
-					 {xtype:'label',text: '运输方式及费用:',x:0,y:185,style:this.lableStyle_},
+					 {xtype:'label',text: '交货方式:',x:0,y:185,style:this.lableStyle_},
 					 new Ext.ffc.TrafficModeComboBox({x:100,y:182, width : 420,disabled : this.isReadOnly}),
 					 {xtype:'label',text: '合同违约责任:',x:530,y:185,style:this.lableStyle_},
 					 {xtype:'textfield' ,name: 'defaultDuty', readOnly : this.isReadOnly,value:'无。', allowBlank : false,x:630,y:182, width : 440},

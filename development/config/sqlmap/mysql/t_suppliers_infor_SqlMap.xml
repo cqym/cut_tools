@@ -620,7 +620,7 @@
 			s.contact_person_first like '%$contactPerson$%' or 	s.contact_person_sec like '%$contactPerson$%'
 	</isNotEmpty> 
 	<isNotEmpty prepend="and" property="brand">
-			s.brand_first like '%$brand$%' or s.brand_sec like '%$brand$%' or s.brand_third like '%$brand$%' or s.brand_fourth like '%$brand$%'
+			(s.brand_first like '%$brand$%' or s.brand_sec like '%$brand$%' or s.brand_third like '%$brand$%' or s.brand_fourth like '%$brand$%')
 	</isNotEmpty> 
 	limit $startIndex$,$pageSize$
   </select>
@@ -643,7 +643,7 @@
 			s.contact_person_first like '%$contactPerson$%' or 	s.contact_person_sec like '%$contactPerson$%'
 	</isNotEmpty> 
 	<isNotEmpty prepend="and" property="brand">
-			s.brand_first like '%$brand$%' or s.brand_sec like '%$brand$%' or s.brand_third like '%$brand$%' or s.brand_fourth like '%$brand$%'
+			(s.brand_first like '%$brand$%' or s.brand_sec like '%$brand$%' or s.brand_third like '%$brand$%' or s.brand_fourth like '%$brand$%')
 	</isNotEmpty> 
   </select>
   

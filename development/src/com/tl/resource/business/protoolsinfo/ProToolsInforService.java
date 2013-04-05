@@ -50,8 +50,9 @@ public interface ProToolsInforService {
   /**
    * 修改产品信息
    * @param proTools
+   * @param sycQuoToosInfor 
    */
-  public void updateProToolsById(TProductToolsInfor proTools) throws Exception;
+  public void updateProToolsById(TProductToolsInfor proTools, String sycQuoToosInfor) throws Exception;
 
   /**
    * 根据搜索条件获取产品信息
@@ -97,7 +98,7 @@ public interface ProToolsInforService {
    * 修改非标产品
    * @param jsonArray
    */
-  public void updateNonStandPro(JSONArray jsonArray) throws Exception;
+  public void updateNonStandPro(JSONArray jsonArray, String sycQuoToosInfor) throws Exception;
 
   /**
    * 根据产品牌号 名称 品牌 来源 查找产品

@@ -74,5 +74,18 @@
 		<property name="auditContentFlowDetailGxDAO">
 			<ref bean="AuditContentFlowDetailGxDAO" />
 		</property>
+		<property name="auditHistoryDAO">
+			<ref bean="auditHistoryDAO" />
+		</property>
+		<property name="auditContentAuditHistoryGxDAO">
+			<ref bean="AuditContentAuditHistoryGxDAO" />
+		</property>
+		<property name="auditInstanceDAO">
+			<ref bean="auditInstanceDAO" />
+		</property>
+		<property name="auditContentAuditInstGxDAO">
+			<ref bean="AuditContentAuditInstGxDAO" />
+		</property>
 	</bean>
+	
 </beans>

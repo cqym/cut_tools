@@ -17,6 +17,10 @@
 		<!-- 单据管理Action -->
 		<action path="/manage/billdoc/billDocumentAction" scope="request" validate="false" parameter="method"></action>
 		<action path="/manage/worktrust/WorkTrustAction" scope="request" validate="false" parameter="m"></action>
+		<action path="/manage/mainPage/CompanyReportAction" scope="request" validate="false" parameter="m"></action>
+	    
+	    <action path="/manage/forum/ForumAction" scope="request" validate="false" parameter="m"></action>
+		
 	</action-mappings>
 	<controller>
 		<set-property property="processorClass"

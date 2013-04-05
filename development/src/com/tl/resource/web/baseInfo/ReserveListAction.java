@@ -29,66 +29,61 @@ import com.tl.resource.dao.pojo.TReserveInfor;
  */
 public class ReserveListAction extends Action {
 
-	private BaseInfoService baseInfoService;
+  private BaseInfoService baseInfoService;
 
-	public BaseInfoService getBaseInfoService() {
-		return baseInfoService;
-	}
+  public BaseInfoService getBaseInfoService() {
+    return baseInfoService;
+  }
 
-	public void setBaseInfoService(BaseInfoService baseInfoService) {
-		this.baseInfoService = baseInfoService;
-	}
+  public void setBaseInfoService(BaseInfoService baseInfoService) {
+    this.baseInfoService = baseInfoService;
+  }
 
-	@Override
-	public ActionForward execute(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
-		response.setContentType("text/html;charset=utf-8");
-		
-		Map<String, Object> parmMap = new HashMap<String, Object>();
-		
-		String searchStr = request.getParameter("searchStr");
-		if(searchStr != null){
-			
-			JSONObject  searchJson = JSONObject.fromObject(searchStr);
-			parmMap.put("productName", searchJson.getString("productName"));
-			parmMap.put("productCode", searchJson.getString("productCode"));
-			parmMap.put("productSort", searchJson.getString("sortCode"));
-			parmMap.put("brandCode", searchJson.getString("brandCode"));
-			parmMap.put("productBrand", searchJson.getString("productBrand"));
-			parmMap.put("productSource", searchJson.getString("productSource"));
-		}
-		
-		//System.out.println("searchStr" + searchStr);
-		
-		String start = request.getParameter("start");
-		String limit = request.getParameter("limit");
-		
-		parmMap.put("start", Integer.parseInt(start));
-		parmMap.put("limit", Integer.parseInt(limit));
-		
-		int total = baseInfoService.getReserveTotal(parmMap);
-		
-		String sort = request.getParameter("sort");
-		if(sort != null){
-			parmMap.put("sort", RegexUtils.toDataBaseColName(sort));
-			parmMap.put("dir", request.getParameter("dir"));
-		}
-		
-		List<TReserveInfor> list = baseInfoService.getReserveByPage(parmMap);
-		
-		String jsonStr = JSONArray.fromObject(list).toString();
-		String resultStr = "{totalProperty : " + total + ", reserveList : "  + jsonStr + "}";
-		
-		
-		PrintWriter out = response.getWriter();
-		out.write(resultStr);
-		out.flush();
-		out.close();
+  @Override
+  public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    response.setContentType("text/html;charset=utf-8");
 
-		return null;
-	}
+    Map<String, Object> parmMap = new HashMap<String, Object>();
 
+    String searchStr = request.getParameter("searchStr");
+    if (searchStr != null) {
 
+      JSONObject searchJson = JSONObject.fromObject(searchStr);
+      parmMap.put("productName", searchJson.getString("productName"));
+      parmMap.put("productCode", searchJson.getString("productCode"));
+      parmMap.put("productSort", searchJson.getString("sortCode"));
+      parmMap.put("brandCode", searchJson.getString("brandCode"));
+      parmMap.put("productBrand", searchJson.getString("productBrand"));
+      parmMap.put("productSource", searchJson.getString("productSource"));
+    }
+
+    //System.out.println("searchStr" + searchStr);
+
+    String start = request.getParameter("start");
+    String limit = request.getParameter("limit");
+
+    parmMap.put("start", Integer.parseInt(start));
+    parmMap.put("limit", Integer.parseInt(limit));
+
+    int total = baseInfoService.getReserveTotal(parmMap);
+
+    String sort = request.getParameter("sort");
+    if (sort != null) {
+      parmMap.put("sort", RegexUtils.toDataBaseColName(sort));
+      parmMap.put("dir", request.getParameter("dir"));
+    }
+
+    List<TReserveInfor> list = baseInfoService.getReserveByPage(parmMap);
+
+    String jsonStr = JSONArray.fromObject(list).toString();
+    String resultStr = "{totalProperty : " + total + ", reserveList : " + jsonStr + "}";
+
+    PrintWriter out = response.getWriter();
+    out.write(resultStr);
+    out.flush();
+    out.close();
+
+    return null;
+  }
 
 }

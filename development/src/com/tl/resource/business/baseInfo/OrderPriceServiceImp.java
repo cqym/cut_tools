@@ -10,55 +10,58 @@ import com.tl.resource.dao.TProductToolsInforDAO;
 import com.tl.resource.dao.pojo.TOrderPriceHistory;
 import com.tl.resource.dao.pojo.TProductToolsInfor;
 
-public class OrderPriceServiceImp implements OrderPriceService{
-	private TProductToolsInforDAO productToolsInforDAO;
-	private TOrderPriceHistoryDAO orderPriceHistoryDAO;
-	@Override
-	public void addOrderPrice(OrderPriceHistoryDto dto,UserDto user) {
-		// TODO Auto-generated method stub
-		TProductToolsInfor tools = productToolsInforDAO.selectByPrimaryKey(dto.getProductToolsInforId());
-		TOrderPriceHistory record = new TOrderPriceHistory();
-		record.setId(GenerateSerial.getUUID());
-		record.setEditDate(new Date());
-		record.setBrandCode(tools.getBrandCode());
-		record.setHistoryPrice(dto.getHistoryPrice());
-		record.setLeaf(tools.getLeaf());
-		record.setParentId(tools.getParentId());
-		record.setProductCode(tools.getProductCode());
-		record.setProductToolsInforId(dto.getProductToolsInforId());
-		record.setUserId(user.getId());
-		record.setUserName(user.getUserName());
-		orderPriceHistoryDAO.insert(record );
-	}
+public class OrderPriceServiceImp implements OrderPriceService {
+  private TProductToolsInforDAO productToolsInforDAO;
 
-	@Override
-	public void deleteOrderPriceById(String id) {
-		// TODO Auto-generated method stub
-		orderPriceHistoryDAO.deleteByPrimaryKey(id);
-	}
+  private TOrderPriceHistoryDAO orderPriceHistoryDAO;
 
-	@Override
-	public void updateOrderPrice(OrderPriceHistoryDto dto) {
-		// TODO Auto-generated method stub
-		TOrderPriceHistory p = orderPriceHistoryDAO.selectByPrimaryKey(dto.getId());
-		p.setHistoryPrice(dto.getHistoryPrice());
-		orderPriceHistoryDAO.updateByPrimaryKey(p);
-	}
+  @Override
+  public void addOrderPrice(OrderPriceHistoryDto dto, UserDto user) {
+    // TODO Auto-generated method stub
+    TProductToolsInfor tools = productToolsInforDAO.selectByPrimaryKey(dto.getProductToolsInforId());
+    TOrderPriceHistory record = new TOrderPriceHistory();
+    record.setId(GenerateSerial.getUUID());
+    record.setEditDate(new Date());
+    record.setBrandCode(tools.getBrandCode());
+    record.setHistoryPrice(dto.getHistoryPrice());
+    record.setLeaf(tools.getLeaf());
+    record.setParentId(tools.getParentId());
+    record.setProductCode(tools.getProductCode());
+    record.setProductToolsInforId(dto.getProductToolsInforId());
+    record.setSuppliersInforId(dto.getSuppliersInforId());
+    record.setUserId(user.getId());
+    record.setUserName(user.getUserName());
+    orderPriceHistoryDAO.insert(record);
+  }
 
-	public TProductToolsInforDAO getProductToolsInforDAO() {
-		return productToolsInforDAO;
-	}
+  @Override
+  public void deleteOrderPriceById(String id) {
+    // TODO Auto-generated method stub
+    orderPriceHistoryDAO.deleteByPrimaryKey(id);
+  }
 
-	public void setProductToolsInforDAO(TProductToolsInforDAO productToolsInforDAO) {
-		this.productToolsInforDAO = productToolsInforDAO;
-	}
+  @Override
+  public void updateOrderPrice(OrderPriceHistoryDto dto) {
+    // TODO Auto-generated method stub
+    TOrderPriceHistory p = orderPriceHistoryDAO.selectByPrimaryKey(dto.getId());
+    p.setHistoryPrice(dto.getHistoryPrice());
+    orderPriceHistoryDAO.updateByPrimaryKey(p);
+  }
 
-	public TOrderPriceHistoryDAO getOrderPriceHistoryDAO() {
-		return orderPriceHistoryDAO;
-	}
+  public TProductToolsInforDAO getProductToolsInforDAO() {
+    return productToolsInforDAO;
+  }
 
-	public void setOrderPriceHistoryDAO(TOrderPriceHistoryDAO orderPriceHistoryDAO) {
-		this.orderPriceHistoryDAO = orderPriceHistoryDAO;
-	}
+  public void setProductToolsInforDAO(TProductToolsInforDAO productToolsInforDAO) {
+    this.productToolsInforDAO = productToolsInforDAO;
+  }
+
+  public TOrderPriceHistoryDAO getOrderPriceHistoryDAO() {
+    return orderPriceHistoryDAO;
+  }
+
+  public void setOrderPriceHistoryDAO(TOrderPriceHistoryDAO orderPriceHistoryDAO) {
+    this.orderPriceHistoryDAO = orderPriceHistoryDAO;
+  }
 
 }

@@ -97,6 +97,11 @@ public class ContractInforDto {
 
   private Integer cusLockStatus;
 
+  /**
+   * 形式发票
+   */
+  private Integer exemplarInvoice;
+
   public String getId() {
     return id;
   }
@@ -413,6 +418,14 @@ public class ContractInforDto {
 
   public void setInvoiceStatus(Integer invoiceStatus) {
     this.invoiceStatus = invoiceStatus;
+  }
+
+  public Integer getExemplarInvoice() {
+    return exemplarInvoice;
+  }
+
+  public void setExemplarInvoice(Integer exemplarInvoice) {
+    this.exemplarInvoice = exemplarInvoice;
   }
 
 }

@@ -629,7 +629,9 @@ public class ArrivalServiceImpl implements ArrivalService {
             updateQuotationDetailArrivalAmount(arrInfo.getQuotationCode());
           }
           if (ArrivalInforDto.ARRIVAL_TYPE_SCHEDLE.equals(arrInfo.getArrivalType())
-            || ArrivalInforDto.ARRIVAL_TYPE_SCHEDLE_SELF.equals(arrInfo.getArrivalType())) {
+            || ArrivalInforDto.ARRIVAL_TYPE_SCHEDLE_SELF.equals(arrInfo.getArrivalType())
+            || ArrivalInforDto.ARRIVAL_TYPE_TRY.equals(arrInfo.getArrivalType())
+            || ArrivalInforDto.ARRIVAL_TYPE_TRY_SELF.equals(arrInfo.getArrivalType())) {
             sycContractArrivalDetail(arrInfo.getQuotationCode());
           }
         } catch (Exception e) {

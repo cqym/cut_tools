@@ -1107,17 +1107,17 @@
  <select id="getCOrderContractDetail"  parameterClass="java.util.Map" resultClass="java.util.List" resultMap="conProDetailDtoTreeResultMap">
  	select * from(
  	 select pro.*,
-	(pro.amount-ifnull((select sum(o.order_amount) from t_order_detail o where o.contract_product_detail_id = pro.id),0)-ifnull((select sum(s.amount) from t_out_stock_detail s,t_out_stock_infor ot 
-			where s.contract_product_detail_id = pro.id
-			and ot.id = s.out_stock_infor_id
-			and ot.out_stock_type = 1),0)) as remain_amount,
+	(pro.amount-ifnull(sum_order_amount,0)-ifnull(sum_out_amount,0)) as remain_amount,
 	0 order_amount,(select pro_sort_name from t_contract_project_sort_infor where id = pro.contract_project_sort_id) as pro_sort_name
 	from 
 	t_contract_product_detail pro
 	where 
 	pro.contract_infor_id = #contractId:VARCHAR#
 	and 
-	pro.parent_tools_id = 'root' and pro.leaf = 1
+	pro.parent_tools_id = 'root' 
+   <isNotNull prepend="and" property="leaf">
+	  pro.leaf = #leaf#
+   </isNotNull>
 	  ) aa where aa.remain_amount  > 0
 	  order by serial_number
    <isNotNull prepend="" property="startIndex">
@@ -1128,17 +1128,16 @@
    <select id="getCOrderContractDetailCount" parameterClass="java.util.Map" resultClass="java.lang.Integer">
      	select count(*) from(
  	 select pro.*,
-	(pro.amount-ifnull((select sum(o.order_amount) from t_order_detail o where o.contract_product_detail_id = pro.id),0)-ifnull((select sum(s.amount) from t_out_stock_detail s,t_out_stock_infor ot 
-			where s.contract_product_detail_id = pro.id
-			and ot.id = s.out_stock_infor_id
-			and ot.out_stock_type = 1),0)) as remain_amount,
+	(pro.amount-ifnull(sum_order_amount,0)-ifnull(sum_out_amount,0)) as remain_amount,
 	0 order_amount,(select pro_sort_name from t_contract_project_sort_infor where id = pro.contract_project_sort_id) as pro_sort_name
 	from 
 	t_contract_product_detail pro
 	where 
 	pro.contract_infor_id = #contractId:VARCHAR#
-	and 
-	pro.parent_tools_id = 'root' and pro.leaf = 1
+	and	pro.parent_tools_id = 'root' 
+   <isNotNull prepend="and" property="leaf">
+	  pro.leaf = #leaf#
+   </isNotNull>
 	  ) aa where aa.remain_amount  > 0
   </select>
   

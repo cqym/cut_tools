@@ -404,7 +404,7 @@ Customer.CustomerWindow = Ext.extend(Ext.Window, {
 })
 //-------------------------------普通报价-----------------------------------------
 Ext.ftl.generalQuo.onDetailClick = function(_id, _quoType) {
-		_quoDetailWindow = new Quomanager.DetailWindow({quoType : _quoType});
+		_quoDetailWindow = new Quomanager.DetailWindow({quoType : _quoType,_id:_id});
 		
 		//_quoDetailWindow.centerPanel.productTree.getLoader().baseParams.quoId = _id
 		_quoDetailWindow._grid.store.baseParams.quoId = _id;
@@ -444,7 +444,7 @@ Ext.ftl.generalQuo.SearchFormPanel = Ext.extend(Ext.FormPanel, {
 			_cfg = {};
 		}
 		Ext.apply(this, _cfg);
-		this.statusCombox = new StatusCombox({x:90,y:33, width:170,
+		this.statusCombox = new StatusCombox({x:90,y:33, width:170, quoType: this.quoType,
             listeners : {
             	'specialkey' : function(field, e) {
             		if(e.getKey() == e.ENTER)
@@ -524,7 +524,17 @@ Ext.ftl.generalQuo.SearchFormPanel = Ext.extend(Ext.FormPanel, {
 	            		if(e.getKey() == e.ENTER)
 	            			this.fireEvent('search',this, this.getValues());
 	            	},scope : this
-	            }}
+	            }},
+	     
+			{xtype:'label',text: '生成合同:',x:1010,y:35,style:this.lableStyle_},
+          new TransferContractCombox({x:1100,y:33, width:170,quoType:this.quoType,
+          	listeners : {
+	            	'specialkey' : function(field, e) {
+	            		if(e.getKey() == e.ENTER)
+	            			this.fireEvent('search',this, this.getValues());
+	            	},scope : this
+	            }})
+	            
 		];
 		
 		Ext.ftl.generalQuo.SearchFormPanel.superclass.constructor.call(this, {
@@ -591,7 +601,7 @@ Ext.ftl.generalQuo.QuoGridStore = Ext.extend(Ext.data.JsonStore, {
 					 	'finalMoney','sellerName','editTimeStr','overallRebate','phoneFirst','customerPhone','customerFax','userName',
 					 	'validStartDate','validEndDate','urgentLevel', 'currency','willOrderExpected','willFormalDate',
 					 	'quotationType', 'slaveFile', 'contractCode', 'impToQuoCode', 'deliveryNum',
-					 	'testRequest','testReport']
+					 	'testRequest','testReport','transferContract']
 		})
 	}
 })
@@ -629,6 +639,7 @@ Ext.ftl.generalQuo.QuoGridColumn = Ext.extend(Ext.grid.ColumnModel, {
 			{header : this.quoType == 4 ? '申请单编号' : '报价单编号', width : 165,dataIndex : 'quotationCode',sortable: true},
 			{header : '客户名称', width : 180,dataIndex : 'customerName',sortable: true},
 			{header : '状态',dataIndex : 'status',renderer : this.changeStatus,sortable: true}, 
+			{header : '生成合同',dataIndex : 'transferContract',renderer : this.transferContractRender,sortable: true}, 
 			{header : '紧急程度', width : 60, hidden : false,dataIndex : 'urgentLevel',sortable: true,renderer : this.changeLevel},
 			{header : '合同编号', width : 180,dataIndex : 'contractCode',sortable: true,hidden : this.quoType != 0 ? true : false},
 			{header : this.quoType == 4 ? '申请日期' : '报价日期', width : 75, dataIndex : 'quotationDate',sortable: true},
@@ -737,7 +748,19 @@ Ext.ftl.generalQuo.QuoGridColumn = Ext.extend(Ext.grid.ColumnModel, {
 			return "<span style='color:#DF7401;font-weight:bold;'>已转正式报价</span>";
 		}
 	},
-	
+  transferContractRender:function(val, metadata, record){
+	  	if(val * 1 == 0) {
+				    return "<span style='color:#A1A09D;font-weight:bold;'>未转合同</span>";
+			}else if(val * 1 == 1){ 
+					    return "<span style='color:#dac60e;font-weight:bold;'>部分转合同</span>";
+			}else if(val * 1 == 2){
+			    if(record.get('quotationType') == 3 || record.get('quotationType') == 4){
+			       return "<span style='color:green;font-weight:bold;'>全部转合同</span>";
+			    } else{
+			       return "<span style='color:green;font-weight:bold;'>已转合同</span>";
+			    }
+			}
+  },	
 	changeLevel : function(value) {
 		switch(value) {
 			case 0 :

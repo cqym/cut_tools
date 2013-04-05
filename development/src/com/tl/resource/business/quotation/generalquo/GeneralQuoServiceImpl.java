@@ -705,6 +705,7 @@ public class GeneralQuoServiceImpl implements GeneralQuoService {
   }
 
   @Override
+  @Deprecated
   public boolean isAllDeliveryed(String id) {
     TQuotationProductDetailExample example = new TQuotationProductDetailExample();
     example.createCriteria().andQuotationInforIdEqualTo(id).andIdNotLike("%#");

@@ -176,26 +176,13 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 					 new Ext.grid.RowNumberer(),
 					Ext.ls.contractOrder.addChek,
 					{header:'合同订单ID',width:100,dataIndex:'id',hidden:true},
-					{header:'合同分名称',width:100,dataIndex:'proSortName',sortable:true},
-					{header:'项目号',width:50,dataIndex:'projectCode',sortable:true},
+					{header:'合同分项名称',width:100,dataIndex:'proSortName',sortable:true},
+					{header:'项目',width:50,dataIndex:'projectCode',sortable:true},
 					{header:'序号',width:50,dataIndex:'serialNumber',sortable:true},
+					{header:'货品编号',width:100,dataIndex:'productCode',sortable:true},
 					{header:'名称',width:125,dataIndex:'productName',sortable:true},
-					{header:'工具牌号',width:230,dataIndex:'brandCode',sortable:true},
+					{header:'牌号',width:230,dataIndex:'brandCode',sortable:true},
 					{header:'计量单位',width:70,dataIndex:'productUnit',sortable:true},
-					{header:'单价',width:70,dataIndex:'price',editor: new Ext.form.NumberField({
-						   allowBlank: false,
-						   allowNegative: false,
-						   style: 'text-align:left',
-						   gridObj:this,
-						listeners : {
-							focus : function(f){
-									f.selectText(0,f.getValue().length);
-								}
-							,'specialkey' : Ext.ftl.gridEditorkeyMove
-							}
-						})
-					},
-					{header:'品牌',width:100,dataIndex:'productBrand',sortable:true},
 					{header:'合同数量',width:100,dataIndex:'contractAmount',sortable:true},
 					{header:'合同剩余数量',width:120,dataIndex:'remainAmount',sortable:true},
 					{header:'采购数量',width:70,dataIndex:'orderAmount',sortable:true,editor: new Ext.form.NumberField({
@@ -221,9 +208,24 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 								return value;
 						}
 					},
-					{header:'货品金额',width:100,dataIndex:'productMoney',sortable:true},
+					{header:'采购单价',width:70,dataIndex:'price',editor: new Ext.form.NumberField({
+						   allowBlank: false,
+						   allowNegative: false,
+						   style: 'text-align:left',
+						   gridObj:this,
+						listeners : {
+							focus : function(f){
+									f.selectText(0,f.getValue().length);
+								}
+							,'specialkey' : Ext.ftl.gridEditorkeyMove
+							}
+						})
+					},
+					{header:'小计金额',width:100,dataIndex:'productMoney',sortable:true},
+					{header:'品牌',width:100,dataIndex:'productBrand',sortable:true},
+					{header:'采购交货期',width:100,dataIndex:'deliveryDate'},
 					{header:'合同交货期',width:100,dataIndex:'contractDeliveryDate'},
-					{header:'交货日期',width:100,dataIndex:'deliveryDate'},
+					
 					{header:'备注1',width:100,dataIndex:'memo',editor:new Ext.form.TextField({
 						listeners : {
 							'specialkey' : function(_field, e){
@@ -244,7 +246,6 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 					{header:'货品工具父节点id',width:0,hidden : true,dataIndex:'parentToolsId',sortable:true},
 					{header:'货品工具叶子节点',width:0,hidden : true,dataIndex:'leaf',sortable:true},
 					{header:'合同货主键',width:100,hidden : true,dataIndex:'contractProductDetailId',sortable:true},
-					{header:'货品编号',width:100,dataIndex:'productCode',sortable:true},
 					{header:'合同分_主键',width:70,dataIndex:'contractProjectSortId',hidden : true}
 			],
 			tbar :	[{text : "添加",iconCls:'icon-add',handler :Ext.ls.contractOrder.add,scope : this,hidden:this.tbarHidden},
@@ -254,15 +255,6 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 					{text : '统一设置交货期限',iconCls : 'icon-date',handler :Ext.ls.contractOrder.setupDate,scope : this,hidden:this.tbarHidden},
 					{xtype:'tbseparator',hidden:this.tbarHidden},
 					{text : '历史价格查询',iconCls : 'icon-date',handler :Ext.ls.contractOrder.queryHistory,scope : this,hidden:this.tbarHidden}],
-			/**分页信息，当页面显示明细信息时显示**/
-			bbar: new Ext.PagingToolbar({
-				hidden:this.bbarHidden,
-				store: this.store,
-				pageSize: 15,
-				displayInfo: true,
-				displayMsg: "当前显示第{0}条到第{1}条，共{2}条",
-				emptyMsg: "<i>没有数据</i>"
-			}),
 			listeners : {
 				/**注册单元格事件(选择时间)**/
 				'cellclick':function(grid,rowIndex,columnIndex,e){
@@ -411,7 +403,7 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 					 {xtype:'label',text: '最终金额:',x:800,y:155,style:this.lableStyle_},
 					 {xtype:'numberfield', name: 'finalMoney', allowBlank : false, x:900,y:152,width:170,value:0},
 					 //7
-					 {xtype:'label',text: '运输方式及费用:',x:0,y:185,style:this.lableStyle_},
+					 {xtype:'label',text: '交货方式:',x:0,y:185,style:this.lableStyle_},
 					 new Ext.ffc.TrafficModeComboBox({x:100,y:182, width : 420,disabled : this.isReadOnly}),
 					 {xtype:'label',text: '合同违约责任:',x:530,y:185,style:this.lableStyle_},
 					 {xtype:'textfield' ,name: 'defaultDuty', readOnly : this.isReadOnly,value:'无。', allowBlank : false,x:630,y:182, width : 440},
@@ -444,7 +436,7 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
  })
 	 
 
-	Ext.ls.contractOrder.addWin = Ext.extend(Ext.Window,{
+	Ext.ls.contractOrder.addWin = Ext.extend(Ext.ffc.AuditBusinessDetailWindow,{
 		grid:null,
 		form:null,
 		deliveryAddressType:null,//销售合同交货地点及方式
@@ -462,10 +454,25 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 			Ext.apply(this, _cfg);
 			this.form = new Ext.ls.contractOrder.addForm({detailFlag:this.detailFlag});
 			this.grid = new Ext.ls.contractOrder.addGird({contractId:this.contractId,contractCode:this.contractCode,supplierId:this.supplierId,detailFlag:this.detailFlag,URL:this.URL,orderId:this.orderId});
-			if(this.updateFlag){this.updateFlag = false,this.detailFlag = true}
-			else{this.updateFlag = true}//修改页面
+			if(this.updateFlag){
+				this.updateFlag = false,this.detailFlag = true;
+			}
+			else{
+				this.updateFlag = true
+			}//修改页面
+			if(this.openType == 'view'){
+				this.auditButtonHiden = true;
+			}
+			this.addSaveButtonHiden = true;
+			if(this.openType == 'add'){
+			  this.addSaveButtonHiden = false;	
+			}
+			this.updateSaveButtonHiden = true;
+			if(this.openType == 'update'){
+			  this.updateSaveButtonHiden = false;	
+			}
 			Ext.ls.contractOrder.addWin.superclass.constructor.call(this, {
-				      	renderTo: Ext.getBody(),
+				    renderTo: Ext.getBody(),
 						title:"",  
 						width:1140,  
 						height:610,  
@@ -474,10 +481,10 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 						resizable:false,
 						maximizable: true,
 						layout:"border",  
-						bbar :[{xtype:'label',html : "销售合同交货地点及运输方式:<font color = 'red'>"+this.deliveryAddressType+"<font>"}],
+						bbar :[{xtype:'label',html : "销售合同交货地点及运输方式:<font color = 'red'>"+this.deliveryAddressType+"</font>,<font color='green'>"+this.trafficMode+"</font>"}],
 						buttons : [{
 							text : "保存",
-							hidden:this.detailFlag,
+							hidden:this.updateSaveButtonHiden,
 							handler : function() {
 								var formV = this.form.getForm().getValues();
 								if(!checkOrderInfor(formV,this.form))
@@ -547,7 +554,7 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 							},scope : this
 						 },{
 							text : "保存",
-							hidden: this.updateFlag,
+							hidden: this.updateSaveButtonHiden,
 							handler : function() {
 								var record = new Ext.data.Record(this.form.getForm().getValues());
 								Ext.apply(record.data,{'currencyId':this.form.currCombox.curid});
@@ -622,6 +629,12 @@ Ext.ls.contractOrder.queryHistory = function(btn,e)
 DetailWindow = function(id){
    this.method = null;
    this.id = null;
+   this.setGrid = function(_grid){
+   	 this.grid = _grid
+   };
+   this.setAuditType = function(_auditType){
+     this.auditType = _auditType;	
+   };
    this.on = function(paraString,fun){
 		this.method = fun;
    };
@@ -631,11 +644,12 @@ DetailWindow = function(id){
    this.show = function(){
        if(this.method != null){
 	       this.method();
+	    var _this = this;
 			var store = new contractOrderStore();
 			store.baseParams.orderId = this.id;
 			store.load();
 			/**订单修改页面**/
-			var win = new Ext.ls.contractOrder.addWin({orderId:this.id,detailFlag:true,URL:Ext.ls.contractOrder.detailUrl});
+			var win = new Ext.ls.contractOrder.addWin({orderId:this.id,detailFlag:true,URL:Ext.ls.contractOrder.detailUrl,auditType:_this.auditType,_grid:_this.grid,_id:_this.id});
 			/**设置窗口的标题**/
 			win.setTitle('查看合同订单明细');
 			/**将store的数据加载到页面**/

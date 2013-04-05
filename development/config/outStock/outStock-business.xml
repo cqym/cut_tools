@@ -47,6 +47,13 @@
 		<property name="contractInforDAO">
 				<ref bean="contractInforDAO" />
 		</property>
+		
+		<property name="reservePlanInforDAO">
+				<ref bean="TReservePlanInforDAOImpl" />
+		</property>
+		<property name="reservePlanMainDAO">
+				<ref bean="TReservePlanMainDAO" />
+		</property>
 	 </bean>
   </property>
 </bean>
@@ -87,6 +94,16 @@
 			</property>
 			<property name="reserveInforDAO">
 				<ref bean="TReserveInforDAO"/>
+			</property>
+			<property name="reservePlanInforDAO">
+				<ref bean="TReservePlanInforDAO"/>
+			</property>
+			
+			<property name="matReserveInforDAO">
+				<ref bean="TMatReserveInforDAO"/>
+			</property>
+			<property name="reservePlanMainDAO">
+				<ref bean="TReservePlanMainDAO"/>
 			</property>
 		</bean>
 	  </property>

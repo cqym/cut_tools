@@ -73,7 +73,6 @@ public class MaterialOutStockEditAction extends DispatchAction {
     String outStockInforJsonStr = request.getParameter("OutStockInfor");
     LoginInforDto loginInfor = LoginInforUtil.getLoginInfor(request);
     UserDto user = loginInfor.getUser();
-    System.out.println(outStockInforJsonStr);
     PrintWriter out = response.getWriter();
     JSONObject outStockInforJson = JSONObject.fromObject(outStockInforJsonStr);
     OutStockInforDto dto = (OutStockInforDto) JSONObject.toBean(outStockInforJson, OutStockInforDto.class);

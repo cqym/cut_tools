@@ -43,12 +43,15 @@
     <result column="arrival_amount" jdbcType="DECIMAL" property="arrivalAmount" />
     <result column="order_amount" jdbcType="DECIMAL" property="orderAmount" />
     <result column="out_amount" jdbcType="DECIMAL" property="outAmount" />
+    <result column="slave_file_count" jdbcType="INTEGER" property="fileCount" />
   </resultMap>
 
   
   <!-- 返回跟节点，有采购数量，有到货数量，有分类名称 -->
   <select id="getProductArrivalDeliveryRootDetail" parameterClass="map" resultMap="ibatorgenerated_BaseResultMap">
-  	select iiii.*,ifnull(res.amount,0) reserve_amount,res.id reserve_infor_id from (
+  	select iiii.*,ifnull(res.amount,0) reserve_amount,res.id reserve_infor_id,
+  	(select count(*) from t_accessories s where s.business_id = iiii.tools_id) slave_file_count
+  	 from (
 					select cpd.id, cpd.contract_project_sort_id, cpd.contract_infor_id, 
 					cpd.tools_id, cpd.parent_tools_id, cpd.leaf,cpd.project_code, 
 					cpd.serial_number, cpd.product_brand, cpd.product_code, cpd.brand_code, 
@@ -85,10 +88,15 @@
 		<isNotEmpty prepend="and" property="productBrand" >
 		        iiii.product_brand like '%$productBrand$%'
 		</isNotEmpty>
+		<isNotEmpty prepend="and" property="leaf" >
+		        iiii.leaf = #leaf#
+		</isNotEmpty>
 		<isNotEmpty prepend="and" property="willOutStock" >
 		       <![CDATA[iiii.amount - iiii.arrival_amount > 0 and ifnull(res.amount,0) > 0]]>
 		</isNotEmpty>
-		
+		<isNotEmpty prepend="and" property="notHasYd" >
+		        <![CDATA[iiii.id not like '%##%']]>
+		</isNotEmpty>
 		order by contract_project_sort_id,serial_number
 	  <isNotNull prepend="" property="startIndex">
         limit $startIndex$,$pageSize$
@@ -106,7 +114,11 @@
 	    	 <isNotNull prepend="and" property="contractSortId" >
 	        cpd.contract_project_sort_id = #contractSortId#
 	     	</isNotNull>
-	     	
-      
+	     	<isNotEmpty prepend="and" property="notHasYd" >
+		        <![CDATA[cpd.id not like '%##%']]>
+		    </isNotEmpty>
+           <isNotEmpty prepend="and" property="leaf" >
+		        cpd.leaf = #leaf#
+		   </isNotEmpty>
   </select>
 </sqlMap>

@@ -173,7 +173,9 @@ var  sOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 						contractId:this.contractId,
 						contractCode:this.contract_code,
 						supplierId:record.get('id'),
-						mome:this.memo
+						mome:this.memo,
+						deliveryAddressType:this.deliveryAddressType,
+						trafficMode:this.trafficMode
 					};
 				}
 				else
@@ -184,7 +186,9 @@ var  sOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 						supplierId:record.get('id'),
 						node:this.node,
 						URL:Ext.ls.selfOrder.addUrl,
-						mome:this.memo
+						mome:this.memo,
+						deliveryAddressType:this.deliveryAddressType,
+						trafficMode:this.trafficMode
 					};
 				}
 				var win = new  Ext.ls.selfOrder.addWin(addParam);
@@ -252,13 +256,14 @@ var  sOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 								supplierId:record.get('id'),
 								mome:this.memo
 							});
-							var addParam ;
-							addParam = {
+							var addParam = {
 								contractId:this.contractId,
 								contractCode:this.contract_code,
 								supplierId:record.get('id'),
 								URL:Ext.ls.selfOrder.addUrl,
-								mome:this.memo
+								mome:this.memo,
+								deliveryAddressType:this.deliveryAddressType,
+							  trafficMode:this.trafficMode
 							};
 							var win = new  Ext.ls.selfOrder.addWin(addParam);
 							/**设置窗口的标题**/

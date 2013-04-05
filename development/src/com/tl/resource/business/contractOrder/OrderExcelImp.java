@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,11 +16,15 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.jxls.exception.ParsePropertyException;
+import net.sf.jxls.transformer.XLSTransformer;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Drawing;
@@ -41,8 +44,6 @@ import com.tl.resource.dao.TExchangeRateDAO;
 import com.tl.resource.dao.TOrderDetailDAO;
 import com.tl.resource.dao.TOrderInforDAO;
 import com.tl.resource.dao.TSuppliersInforDAO;
-import com.tl.resource.dao.pojo.TAccessories;
-import com.tl.resource.dao.pojo.TAccessoriesExample;
 import com.tl.resource.dao.pojo.TCompanyInfor;
 import com.tl.resource.dao.pojo.TCompanyInforExample;
 import com.tl.resource.dao.pojo.TExchangeRate;
@@ -52,7 +53,7 @@ import com.tl.resource.dao.pojo.TSuppliersInfor;
 public class OrderExcelImp implements OrderExcel {
   private java.text.DecimalFormat df = new java.text.DecimalFormat("#.00");
 
-  public static final String TempletePath = "\\upload\\templete\\contract_templete.xls";
+  public static final String TempletePath = "\\upload\\templete\\order_templete.xls";
 
   public static final String OrderPath1 = "\\upload\\templete\\contract_order_list_templete.xls";
 
@@ -93,45 +94,41 @@ public class OrderExcelImp implements OrderExcel {
     orderInfor = orderInforDao.getExcelOrderInfor(orderId);
     basePath = request.getRealPath("/");
     FileInputStream fs = new FileInputStream(basePath + TempletePath);
-    workbook = new HSSFWorkbook(fs);
-    dataSheet = workbook.getSheetAt(0);
+
     TCompanyInforExample comExp = new TCompanyInforExample();
     comExp.createCriteria().andCompanyNameEqualTo(orderInfor.getCompanyName() == null ? "" : orderInfor.getCompanyName());
     List<TCompanyInfor> companys = companyInforDAO.selectByExample(comExp);
     if (companys != null && companys.size() > 0) {
       comInfor = companys.get(0);
     }
+    Map<String, Object> parmMap = new HashMap<String, Object>();
+    parmMap.put("orderId", orderInfor.getId());
+    List<OrderDetialsDto> orderDetail = orderDetailDao.getOrderDetailsLists(parmMap);
 
-    List<Integer> types = new ArrayList<Integer>();
-    types.add(3);
-    types.add(4);
-    TAccessoriesExample accExp = new TAccessoriesExample();
-    accExp.createCriteria().andBusinessIdEqualTo(comInfor.getId() == null ? "" : comInfor.getId()).andBusinessTypeIn(types);// logo
-    List<TAccessories> logoList = accessoriesDAO.selectByExample(accExp);
-    if (logoList != null && logoList.size() > 0) {
-      for (Iterator iterator = logoList.iterator(); iterator.hasNext();) {
-        TAccessories accessories = (TAccessories) iterator.next();
-        if (accessories.getBusinessType() == 3) {
-          logoPath = accessories.getPath();
-          if (logoPath != null) {
-            logoPath = basePath + logoPath.replaceAll("\\/", "\\\\");
-          }
-        } else if (accessories.getBusinessType() == 4) {
-          footerPath = accessories.getPath();
-          if (footerPath != null) {
-            footerPath = basePath + footerPath.replaceAll("\\/", "\\\\");
-          }
-        }
-      }
-    }
     supplier = suppliersInforDao.selectByPrimaryKey(orderInfor.getSupplierId());
 
-    exportExcelWorkbook();
+    Map<String, Object> businessData = new HashMap<String, Object>();
+    businessData.put("orderInfor", orderInfor);
+    businessData.put("supplier", supplier);
+    businessData.put("comInfor", comInfor);
+    businessData.put("orderDetail", orderDetail);
+
+    //exportExcelWorkbook();
 
     // 输出Excel文件.
     response.setContentType("application/vnd.ms-excel");
     WebUtils.setDownloadableHeader(response, orderInfor.getOrderCode() + ".xls");
-    workbook.write(response.getOutputStream());
+    XLSTransformer tf = new XLSTransformer();
+    try {
+      Workbook workbook = tf.transformXLS(fs, businessData);
+      workbook.write(response.getOutputStream());
+    } catch (ParsePropertyException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (InvalidFormatException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     response.getOutputStream().flush();
   }
 

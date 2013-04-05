@@ -186,7 +186,8 @@ var  qOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 							quotationId:this.quotationId,
 							quotationCode:this.quotationCode,
 							supplierId:record.get('id'),
-							URL:Ext.ls.scheduleOrder.addUrl
+							URL:Ext.ls.scheduleOrder.addUrl,
+						  openType:'add'
 						};
 						
 				var win = new  Ext.ls.scheduleOrder.addWin(addParam);
@@ -300,7 +301,8 @@ var  qOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 								quotationId:this.quotationId,
 								quotationCode:this.quotationCode,
 								supplierId:record.get('id'),
-								URL:Ext.ls.scheduleOrder.addUrl
+								URL:Ext.ls.scheduleOrder.addUrl,
+								openType:'add'
 							};
 							
 							var win = new  Ext.ls.scheduleOrder.addWin(addParam);

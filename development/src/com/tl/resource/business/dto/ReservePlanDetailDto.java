@@ -82,6 +82,8 @@ public class ReservePlanDetailDto {
 
   private BigDecimal arrivalAmount;
 
+  private String reserveInforId;
+
   public String getId() {
     return id;
   }
@@ -384,6 +386,14 @@ public class ReservePlanDetailDto {
 
   public void setArrivalAmount(BigDecimal arrivalAmount) {
     this.arrivalAmount = arrivalAmount;
+  }
+
+  public String getReserveInforId() {
+    return reserveInforId;
+  }
+
+  public void setReserveInforId(String reserveInforId) {
+    this.reserveInforId = reserveInforId;
   }
 
 }

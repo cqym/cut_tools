@@ -247,8 +247,9 @@ Ext.apply(_config, getConfig());
 									url: PATH + '/delivery/deliveryViewAction.do?ffc=deliveryViewById&id=' + arr[0].data.id,
 									success: function(response){
 											eval("var temp = " + response.responseText);
-											var conEditWin = new Ext.ffc.DeliveryEditWindow({
+											var conEditWin = new Ext.ffc.DeliveryAuditWindow({
 											deliveryInfor : temp,
+											auditButtonHiden:true,
 											title : '查看交货单',
 											readOnly : true,
 												listeners :{

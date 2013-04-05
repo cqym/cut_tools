@@ -12,6 +12,7 @@ import com.tl.resource.audit.dto.PageHeaderInfor;
 import com.tl.resource.business.dto.ContractInforDto;
 import com.tl.resource.business.dto.LoginInforDto;
 import com.tl.resource.business.dto.ModulesDto;
+import com.tl.resource.business.dto.QuotationDto;
 import com.tl.resource.dao.AuditDao;
 import com.tl.resource.dao.TContractInforDAO;
 import com.tl.resource.dao.TModulesDefDAO;
@@ -333,8 +334,11 @@ public class WaitWorksInforServiceImp implements WaitWorksInforService {
     }
     if (userIdList.size() == 0)
       return 0;
+    List<Integer> tcList = new ArrayList<Integer>();
+    tcList.add(QuotationDto.TRANSFER_CONTRACT_NEVER);
+    tcList.add(QuotationDto.TRANSFER_CONTRACT_PART);
     TQuotationInforExample example = new TQuotationInforExample();
-    example.createCriteria().andStatusEqualTo(4).andEditorIdIn(userIdList);
+    example.createCriteria().andStatusEqualTo(4).andTransferContractIn(tcList).andEditorIdIn(userIdList);
     int totalCount = quoInfoDAO.countByExample(example);
     return totalCount;
   }

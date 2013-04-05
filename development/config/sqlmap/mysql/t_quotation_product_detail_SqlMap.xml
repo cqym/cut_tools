@@ -831,9 +831,7 @@
       nn.net_price, nn.money, nn.tax_net_price, nn.tax_money, nn.price_change, nn.delivery_date, nn.workshop,
       nn.process_code, nn.report_code, nn.tool_code, nn.tool_description, nn.memo,
 			pd.order_price_run_date,nc.product_sort_id product_sort_id,
-		(nn.amount-ifnull((select sum(o.order_amount) from t_order_detail o where o.contract_product_detail_id = nn.id OR o.contract_product_detail_id = CONCAT(nn.id,'##')),0)
-			-ifnull((select sum(s.amount) from t_out_stock_detail s,t_out_stock_infor ot where (s.contract_product_detail_id = nn.id  OR s.contract_product_detail_id = CONCAT(nn.id,'##')) and ot.id = s.out_stock_infor_id and ot.out_stock_type = #outStockType:INTEGER#),0)
-		) as remain_amount,
+		(nn.amount-ifnull(sum_order_amount,0)-ifnull(sum_out_amount,0)) as remain_amount,
 	0 order_amount,(select pro_sort_name from t_quotation_project_sort_infor where id = nn.quotation_project_sort_id) as pro_sort_name
 			from 
 				t_quotation_product_detail nn,
@@ -843,10 +841,12 @@
 				where b.t_suppliers_id = #supplierId:VARCHAR#
 			    and nn.quotation_infor_id = (select id from t_quotation_infor where quotation_code = #quotationCode:VARCHAR#)
 				and nn.parent_tools_id = 'root'      
-				and nn.leaf = 1   
 				and nn.product_brand = b.brand
 				and nn.tools_id = nc.id
 				and nc.product_brand = pd.name 
+				<isNotEmpty property="leaf" prepend="and">
+			      <![CDATA[ nn.leaf = #leaf# ]]>
+			    </isNotEmpty>
 				<isNotEmpty property="productBrand" prepend="and">
 			      <![CDATA[ nn.product_brand like '%$productBrand$%' ]]>
 			    </isNotEmpty>
@@ -858,6 +858,9 @@
 			    </isNotEmpty>
 			    <isNotEmpty property="contractProjectSortId" prepend="and">
 			      <![CDATA[ nn.quotation_project_sort_id = #contractProjectSortId# ]]>
+			    </isNotEmpty>
+			    <isNotEmpty property="brand" prepend="and">
+			      <![CDATA[ nn.product_brand = '$brand$' ]]>
 			    </isNotEmpty>
 			) m
 			where	m.remain_amount > 0
@@ -1071,15 +1074,10 @@
     FROM t_quotation_product_detail nn
     WHERE quotation_infor_id = '$qId$'
     AND parent_tools_id = 'root'
-	AND leaf = 1
-	AND 
-	(
-	nn.amount
-	-
-	IFNULL((SELECT SUM(o.order_amount) FROM t_order_detail o WHERE o.contract_product_detail_id = nn.id OR o.contract_product_detail_id = CONCAT(nn.id,'##')),0)
-	-
-	IFNULL((SELECT SUM(s.amount) FROM t_out_stock_detail s,t_out_stock_infor ot WHERE (s.contract_product_detail_id = nn.id OR s.contract_product_detail_id = CONCAT(nn.id,'##')) AND ot.id = s.out_stock_infor_id AND ot.out_stock_type = #outStockType:INTEGER#),0)
-		) > 0
+    <isNotEmpty property="leaf" prepend="and">
+	   leaf = #leaf#
+    </isNotEmpty>
+	AND (nn.amount - IFNULL(sum_order_amount,0) - IFNULL(sum_out_amount,0)) > 0
 	ORDER BY serial_number
 LIMIT $startIndex$,$pageSize$
   </select>
@@ -1092,15 +1090,10 @@ LIMIT $startIndex$,$pageSize$
     FROM t_quotation_product_detail nn
     WHERE quotation_infor_id = '$qId$'
     AND parent_tools_id = 'root'
-	AND leaf = 1
-	AND 
-	(
-	nn.amount
-	-
-	IFNULL((SELECT SUM(o.order_amount) FROM t_order_detail o WHERE o.contract_product_detail_id = nn.id OR o.contract_product_detail_id = CONCAT(nn.id,'##')),0)
-	-
-	IFNULL((SELECT SUM(s.amount) FROM t_out_stock_detail s,t_out_stock_infor ot WHERE (s.contract_product_detail_id = nn.id OR s.contract_product_detail_id = CONCAT(nn.id,'##')) AND ot.id = s.out_stock_infor_id AND ot.out_stock_type = #outStockType:INTEGER#),0)
-		) > 0
+	<isNotEmpty property="leaf" prepend="and">
+	   leaf = #leaf#
+    </isNotEmpty>
+	AND (nn.amount - IFNULL(sum_order_amount,0) - IFNULL(sum_out_amount,0)) > 0
 	ORDER BY serial_number
 	LIMIT $startIndex$,$pageSize$
   </select>

@@ -275,21 +275,30 @@ NorthPanel = Ext.extend(Ext.Panel, {
 	}
 })
 //报价信息ID
-var _id = "";
+//var _id = "";
 /**
  * 报价产品树
  */
 var _quoProductTree = new Ext.tree.ColumnTree({
 			height: 325,
 			//bodyStyle:'width:100%',
-	        rootVisible:false,
-	        autoScroll:true,
+	    rootVisible:false,
+	    autoScroll:true,
 			expandable:false,
 			//spilt : true,
 			region : 'center',
 			enableDD:false,
 	        title: '产品信息',
-	        columns:[{header : '图标',width : 80,disEnableEdit : true},
+	        columns:[{header : '图标',width : 80,disEnableEdit : true,renderer : function(colValue, node, data) {
+				    var toolsId = data.id;
+	        		if(data.parentId != 'root'){
+					    toolsId = data.productCode.substr(data.productCode.indexOf('-') + 1);//！此处如果productCode的编码形式发生改变，会有问题
+					}
+	        		if(data.leaf == 0) {
+						return "<a href=\"#\" onclick=\"new QuotationManager.ProToolsListWindow({nodeId : '" +toolsId + "'}).show();\"><span style='color:blue;font-weight:bold;'>查看</span></a>";
+	        		}
+					return '';
+	        	}},
 	        {header : '项目编号',width : 70,dataIndex : 'projectCode'}, 
 	        {header : '序号',width : 40,dataIndex : 'serialNumber',disEnableEdit : true},
 	        {
@@ -373,8 +382,8 @@ var _quoProductTree = new Ext.tree.ColumnTree({
 	        	'beforerender' : function() {
 	        		var loa = _quoProductTree.getLoader();
 	        		loa.on("beforeload", function(loa, node) {
-						this.baseParams.quoId = _id;
-					})
+								this.baseParams.quoId = _quoProductTree._id;
+							});
 	        	},
 	        	
 	        	'render' : function() {
@@ -450,27 +459,53 @@ CenterPanel = Ext.extend(Ext.Panel, {
 		Ext.apply(this, _cfg);
 		
 		this.quoProductTree = _quoProductTree;
-    	this.historyPriceGrid = new Ext.ftl.CusSalesProductGrid();
+		this.quoProductTree['_id'] = this._id;
+		
+    	this.historyPriceGrid = new Ext.ftl.CusSalesProductGrid({region : 'center',noPageView:true});
+    	this.productOrderPriceGrid = new Ext.ftl.ProductOrderProductGrid({region : 'south'});
     	this.quoProductTree.on('click', function(_node) {
     		var _cusName = this.brotherCt.simpleForm.getValues().get("customerCode")
     		var _customerCode = _cusName.substring(0, _cusName.indexOf('-'));
     		var _store = this.historyPriceGrid.getStore();
     		_store.baseParams.customerCode = _customerCode;
     		_store.baseParams.pid = _node.attributes.toolsId;
-    		this.historyPriceGrid.getStore().load({
+    		_store.load({
 				params : {
 					start : 0,
 					limit : 10
 				}
-			});
+				});
+				
+				this.productOrderPriceGrid.netPrice = _node.attributes.netPrice;
+				var orderStore = this.productOrderPriceGrid.getStore();
+				orderStore.baseParams.productId = _node.attributes.toolsId;
+				orderStore.load({
+				params : {
+					start : 0,
+					limit : 10
+				}	
+				});
     	},this)
     	
 		CenterPanel.superclass.constructor.call(this, {
-			region: 'center',
-			layout: 'border',
+						region: 'center',
+						layout: 'border',
             height: 100,
             margins: '-5 5 5 5',
-            items : [this.quoProductTree,this.historyPriceGrid]
+            items : [
+            this.quoProductTree,
+            {
+                region: 'east',
+								layout: 'border',
+                iconCls:'icon-grid',
+                split: true,
+                width:280,
+                collapsible: true,
+                margins: '5 5 5 5',
+                items : [this.historyPriceGrid,this.productOrderPriceGrid]
+             
+            }
+            ]
 		})
 	}
 })
@@ -480,72 +515,36 @@ CenterPanel = Ext.extend(Ext.Panel, {
  * @class QuoDetailWindow
  * @extends Ext.Window
  */
-DetailWindow = Ext.extend(Ext.Window, {
+DetailWindow = Ext.extend(Ext.ffc.AuditBusinessDetailWindow, {
 	northPanel : null,
 	centerPanel : null,
-	constructor : function() {
+	constructor : function(_cfg) {
+		if(_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
 		this.northPanel = new NorthPanel();
-		this.centerPanel = new CenterPanel({brotherCt : this.northPanel});
-		
+		this.centerPanel = new CenterPanel({brotherCt : this.northPanel,_id:this._id});
 		DetailWindow.superclass.constructor.call(this, {
 			title:"查看报价单",  
-			width:1160,  
-			height:600,  
+			width : Ext.getBody().getWidth(),
+			height : 600,
+			maximizable :true, 
 			plain:true,
 			closable : true,
-			closeAction:'hide',
+			closeAction:'close',
 			layout:"border",
 			constrainHeader : true,
-			buttons : [{
-				text : "关闭",
-				handler : function() {
-					this.hide();
-				},
-				scope : this
-			}],
+			items : [this.northPanel, this.centerPanel],
 			listeners : {
 				'beforeshow' : function() {
-					//重新载入报价产品树
 					if(this.centerPanel.quoProductTree.rendered) {
 						this.reload();
-					}
-					Ext.Ajax.request({
-						url: PATH + '/generalQuo/getQuoAction.do',
-						params: { quoId: _id },
-						success : function(response) {
-							var responseArray = Ext.util.JSON.decode(response.responseText); 
-							if(responseArray.success == true){
-								this.northPanel.simpleForm.setValues(new Ext.data.Record(responseArray.data));
-							}
-						},scope : this
-					});
-					
-					Ext.Ajax.request({
-						url: PATH + '/generalQuo/excelAction.do?method=getOrderPrice4Quo' ,
-						params: { quoId: _id },
-						success : function(response) {
-							//var responseArray = Ext.util.JSON.decode(response.responseText);
-							if(response.responseText.length == 0)
-								return;
-							Ext.Msg.show({
-								title:'净价低于或者等于采购价格产品：',
-								msg: response.responseText,
-								buttons: Ext.Msg.OK,
-								icon: Ext.MessageBox.INFO,
-								width : 700
-							});
-						},scope : this
-					});
-				}
-			},
-			items : [this.northPanel, this.centerPanel]
+					}	
+				},scope:this
+			}
 		})
 	},
-	
-	setId : function(id) {
-		_id = id;
-	},
-	
 	reload : function() {
 		this.centerPanel.quoProductTree.getRootNode().reload();
 	}

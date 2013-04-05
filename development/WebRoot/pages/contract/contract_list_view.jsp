@@ -17,9 +17,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="<%=path%>/js/contract/invoiceEdit.js"></script>
 
 
-<!--
-<script type="text/javascript" src="<%=path%>/js/contract/contract.js"></script>
--->
 <div id="contract_list_"></div>
 <div id="quogrid"></div>
 <div id="contractEditWinEl"></div>

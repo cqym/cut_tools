@@ -1,5 +1,6 @@
 Ext.namespace('Ext.ftl.quo.manager');
 Ext.namespace('Ext.ftl.generalQuo.product');
+Ext.namespace("Ext.ftl.protools");
 QuotationManager = Ext.ftl.quo.manager;
 
 Ext.ffc.AccountStatusComboBox = Ext.extend(Ext.form.ComboBox , {
@@ -45,10 +46,14 @@ StatusCombox = Ext.extend(Ext.form.ComboBox, {
 			_cfg = {};
 		}
 		Ext.apply(this, _cfg);
+		var arr = [['全部',''],['编制', '0'],['待审批', '1'],['审批通过', '2'],
+						['审批退回', '3'],['提交订货', '6']];
+		if(this.quoType == 0 || this.quoType == 1 || this.quoType == 2){
+			arr.push(['提交合同', '4']);
+		}
 		this.store = new Ext.data.SimpleStore({
 						fields : ['status', 'value'],
-						data : [['全部',''],['编制', '0'],['待审批', '1'],['审批通过', '2'],
-						['审批退回', '3'],['提交订货', '6'], ['提交合同', '4'], ['已经生成合同', '5']]
+						data : arr
 					});
 		StatusCombox.superclass.constructor.call(this, {
 					fieldLabel : '状态',
@@ -101,6 +106,9 @@ CurrencyCombox = Ext.extend(Ext.form.ComboBox, {
 						if(this.curRate == null)
 							this.curRate = a.data['rate'];
 						this.curid = a.data['id'];
+						if(this.ownerForm){
+						    this.ownerForm.setValues('currencyId', a.data['id']); 	
+						}
 						//alert(this.curRate + "----------")
 					}
 				},scope : this
@@ -130,6 +138,9 @@ CurrencyCombox = Ext.extend(Ext.form.ComboBox, {
 					this.rate = (oldRate/newRate);
 					this.curRate = newRecord.data['rate'];
 					this.curid = newRecord.data['id'];
+					if(this.ownerForm){
+						 this.ownerForm.setValues('currencyId', a.data['id']); 	
+					}
 				},scope : this
 			}
 		})
@@ -188,6 +199,9 @@ orderCurrencyCombox = Ext.extend(Ext.form.ComboBox, {
 						if(this.curRate == null)
 							this.curRate = a.data['rate'];
 							this.curid = a.data['currencyId'];
+							if(this.ownerForm){
+						    this.ownerForm.getForm().setValues({'currencyId': a.data['currencyId']}); 	
+					    }
 					}
 				},scope : this
 			}
@@ -215,6 +229,9 @@ orderCurrencyCombox = Ext.extend(Ext.form.ComboBox, {
 					this.rate = (oldRate/newRate);
 					this.curRate = newRecord.data['rate'];
 					this.curid = newRecord.data['currencyId'];
+					if(this.ownerForm){
+						 this.ownerForm.getForm().setValues({'currencyId': newRecord.data['currencyId']}); 	
+					}
 				},scope : this
 			}
 		})
@@ -370,13 +387,15 @@ Ext.zhj.PaymentConditionComboBox = Ext.extend(Ext.form.ComboBox , {
 							[2,'预付50%合同款即订货,发货前通知甲方付清尾款即发货,发票随货物寄出。'],
 							[3,'预付30%合同款即订货,发货前通知甲方付清尾款即发货,发票随货物寄出。'],
 							[4,'预付30%合同款即订货,发货前通知甲方付60%合同款即发货,货物验收合格后见证明付10%合同尾款即开发票。'],
-							[5,'货交甲方，发票挂账120天后付清全款。'],
-							[6,'货交甲方，发票挂账90天后付清全款。'],
-							[7,'货交甲方，发票挂账30天后付清全款。'],
-							[8,'货交甲方，发票挂账15天后付清全款。'],
+							[5,'货交甲方，发票挂账120天内付清全款。'],
+							[6,'货交甲方，发票挂账90天内付清全款。'],
+							[7,'货交甲方，发票挂账30天内付清全款。'],
+							[8,'货交甲方，发票挂账15天内付清全款。'],
 							[9,'收到100%合同款即订货，不开票。'],
 							[10,'收到100%合同款即发货，不开票。'],
-							[11,'机床公司收到机床款后向我方付清刀具全款。']
+							[11,'机床公司收到机床款后向我方付清刀具全款。'],
+							[12,'货交甲方，发票挂账7天内付清全款。'],
+							[13,'货交甲方，交货当天付清全款。']
 						]
 					});
 		Ext.zhj.PaymentConditionComboBox.superclass.constructor.call(this, {
@@ -420,13 +439,15 @@ Ext.ffc.ClosingAccountModeComboBox = Ext.extend(Ext.form.ComboBox , {
 							['预付50%合同款即订货,发货前通知甲方付清尾款即发货,发票随货物寄出。'],
 							['预付30%合同款即订货,发货前通知甲方付清尾款即发货,发票随货物寄出。'],
 							['预付30%合同款即订货,发货前通知甲方付60%合同款即发货,货物验收合格后见证明付10%合同尾款即开发票。'],
-							['货交甲方，发票挂账120天后付清全款。'],
-							['货交甲方，发票挂账90天后付清全款。'],
-							['货交甲方，发票挂账30天后付清全款。'],
-							['货交甲方，发票挂账15天后付清全款。'],
+							['货交甲方，发票挂账120天内付清全款。'],
+							['货交甲方，发票挂账90天内付清全款。'],
+							['货交甲方，发票挂账30天内付清全款。'],
+							['货交甲方，发票挂账15天内付清全款。'],
 							['收到100%合同款即订货，不开票。'],
 							['收到100%合同款即发货，不开票。'],
-							['机床公司收到机床款后向我方付清刀具全款。']
+							['机床公司收到机床款后向我方付清刀具全款。'],
+							['货交甲方，发票挂账7天内付清全款。'],
+							['货交甲方，交货当天付清全款。']
 						]
 					});
 		Ext.ffc.ClosingAccountModeComboBox.superclass.constructor.call(this, {
@@ -466,13 +487,15 @@ Ext.ffc.OrderClosingAccountModeComboBox = Ext.extend(Ext.form.ComboBox , {
 							['预付50%合同款即订货,发货前通知甲方付清尾款即发货,发票随货物寄出。'],
 							['预付30%合同款即订货,发货前通知甲方付清尾款即发货,发票随货物寄出。'],
 							['预付30%合同款即订货,发货前通知甲方付60%合同款即发货,货物验收合格后见证明付10%合同尾款即开发票。'],
-							['货交甲方，发票挂账120天后付清全款。'],
-							['货交甲方，发票挂账90天后付清全款。'],
-							['货交甲方，发票挂账30天后付清全款。'],
-							['货交甲方，发票挂账15天后付清全款。'],
+							['货交甲方，发票挂账120天内付清全款。'],
+							['货交甲方，发票挂账90天内付清全款。'],
+							['货交甲方，发票挂账30天内付清全款。'],
+							['货交甲方，发票挂账15天内付清全款。'],
 							['收到100%合同款即订货，不开票。'],
 							['收到100%合同款即发货，不开票。'],
-							['机床公司收到机床款后向我方付清刀具全款。']
+							['机床公司收到机床款后向我方付清刀具全款。'],
+							['货交甲方，发票挂账7天内付清全款。'],
+							['货交甲方，交货当天付清全款。']
 						]
 					});
 		Ext.ffc.ClosingAccountModeComboBox.superclass.constructor.call(this, {
@@ -505,9 +528,12 @@ Ext.ffc.TrafficModeComboBox = Ext.extend(Ext.form.ComboBox , {
 		this.store = new Ext.data.SimpleStore({
 						fields : ['trafficMode'],
 						data : [
-							['送货至指定地点，费用卖方负担。'],
-							['送货至指定地点，费用买方负担。'],
-							['自提至指定地点，费用买方负担。']
+						  [''],
+							['邮寄至合同约定交提货地点，费用买方负担。'],
+							['邮寄至合同约定交提货地点，费用卖方负担。'],
+							['送货至合同约定交提货地点，费用卖方负担。'],
+							['送货至合同约定交提货地点，费用买方负担。'],
+							['买方自提，费用买方负担。']
 						]
 					});
 		Ext.ffc.ClosingAccountModeComboBox.superclass.constructor.call(this, {
@@ -519,11 +545,50 @@ Ext.ffc.TrafficModeComboBox = Ext.extend(Ext.form.ComboBox , {
 					frame : true,
 					triggerAction : 'all',
 					emptyText:'运输方式及费用...',
-					value : '送货至指定地点，费用卖方负担。',
+					value : '',
 					store : this.store
 		})
 	}
 })
+
+
+/**
+交货方式
+*/
+Ext.ffc.DeliveryTypeComboBox = Ext.extend(Ext.form.ComboBox , {
+	store : null,
+	constructor : function(_cfg) {
+		if(_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
+
+		this.store = new Ext.data.SimpleStore({
+						fields : ['deliveryType'],
+						data : [
+						  [''],
+							['邮寄至合同约定交提货地点，费用买方负担。'],
+							['邮寄至合同约定交提货地点，费用卖方负担。'],
+							['送货至合同约定交提货地点，费用卖方负担。'],
+							['送货至合同约定交提货地点，费用买方负担。'],
+							['买方自提，费用买方负担。']
+						]
+					});
+		Ext.ffc.DeliveryTypeComboBox.superclass.constructor.call(this, {
+			    fieldLabel : '交货方式',
+					hiddenName : 'deliveryType',
+				  valueField : 'deliveryType',
+					mode : 'local',
+					displayField : 'deliveryType',
+					frame : true,
+					triggerAction : 'all',
+					emptyText:'交货方式...',
+					value : '',
+					store : this.store
+		})
+	}
+})
+
 
 /**
 合同状态(-1作废，0编制，1待审批，2审批通过，3审批退回，4执行，5终结)
@@ -1063,14 +1128,20 @@ Ext.ftl.CusSalesProductGrid = Ext.extend(Ext.grid.GridPanel, {
 					'historyPrice', 'rebate', 'netPrice', 'userName',
 					'customerName', 'editDate','quotationCode', 'id']
 		});
-		
+		if(!this.noPageView){
+			this.bbar = new Ext.PagingToolbar({
+				pageSize : 10,
+				emptyMsg : "没有记录",
+				displayInfo : true,
+				displayMsg : '显示第 {0} - {1} 条 共 {2} 条',
+				store : ds
+			})
+		}
 		Ext.ftl.CusSalesProductGrid.superclass.constructor.call(this, {
-			width : 280,
-			height : 400,
+			height : 50,
 			enableHdMenu : false,
 			stripeRows : true,
 			title : '产品历史价格',
-			region : 'east',
 			collapsible : true,
 			split : true,
 			ds : ds,
@@ -1126,14 +1197,8 @@ Ext.ftl.CusSalesProductGrid = Ext.extend(Ext.grid.GridPanel, {
 					header : 'ID',
 					hidden : true,
 					dataIndex : 'id'
-			}]),
-			bbar : new Ext.PagingToolbar({
-				pageSize : 10,
-				emptyMsg : "没有记录",
-				displayInfo : true,
-				displayMsg : '显示第 {0} - {1} 条 共 {2} 条',
-				store : ds
-			})
+			}])
+			
 		});
 
 	}
@@ -1415,7 +1480,7 @@ Quoproduct.ProductTree = Ext.extend(Ext.tree.ColumnTree, {
 	        		if(colValue > 0) {
 	        			
 	        			var id = data.toolsId
-	        			var str = "<a href=\"#\" onclick=Quomanager.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
+	        			var str = "<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
 						return str;
 	        		}
 	        	}},
@@ -1843,8 +1908,17 @@ QuotationManager.ProToolsListTree = Ext.extend(Ext.tree.ColumnTree, {
 	        	{header:'来源',width:100,dataIndex:'productSource'},
 	        	{header:'货品编号',width:100,dataIndex:'productCode'},
 	        	{header : "历史牌号", width:200,dataIndex : 'brandCodeHistory'},
-	        	{header:'附件',width:100,dataIndex:'slaveFile'},
-	        	{header:'创建日期',width:100,dataIndex:'createDateStr'},
+				{header:'附件',width:60,hidden : false, dataIndex:'slaveFile', renderer : function(colValue, node, data) {
+				    var toolsId = data.id;
+	        		if(data.parentId != 'root'){
+					    toolsId = data.productCode.substr(data.productCode.indexOf('-') + 1);//！此处如果productCode的编码形式发生改变，会有问题
+					}
+	        		if(colValue > 0) {
+						return "<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick('" + toolsId + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
+	        		}
+					return '';
+	        	}},
+				{header:'创建日期',width:100,dataIndex:'createDateStr'},
 	        	{header:'ui',width:0,dataIndex:'uiProvider', hidden : true},
 	        	{header:'备注',width:180,dataIndex:'memo'}
 	        ],
@@ -1886,7 +1960,7 @@ QuotationManager.ProToolsListWindow = Ext.extend(Ext.Window, {
 		})
 		QuotationManager.ProToolsListWindow.superclass.constructor.call(this, {
 			title: '产品信息',  
-			width:600,  
+			width:800,  
 			height:300,  
 			plain:true,
 			modal : true,
@@ -1923,11 +1997,12 @@ QuotationManager.productsGridColumn = Ext.extend(Ext.grid.ColumnModel, {
 		}
 		Ext.apply(this, _cfg);
 		var _hidden = true;
-		var _noYuDingHidden = true;//不是预订为true
+		//var _noYuDingHidden = true;//不是预订为true
 		if(this.isDetail && (this.quoType == 3 || this.quoType == 4)) 
 			_hidden = false;
-		if(this.isDetail && this.quoType == 3) 
-			_noYuDingHidden = false;
+		//if(this.isDetail && this.quoType == 3) 
+		//	_noYuDingHidden = false;
+		var zhuanhetongHidden = !this.isDetail && true;
 		//项目编号编辑框
 		this.numbField = new Ext.form.NumberField({
 		   gridObj : this.parentCt,
@@ -2168,8 +2243,7 @@ QuotationManager.productsGridColumn = Ext.extend(Ext.grid.ColumnModel, {
         	{header: '已交数量',width: 80,dataIndex:'deliveryAmount',
         		hidden : _hidden
         	},
-        	{header: '已转数量',width: 80,dataIndex:'contractAmount',
-        		hidden : _noYuDingHidden,
+        	{header: '已转数量',width: 80,dataIndex:'contractAmount',hidden:zhuanhetongHidden,
 				renderer : function(colValue, metadata, record){
 				    
 	        		return '<span style="color:#990000;font-weight:bold" id="' + record.id + 'yzsl" ondblclick="updateYuDing2ConWindow(this)" onmousemove="viewContractInfor(this)">' + colValue + '</span>';
@@ -2196,10 +2270,10 @@ QuotationManager.productsGridColumn = Ext.extend(Ext.grid.ColumnModel, {
 		           }
 	        	})
 	        },
-        	{header:'附件',width:100,dataIndex:'slaveFile', renderer : function(colValue, node, data) {
+        	{header:'客户确认方案图',width:100,dataIndex:'slaveFile', renderer : function(colValue, node, data) {
         		if(colValue > 0) {
         			var id = data.data.toolsId
-        			var str = "<a href=\"#\" onclick=Quomanager.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
+        			var str = "<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
 					return str;
         		}
         	}},
@@ -3382,7 +3456,8 @@ Ext.ffc.QuoTypeComboBox = Ext.extend(Ext.form.ComboBox , {
 						fields : ['quoType','quotationTypeText'],
 						data : [
 							[0,'普通/项目报价'],
-							[1,'预订报价']
+							[3,'预订报价'],
+							[4,'试刀报价']
 						]
 					});
 		Ext.ffc.QuoTypeComboBox.superclass.constructor.call(this, {
@@ -3398,3 +3473,236 @@ Ext.ffc.QuoTypeComboBox = Ext.extend(Ext.form.ComboBox , {
 		})
 	}
 })
+
+function taxRateComboxChange(field, newValue, oldValue ){
+			var formPanel = field.ownerCt;
+			var form = formPanel.getForm();
+			if(newValue * 1 == 0){
+							form.findField('exemplarInvoice').setDisabled(false);
+			}else{
+							form.findField('exemplarInvoice').setDisabled(true);
+							form.findField('exemplarInvoice').setValue(0);
+			}
+}
+
+
+/**
+ * 产品对应采购价格
+ * @class Ext.ffc.ProductOrderProductGrid
+ * @extends Ext.grid.GridPanel
+ */	    
+Ext.ftl.ProductOrderProductGrid = Ext.extend(Ext.grid.GridPanel, {
+	constructor : function(_cfg) {
+		if (_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
+		var ds = new Ext.data.JsonStore({
+					url : PATH
+							+ '/baseInfo/orderProductHistoryListAction.do',
+					root : 'orderProductHistoryList',
+					totalProperty : 'totalProperty',
+					autoLoad : false,
+					remoteSort : true,
+					fields : ['productName', 'productCode', 'brandCode',
+							'historyPrice', 'userName', 'supplierName',
+							'editDate', 'stockPriceDate',
+							'productToolsInforId', 'id','historyMarketPrice','historyRebate']
+				});
+		
+		Ext.ftl.ProductOrderProductGrid.superclass.constructor.call(this, {
+			width : 280,
+			enableHdMenu : false,
+			stripeRows : true,
+			title : '采购价格',
+			collapsible : true,
+			split : true,
+			ds : ds,
+			view : new Ext.grid.GridView({
+				deferEmptyText : false,
+				emptyText : '该产品无采购价格记录！'
+			}),
+			selModel : new Ext.grid.RowSelectionModel({
+				singleSelect : true
+			}),
+			cm : new Ext.grid.ColumnModel([
+				 {
+					header : '日期',
+					dataIndex : 'editDate',
+					width:90,
+					sortable:true
+				}, {
+					header : '未税采购净价',
+					dataIndex : 'historyPrice',
+					width:120
+				}, {
+					header : '供应商',
+					dataIndex : 'supplierName'
+					
+				}, {
+					header : '进销差价',
+					renderer : function(value, cellmeta, record, rowIndex, columnIndex, store){
+						var price = record.get('historyPrice');
+						if(this.netPrice > price){
+						    return '<span style="color:green">' + (this.netPrice - price).toFixed(2) + '</span>';	
+						}else{
+							  return '<span style="color:red">' + (this.netPrice - price).toFixed(2) + '</span>';	
+						}
+					},scope:this
+				},{
+					header : '毛利率',
+					renderer : function(value, cellmeta, record, rowIndex, columnIndex, store){
+						var price = record.get('historyPrice');
+						if(this.netPrice > price){
+						    return '<span style="color:green">' + ((this.netPrice - price)/this.netPrice).toFixed(2) + '</span>';	
+						}else{
+							  return '<span style="color:red">' + ((this.netPrice - price)/this.netPrice).toFixed(2) + '</span>';	
+						}
+					},scope:this
+				}])
+		});
+
+	}
+});
+
+
+/**
+ * 转合同下拉框
+ * @class TransferContractCombox
+ * @extends Ext.form.ComboBox
+ */
+TransferContractCombox = Ext.extend(Ext.form.ComboBox, {
+	store : null,
+	constructor : function(_cfg) {
+		if(_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
+		var arr = [['全部',''],['未转合同', '0'],['部分转合同', '1']];
+		if(this.quoType == 3 || this.quoType == 4){
+			arr.push(['全部转合同', '2']);
+		}else{
+		  arr.push(['已转合同', '2']);
+		}
+		this.store = new Ext.data.SimpleStore({
+						fields : ['transferContract', 'value'],
+						data : arr
+					});
+		TransferContractCombox.superclass.constructor.call(this, {
+					fieldLabel : '生成合同',
+					hiddenName : 'transferContract',
+					mode : 'local',
+					displayField : 'transferContract',
+					valueField : 'value',
+					//anchor:'90%',
+					readOnly : true,
+					frame : true,
+					triggerAction : 'all',
+					value : '全部',
+					store : this.store
+		})
+	}
+})
+
+Ext.ftl.protools.onSlaveClick = function(_id) {
+	var slaveWindow = new Slave.SlaveManageWindow({busId : _id, busType : 1});
+	slaveWindow.show();
+}
+
+
+Ext.ffc.AuditMsgWindow = Ext.extend(Ext.Window, {
+	constructor : function(_cfg) {
+		if(_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
+		this._form = new Ext.FormPanel({
+			    //layout:'form',
+				labelWidth :60,
+				frame:true,
+				margins: '-5 5 5 5',
+				//labelAlign :'right',
+			    items: [{
+					fieldLabel: '审核意见',
+					name: 'audtMsg',
+					xtype:'textarea',
+					allowBlank:false,
+					width:470,
+					x:10,
+					y:0,
+					margins: '-5 5 5 5'
+				}],
+          buttons: [{
+          		text: '审核通过',
+		    			handler:function(){
+								var _this = this;
+								var msg = _this._form.getForm().getValues()['audtMsg'];
+								if(msg == ''){
+									msg = "同意";
+								}
+								var arr = _this.auditContentsObj;
+								var checkedArr = [];
+								for(var i = 0;i < arr.length;i++){
+									if(arr[i].checked){
+										checkedArr.push(arr[i].value);
+									}
+								}
+								if(checkedArr.length < arr.length){
+								    Ext.Msg.show({title:'信息提示',msg: '请选择本次审批需要审核的【审核内容】，在单据的左下角！',buttons: Ext.Msg.OK,width : 200,icon: Ext.MessageBox.INFO});
+								    return ;	
+								}
+								Ext.MessageBox.confirm('系统提示', '请确认是否要【审批通过】!', function(btn){
+									if(btn != 'yes'){return ;}
+									_this.executeAudit([_this.busId],msg,1,checkedArr);
+								});
+		    			},scope:this
+          	},{
+          		text: '审核退回',
+		    			handler:function(){
+		    				var _this = this;
+		    				var msg = '';
+								if(!this._form.getForm().isValid()){
+									return ;
+								}
+								Ext.MessageBox.confirm('系统提示', '请确认是否要【审批退回】!', function(btn){
+									if(btn != 'yes'){return ;}
+									_this.executeAudit([_this.busId],_this._form.getForm().getValues().audtMsg,0,[]);
+								});
+		    			},scope:this
+          	}]
+			});
+		
+		Ext.ffc.AuditMsgWindow.superclass.constructor.call(this, {
+			title:"请填写意见并审核",
+			width:600,
+			height:160,
+			layout:'fit',
+		  modal:true,
+			items:this._form,
+			executeAudit : function(pbussinessIds,pcomment,popType,auditContentArray){
+				  var grid = this.grid;
+					var auditTypeObj = this.auditType;
+					var _this = this;
+					
+					Ext.Ajax.request({
+							method: "post",
+							params: { bussinessIds:pbussinessIds,auditType: auditTypeObj.auditTypeId,auditInforId:auditTypeObj.auditFlowId,comment:pcomment,opType:popType,auditContentArray:auditContentArray},
+							url: PATH + "/manage/audit/auditInforMangeAction.do?ffc=executeAudit",
+							success: function(response){
+								if(response.responseText == 'true'){
+									Ext.MessageBox.alert('系统提示', '审批成功!', function(){
+										_this.grid.loadData(0,100);
+										_this.bussinessWindow.close();
+										_this.close();
+									});		
+								}else{
+								  Ext.MessageBox.alert('系统提示', response.responseText);	
+								}
+							},
+							failure:function(response){
+								Ext.MessageBox.alert('系统提示', response.responseText);	
+							}
+					});
+		  },scope:this
+		})
+}}); 

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 订单信息Dto
@@ -13,21 +14,21 @@ import java.util.Date;
 public class OrderInfoDto implements Serializable {
   private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  public static final String ORDER_TYPE_CONTRACT = "1";//合同订单
+  public static final Integer ORDER_TYPE_CONTRACT = 1;//合同订单
 
-  public static final String ORDER_TYPE_SCHEDLE = "5";//预订订单
+  public static final Integer ORDER_TYPE_SCHEDLE = 5;//预订订单
 
-  public static final String ORDER_TYPE_TRY = "6";//试刀订单
+  public static final Integer ORDER_TYPE_TRY = 6;//试刀订单
 
-  public static final String ORDER_TYPE_CONTRACT_SELF = "3";//合同加工
+  public static final Integer ORDER_TYPE_CONTRACT_SELF = 3;//合同加工
 
-  public static final String ORDER_TYPE_SCHEDLE_SELF = "7";//预订加工
+  public static final Integer ORDER_TYPE_SCHEDLE_SELF = 7;//预订加工
 
-  public static final String ORDER_TYPE_TRY_SELF = "8";//试刀加工
+  public static final Integer ORDER_TYPE_TRY_SELF = 8;//试刀加工
 
-  public static final String ORDER_TYPE_RESERVE = "2";//储备
+  public static final Integer ORDER_TYPE_RESERVE = 2;//储备
 
-  public static final String ORDER_TYPE_MAT_RESERVE = "4";//材料储备
+  public static final Integer ORDER_TYPE_MAT_RESERVE = 4;//材料储备
 
   /**
    * 订单ID
@@ -170,9 +171,13 @@ public class OrderInfoDto implements Serializable {
 
   private String quotationCode;
 
-  private String deliveryAddress;//销售合同交货地点及方式
+  private String contractDeliveryAddress;//销售合同交货地点及方式
+
+  private String contractTrafficMode;
 
   private Integer editedPlan;
+
+  private List orderDetail;
 
   public String getId() {
     return id;
@@ -560,20 +565,36 @@ public class OrderInfoDto implements Serializable {
     this.quotationCode = quotationCode;
   }
 
-  public String getDeliveryAddress() {
-    return deliveryAddress;
-  }
-
-  public void setDeliveryAddress(String deliveryAddress) {
-    this.deliveryAddress = deliveryAddress;
-  }
-
   public Integer getEditedPlan() {
     return editedPlan;
   }
 
   public void setEditedPlan(Integer editedPlan) {
     this.editedPlan = editedPlan;
+  }
+
+  public String getContractDeliveryAddress() {
+    return contractDeliveryAddress;
+  }
+
+  public void setContractDeliveryAddress(String contractDeliveryAddress) {
+    this.contractDeliveryAddress = contractDeliveryAddress;
+  }
+
+  public String getContractTrafficMode() {
+    return contractTrafficMode;
+  }
+
+  public void setContractTrafficMode(String contractTrafficMode) {
+    this.contractTrafficMode = contractTrafficMode;
+  }
+
+  public List getOrderDetail() {
+    return orderDetail;
+  }
+
+  public void setOrderDetail(List orderDetail) {
+    this.orderDetail = orderDetail;
   }
 
 }

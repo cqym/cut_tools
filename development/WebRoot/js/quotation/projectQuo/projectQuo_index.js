@@ -424,7 +424,7 @@ Ext.zhj.qutation.projectQuo.SearchForm = Ext.extend(Ext.FormPanel, {
 					_cfg = {};
 				}
 				Ext.apply(this, _cfg);
-				this.statusCombox = new StatusCombox({x:90,y:33, width:170});
+				this.statusCombox = new StatusCombox({x:90,y:33, width:170,quoType: 2});
 				this.lableStyle_ = "font-size:9pt;text-align:right;width:85px";
 				var _config = [
 					//1
@@ -454,7 +454,16 @@ Ext.zhj.qutation.projectQuo.SearchForm = Ext.extend(Ext.FormPanel, {
 		            {xtype:'datefield',name: 'endDate', format:'Y-m-d',emptyText:'',x:600,y:33, width:170},
 		            //3
 		            {xtype:'label',text: '状态:',x:0,y:35,style:this.lableStyle_},
-		            this.statusCombox
+		            this.statusCombox,
+		            {xtype:'label',text: '生成合同:',x:760,y:35,style:this.lableStyle_},
+			          new TransferContractCombox({x:850,y:33, width:170,quoType:2,
+			          	listeners : {
+				            	'specialkey' : function(field, e) {
+				            		if(e.getKey() == e.ENTER)
+				            			this.fireEvent('search',this, this.getValues());
+				            	},scope : this
+				            }})
+				    
 				];
 				Ext.zhj.qutation.projectQuo.SearchForm.superclass.constructor
 						.call(this, {
@@ -603,7 +612,20 @@ Ext.zhj.qutation.projectQuo.GridList = Ext.extend(Ext.grid.GridPanel, {
 					sortable : true,
 					width : 80,
 					renderer : changeStatusZJ
-				}, {
+				},
+				{header : '生成合同',dataIndex : 'transferContract',sortable: true,
+					renderer : function(val){
+				  	switch(val) {
+							case 0 :
+							    return "<span style='color:#A1A09D;font-weight:bold;'>未转合同</span>";
+							case 1 : 
+							    return "<span style='color:#dac60e;font-weight:bold;'>部分转合同</span>";
+							case 2 : 
+							    return "<span style='color:green;font-weight:bold;'>已转合同</span>";
+						}
+				  }
+				}, 
+				 {
 					header : '紧急程度',
 					dataIndex : 'urgentLevel',
 					sortable : true,

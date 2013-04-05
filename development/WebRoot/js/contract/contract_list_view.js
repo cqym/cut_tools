@@ -101,6 +101,7 @@ Ext.apply(_config, getConfig());
 		listeners : {
 			'load' : function( store, records, ops ){
 				//insertTotalRow();
+				var a = 1;
 			}
 		}
 	});
@@ -316,8 +317,11 @@ var expander = new Ext.ux.grid.RowExpander({
 						text = '已全开';
 						s = "color:#33FFFF";
 					}
-					var str = "<a " + s + " href=\"javascript:Ext.ffc.showContractInvoiceInforWin('"+data.id+"','"+data.contractCode+"','"+data.customerCode+"',"+_config.isInvoiceHide+","+data.taxRate+");\">"+text+"</a>";
-					return str;
+					if(data.taxRate == 0){
+						return '<div style="width:100%;height:100%;background-color:#eeeeee;margin:0px">&nbsp;</div>';
+					}
+					
+					return "<a style='" + s + "' href=\"javascript:Ext.ffc.showContractInvoiceInforWin('"+data.id+"','"+data.contractCode+"','"+data.customerCode+"',"+_config.isInvoiceHide+","+data.taxRate+");\">"+text+"</a>";
 				}
 			}
         ],
@@ -376,7 +380,7 @@ var expander = new Ext.ux.grid.RowExpander({
 								}
 								_url = PATH + "/contract/contractEditAction.do?ffc=consultProjectQuo";
 								_params['id'] = idsArr[0];
-							}else if(quotationType * 1 == 3){//预订
+							}else if(quotationType * 1 == 3 || quotationType * 1 == 4){//预订，或者试刀
 							    _url = PATH + "/contract/contractEditAction.do?ffc=consultYuDingQuo";
 								_params = { ids : idsArr,contractTaxRate:taxRate0};
 							}else{
@@ -396,6 +400,7 @@ var expander = new Ext.ux.grid.RowExpander({
 											conctractInfor : temp,
 											quotationType  : quotationType,
 											_config : _config,
+											canDetailDel:_config.canDetailDel,
 												listeners:{
 													"close" : function(){
 														contractListStore.reload();
@@ -888,7 +893,7 @@ var expander = new Ext.ux.grid.RowExpander({
             items: [
             {
                 region: 'north',
-				layout:'fit',
+				        layout:'fit',
                 iconCls:'icon-grid',
                 split: true,
                 height : 100,
@@ -898,7 +903,7 @@ var expander = new Ext.ux.grid.RowExpander({
                 
             }, {
                 region: 'center',
-				layout:'fit',
+				        layout:'fit',
                 split: true,
                 collapsible: true,
                 margins: '-5 5 5 5',

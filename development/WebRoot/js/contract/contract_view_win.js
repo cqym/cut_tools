@@ -30,6 +30,11 @@ Ext.ffc.ContractInfoViewForm = Ext.extend(Ext.FormPanel, {
 							{xtype:'textfield',  name: 'ownContactPerson',readOnly : true,x:600,y:33,width:170},
 							{xtype:'label',text: '税　　率',x:760,y:35,style:this.lableStyle_},
 							new TaxrateCombox({hideTrigger : true,width:140,x:850,y:33,readOnly : true}),
+						  new Ext.form.Checkbox({
+								name: 'exemplarInvoice', x:1000,y:35
+							}),
+							{xtype:'label',text: '形式发票',x:1020,y:35,style:"font-size:9pt;text-align:left;width:85px"},
+							
 						//3 line
 							{xtype:'label',text: '紧急程度',x:0,y:65,style:this.lableStyle_},
 							new Ext.ffc.UrgentLevelCombox({x:90,y:63,width:170}),
@@ -59,7 +64,7 @@ Ext.ffc.ContractInfoViewForm = Ext.extend(Ext.FormPanel, {
 							{xtype:'label',text: '最终金额',x:760,y:155,style:this.lableStyle_},
 							{xtype:'numberfield',  name: 'finalMoney',x:850,y:153,width:140},
 					   //7
-							{xtype:'label',text: '运输方式',x:0,y:185,style:this.lableStyle_},
+							{xtype:'label',text: '交货方式',x:0,y:185,style:this.lableStyle_},
 							new Ext.ffc.TrafficModeComboBox({x:90,y:183,width:420,allowBlank:false,blankText:'运输方式及费用负担不能为空!'}),
 							{xtype:'label',text: '合同违约责任',x:510,y:185,style:this.lableStyle_},
 							{xtype:'textfield',  name: 'signAddress',x:600,y:183,width:390,allowBlank:false,blankText:'合同违约责任不能为空!'},
@@ -107,8 +112,15 @@ Ext.ffc.ViewNorthPanel = Ext.extend(Ext.Panel, {
 			var recordParams = {};
 
 			Ext.apply(recordParams,conctractInfor);
-			var myNewRecord = new RecordClum(recordParams); 
-			this.ownerCt.simpleForm.getForm().loadRecord(myNewRecord);
+			var myNewRecord = new RecordClum(recordParams);
+			with(this.ownerCt.simpleForm.getForm()){
+			    loadRecord(myNewRecord);
+			    if(conctractInfor.taxRate > 0){
+			    	findField('exemplarInvoice').setDisabled(true);
+			    }else{
+			    	findField('exemplarInvoice').setDisabled(false);
+			    }
+		  } 
 		}); 
 
 		Ext.ffc.ViewNorthPanel.superclass.constructor.call(this, {
@@ -201,10 +213,12 @@ Ext.ffc.getViewContractDetailProTree = function (quotationType,jsonData,title,so
 			{name: 'workshop',mapping:'workshop',type:'string'},
 			{name: 'reportCode',mapping:'reportCode',type:'string'},
 			{name: 'priceChange',mapping:'priceChange',type:'float'},
-		    {name: 'orderAmount',mapping:'orderAmount',type:'float'},
-		    {name: 'arrivalAmount',mapping:'arrivalAmount',type:'float'},
-		    {name: 'deliveryAmount',mapping:'deliveryAmount',type:'float'},
-			{name: 'leaf',mapping:'leaf',type:'float'}
+		  {name: 'orderAmount',mapping:'orderAmount',type:'float'},
+		  {name: 'arrivalAmount',mapping:'arrivalAmount',type:'float'},
+		  {name: 'deliveryAmount',mapping:'deliveryAmount',type:'float'},
+			{name: 'leaf',mapping:'leaf',type:'float'},
+			{name: 'fileCount',mapping:'fileCount',type:'float'}
+			
         ])
     });
 var rtGrid = new Ext.grid.GridPanel({
@@ -364,15 +378,16 @@ var rtGrid = new Ext.grid.GridPanel({
 	            dataIndex:'reportCode',
 				editor:new Ext.form.TextField()
 	        },{
-	            header:'附件',
-	            width:80,
+	            header:'客户确认方案图',
+	            width:100,
 	            dataIndex:'toolsId',
 				renderer : function(value, cellmeta, record, rowIndex, columnIndex, store) {
-					if(record.get('leaf') * 1== 1){
-					     return '';
-					 }
-					var str = '<a href=\"#\" onclick=Ext.ftl.generalQuo.onSlaveClick("' + value + '",5)><span style="color:blue;font-weight:bold;">查看</span></a>';
-					return str;
+							 var fileCount = record.get('fileCount');
+							 if(fileCount > 0){
+							 	  return '<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick("' + value + '")><span style="color:blue;font-weight:bold;">查看</span></a>';
+							   
+							 }
+							 return '';
 	        	}
 	        },{
 	            dataIndex:'priceChange',
@@ -452,9 +467,113 @@ Ext.ffc.ContractViewWindow = Ext.extend(Ext.Window, {
 	}
 });  
 
+
+
+Ext.ffc.ContractViewAuditWindow = Ext.extend(Ext.ffc.AuditBusinessDetailWindow, {  
+	topPanel : null,
+	centerPanel : null,
+	conctractInfor: null,
+	readOnly : false,
+	addDetailTabPanel:function(sortArr,func){
+		var centerPanels = [];
+		for(var i = 0 ;i < sortArr.length;i++){
+			var pan = Ext.ffc.getViewContractDetailProTree(this.quotationType,sortArr[i].conProductDetail,sortArr[i].name,sortArr[i].id);
+		    centerPanels.push(pan);
+		    pan.on('rowclick',func ,this);
+			  pan.store.load();
+		}
+		this.centerPanel.add(centerPanels);
+		return centerPanels;
+	},
+	constructor : function(_cfg) {
+
+		if(_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
+		this.topPanel = new Ext.ffc.ViewNorthPanel({readOnly:_cfg.readOnly});
+		this.centerPanel = new Ext.ffc.contractViewDetailTabPanel();
+		var sortArr = this.conctractInfor.contractProductSorts;
+		this.addDetailTabPanel(sortArr,function(grid, rowIndex, e) {
+	    	 var conDetailRecord = grid.getStore().getAt(rowIndex);
+	    		var _store = this.historyPriceGrid.getStore();
+	    		_store.baseParams.customerCode = this.conctractInfor.customerCode;
+	    		_store.baseParams.pid = conDetailRecord.get("toolsId");
+	    		_store.load({
+					params : {
+						start : 0,
+						limit : 10
+					}
+					});
+					
+					this.productOrderPriceGrid.netPrice = conDetailRecord.get("netPrice");
+					var orderStore = this.productOrderPriceGrid.getStore();
+					orderStore.baseParams.productId = conDetailRecord.get("toolsId");
+					orderStore.load({
+					params : {
+						start : 0,
+						limit : 10
+					}	
+					});
+	    	});
+
+   	this.historyPriceGrid = new Ext.ftl.CusSalesProductGrid({region : 'center',noPageView:true});
+   	this.productOrderPriceGrid = new Ext.ftl.ProductOrderProductGrid({region : 'south'});
+   	
+		Ext.ffc.ContractViewAuditWindow.superclass.constructor.call(this, {
+			constrainHeader : true,
+			width : Ext.getBody().getWidth(),
+			height : 600,
+			maximizable :true,
+			title :  '合同查看',
+			layout :  'border',
+			modal : true,
+			items : [this.topPanel,
+			{
+                region: 'center',
+								layout: 'border',
+                iconCls:'icon-grid',
+                split: true,
+                width:280,
+                collapsible: true,
+                margins: '5 5 5 5',
+                items : [this.centerPanel,
+                {
+	                region: 'east',
+									layout: 'border',
+	                iconCls:'icon-grid',
+	                split: true,
+	                width:280,
+	                collapsible: true,
+	                margins: '5 5 5 5',
+	                items :[this.historyPriceGrid,this.productOrderPriceGrid]
+                }
+                ]     
+       }
+			],
+			buttons : [{
+				text : "关  闭",
+				handler : function() {
+					this.close();
+				},
+				scope : this
+			 }]
+		});
+	}
+});  
+
+
 DetailWindow = function(){
    this.method = null;
    this.id = null;
+   this.auditType = null;
+   this.grid = null;
+   this.setGrid = function(_grid){
+   	 this.grid = _grid
+   };
+   this.setAuditType = function(_auditType){
+     this.auditType = _auditType;	
+   };
    this.on = function(paraString,fun){
 		this.method = fun;
    };
@@ -465,13 +584,18 @@ DetailWindow = function(){
        if(this.method != null){
 	       this.method();
 			var conId = this.id;
+			var _this = this;
+			
 			Ext.Ajax.request({
 				method: "post",
 				params: { id : conId},
 				url: PATH + "/contract/contractViewAction.do?ffc=contractViewById",
 				success: function(response){
 						eval("var temp = " + response.responseText);
-						var conEditWin = new Ext.ffc.ContractViewWindow({conctractInfor:temp,readOnly : true});
+						var conEditWin = new Ext.ffc.ContractViewAuditWindow({conctractInfor:temp,readOnly : true,
+							auditType:_this.auditType,_grid:_this.grid});
+						conEditWin.setId(conId);
+						
 						conEditWin.show();
 						//select_quotations_win.close();
 				}

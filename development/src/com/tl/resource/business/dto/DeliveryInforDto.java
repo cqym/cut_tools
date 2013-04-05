@@ -62,6 +62,8 @@ public class DeliveryInforDto {
 
   private String deliveryAddressType;
 
+  private String trafficMode;
+
   private List<DeliveryProductDetailDto> deliveryProductDetailDto;
 
   public String getId() {
@@ -267,6 +269,14 @@ public class DeliveryInforDto {
 
   public void setDeliveryAddressType(String deliveryAddressType) {
     this.deliveryAddressType = deliveryAddressType;
+  }
+
+  public String getTrafficMode() {
+    return trafficMode;
+  }
+
+  public void setTrafficMode(String trafficMode) {
+    this.trafficMode = trafficMode;
   }
 
 }

@@ -26,7 +26,7 @@ Quomanager.QuotationForm = Ext.extend(Ext.FormPanel, {
 			xtype:'hidden',fieldLabel: 'currency',name: 'currency',hidden : true, hideLabel : true
 		})
 		this.currCombox = new CurrencyCombox({disabled : this.isReadOnly,x:600,y:93,width:170});
-		this.taxRateCombox = new TaxrateCombox({disabled : this.isReadOnly,width:170,x:860,y:33});
+		this.taxRateCombox = new TaxrateCombox({disabled : this.isReadOnly,width:170,x:860,y:33,listeners:{"change":taxRateComboxChange}});
 		this.sallerCombox = new SallerCombox({disabled : this.isReadOnly,x:600,y:3,width:170});
 		this.paymentCombox = new Ext.zhj.PaymentConditionComboBox({width : 680,disabled : this.isReadOnly, x:90,y:153});
 		this.quoDateField = new Ext.form.DateField({
@@ -83,6 +83,10 @@ Quomanager.QuotationForm = Ext.extend(Ext.FormPanel, {
 			hidden : true, hideLabel : true
 		})
 		
+		this.exemplarInvoiceField = new Ext.form.Checkbox({
+			name: 'exemplarInvoice', x:1035,y:35,disabled:true
+		});
+		
 		this.currCombox.on({
 			'change' : function() {
 				this.currIdField.setValue(this.currCombox.curid);
@@ -127,6 +131,8 @@ Quomanager.QuotationForm = Ext.extend(Ext.FormPanel, {
 		    {xtype:'textfield',  name: 'userName',readOnly : true,x:600,y:33,width:170},
 			{xtype:'label',text: '税率:',x:770,y:35,style:this.lableStyle_},
 			this.taxRateCombox,
+			this.exemplarInvoiceField,
+			{xtype:'label',text: '形式发票',x:1055,y:35,style:"font-size:9pt;text-align:left;width:85px"},
 			//3
 			{xtype:'label',text: '紧急程度:',x:0,y:65,style:this.lableStyle_},
 			new Ext.ffc.UrgentLevelCombox({x:90,y:63, width:170,disabled : this.isReadOnly}),
@@ -174,7 +180,9 @@ Quomanager.QuotationForm = Ext.extend(Ext.FormPanel, {
              {xtype:'numberfield', name: 'finalMoney', allowBlank : false, x:860,y:153,width:170},
              //7
              {xtype:'label',text: '交货方式:',x:0,y:185,style:this.lableStyle_},
-             {xtype:'textfield' ,name: 'deliveryType', width : 680, readOnly : this.isReadOnly, allowBlank : false,x:90,y:183},
+             
+             //{xtype:'textfield' ,name: 'deliveryType', width : 680, readOnly : this.isReadOnly, allowBlank : false,x:90,y:183},
+             new Ext.ffc.DeliveryTypeComboBox({width : 680, readOnly : this.isReadOnly, allowBlank : false,x:90,y:183}),
             /* {xtype:'label',text: '是否预订:',x:770,y:185,style:this.lableStyle_,hidden : true, hideLabel : true},
              this.checkBox,*/
              //8
@@ -300,7 +308,7 @@ Quomanager.ReserveQuotationForm = Ext.extend(Ext.FormPanel, {
 			xtype:'hidden',fieldLabel: 'currency',name: 'currency',hidden : true, hideLabel : true
 		})
 		this.currCombox = new CurrencyCombox({disabled : this.isReadOnly,x:600,y:93,width:170});
-		this.taxRateCombox = new TaxrateCombox({disabled : this.isReadOnly,width:170,x:860,y:33});
+		this.taxRateCombox = new TaxrateCombox({disabled : this.isReadOnly,width:170,x:860,y:33,listeners:{"change":taxRateComboxChange}});
 		this.sallerCombox = new SallerCombox({disabled : this.isReadOnly,x:600,y:3,width:170});
 		this.paymentCombox = new Ext.zhj.PaymentConditionComboBox({width : 680, allowBlank : false,disabled : this.isReadOnly, x:90,y:213,hidden : true, hideLabel : true});
 		this.quoDateField = new Ext.form.DateField({
@@ -330,8 +338,11 @@ Quomanager.ReserveQuotationForm = Ext.extend(Ext.FormPanel, {
 		this.willFormalDateField = new Ext.form.DateField({
 			xtype:'datefield',name: 'willFormalDate', format:'Y-m-d',allowBlank : true,
 			x:90,y:123, width:170,validationEvent : false,disabled : this.isReadOnly
-		})
+		});
 		
+		this.exemplarInvoiceField = new Ext.form.Checkbox({
+			name: 'exemplarInvoice', x:1035,y:35,disabled:true
+		});
 		this.currCombox.on({
 			'change' : function() {
 				this.currIdField.setValue(this.currCombox.curid);
@@ -376,6 +387,8 @@ Quomanager.ReserveQuotationForm = Ext.extend(Ext.FormPanel, {
 		    {xtype:'textfield',  name: 'userName',readOnly : true,x:600,y:33,width:170},
 			{xtype:'label',text: '税率:',x:770,y:35,style:this.lableStyle_},
 			this.taxRateCombox,
+			this.exemplarInvoiceField,
+			{xtype:'label',text: '形式发票',x:1055,y:35,style:"font-size:9pt;text-align:left;width:85px"},
 			//3
 			{xtype:'label',text: '紧急程度:',x:0,y:65,style:this.lableStyle_},
 			new Ext.ffc.UrgentLevelCombox({x:90,y:63, width:170,disabled : this.isReadOnly}),
@@ -385,6 +398,7 @@ Quomanager.ReserveQuotationForm = Ext.extend(Ext.FormPanel, {
 			{xtype:'textfield', name: 'editorName',readOnly : true,x:600,y:63,width:170},
 			{xtype:'label',text: '税　　金:',x:770,y:65,style:this.lableStyle_},
 			{xtype:'numberfield',  name: 'taxMoney',readOnly : true,x:860,y:63,width:170},
+						
 			//4
 			{xtype:'label',text: '报价状态:',x:0,y:95,style:this.lableStyle_},
 			{xtype:'textfield', readOnly : true, x:90,y:93, width:170,name: 'status'},
@@ -547,7 +561,9 @@ Quomanager.TestCutQuotationForm = Ext.extend(Ext.FormPanel, {
 			xtype:'hidden',fieldLabel: 'currency',name: 'currency',hidden : true, hideLabel : true
 		})
 		this.currCombox = new CurrencyCombox({disabled : this.isReadOnly,x:600,y:93,width:170});
-		this.taxRateCombox = new TaxrateCombox({disabled : this.isReadOnly,width:170,x:860,y:33});
+		this.taxRateCombox = new TaxrateCombox({disabled : this.isReadOnly,width:170,x:860,y:33,
+			listeners:{"change":taxRateComboxChange}
+		});
 		this.sallerCombox = new SallerCombox({disabled : this.isReadOnly,x:600,y:3,width:170});
 		this.paymentCombox = new Ext.zhj.PaymentConditionComboBox({width : 680,disabled : this.isReadOnly, x:90,y:213,hidden : true, hideLabel : true});
 		this.quoDateField = new Ext.form.DateField({
@@ -601,7 +617,11 @@ Quomanager.TestCutQuotationForm = Ext.extend(Ext.FormPanel, {
 		this.willFormalDateField = new Ext.form.DateField({
 			xtype:'datefield',name: 'willFormalDate', format:'Y-m-d',allowBlank : true,
 			x:860,y:213, width:170,validationEvent : false,disabled : this.isReadOnly,hidden : true, hideLabel : true
-		})
+		});
+		
+		this.exemplarInvoiceField = new Ext.form.Checkbox({
+			name: 'exemplarInvoice', x:1035,y:35,disabled:true
+		});
 		
 		this.currCombox.on({
 			'change' : function() {
@@ -647,6 +667,8 @@ Quomanager.TestCutQuotationForm = Ext.extend(Ext.FormPanel, {
 		    {xtype:'textfield',  name: 'userName',readOnly : true,x:600,y:33,width:170},
 			{xtype:'label',text: '税率:',x:770,y:35,style:this.lableStyle_},
 			this.taxRateCombox,
+			this.exemplarInvoiceField,
+			{xtype:'label',text: '形式发票',x:1055,y:35,style:"font-size:9pt;text-align:left;width:85px"},
 			//3
 			{xtype:'label',text: '紧急程度:',x:0,y:65,style:this.lableStyle_},
 			new Ext.ffc.UrgentLevelCombox({x:90,y:63, width:170,disabled : this.isReadOnly}),
@@ -904,12 +926,12 @@ Quomanager.ProductsTree = Ext.extend(Ext.tree.ColumnTree, {
 						}
 					}
 	        	},
-	        	{header:'附件',width:100,disEnableEdit:true,dataIndex:'slaveFile', renderer : function(colValue, node, data) {
+	        	{header:'客户确认方案图',width:100,disEnableEdit:true,dataIndex:'slaveFile', renderer : function(colValue, node, data) {
 	        		if(data.parentToolsId != 'root')
 	        			return;
 	        		if(colValue > 0) {
 	        			var id = data.toolsId
-	        			var str = "<a href=\"#\" onclick=Quomanager.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
+	        			var str = "<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
 						return str;
 	        		}
 	        	}},
@@ -1081,7 +1103,7 @@ Quomanager.ProductsTree = Ext.extend(Ext.tree.ColumnTree, {
 			this.appendChild(_newNode);
 			//this.getTopToolbar().items.get(4).fireEvent('click');
 			var _node = this.getRootNode().lastChild;
-			var str = "<a href=\"#\" onclick=Quomanager.onSlaveClick('" + _node.attributes.toolsId + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
+			var str = "<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick('" + _node.attributes.toolsId + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
 			if(_node.attributes.slaveFile > 0) {
 				_node.cols['slaveFile'] = str;
 				_node.attributes['slaveFile'] = str;
@@ -1353,6 +1375,8 @@ Quomanager.MangerWindow = Ext.extend(Ext.Window, {
 			listeners : {
 				'render' : function() {
 					fn : this.handlerShow();
+					if(this.setAuditContent)
+					   this.setAuditContent();
 				},scope : this
 			},
 			items : [this.northPanel, this._grid]
@@ -1573,6 +1597,11 @@ Quomanager.AddWindow = Ext.extend(Quomanager.MangerWindow, {
 			return;
 		var record = new Ext.data.Record(this.northPanel.quotationForm.getForm().getValues());
 		record.set('quotationType', this.quoType);
+		if(record.get('exemplarInvoice') == 'on'){
+			record.set('exemplarInvoice','1');
+		}else{
+			record.set('exemplarInvoice','0');
+		}
 		var _tempArr = [];
 	/*	rootCode.eachChild(function(curNode) {
 			_tempArr.push(Ext.tree.toNewTreeNode(curNode.attributes,{},false))
@@ -1657,6 +1686,11 @@ Quomanager.ModifyWindow = Ext.extend(Quomanager.MangerWindow, {
 		 });
 		this.loadMarsk .show(); //显示
 		var record = new Ext.data.Record(this.northPanel.quotationForm.getForm().getValues());
+		if(record.get('exemplarInvoice') == 'on'){
+			record.set('exemplarInvoice','1');
+		}else{
+			record.set('exemplarInvoice','0');
+		}
 		var _tempArr = [];
 		/*rootCode.eachChild(function(curNode) {
 			_tempArr.push(Ext.tree.toNewTreeNode(curNode.attributes,{},true,['quotationProjectSortId']))
@@ -1702,13 +1736,43 @@ Quomanager.DetailWindow = Ext.extend(Quomanager.MangerWindow, {
 			loaderUrl : _url,
 			isReadOnly : true,
 			isDetail : true,
+			header:true,
+			bbar :[{xtype:'label',html : "审批内容:<font color = 'red'></font>,<font color='green'></font>"}],
 			buttons : [{
 				text : "关闭",
 				handler : function() {
 					this.hide();
 				},
 				scope : this
-			}]
+			}],
+			setAuditContent:function(){
+				      var _this = this;
+		              var busId = _this._id;
+			    	  	Ext.Ajax.request({
+						   url: PATH + '/manage/audit/auditContentAction.do',
+						   params: { busId: busId,m:'findAllAuditContentList' },
+						   success: function(response){
+								  eval("var arr = " + response.responseText);
+								  var html = [];
+								  html.push('<div>审批内容：');
+								  for(var i = 0;i < arr.length;i++){
+									html.push('<span style="color:green">');
+									html.push(arr[i].auditContentName);
+									html.push('</span>(');
+									if(arr[i].auditPerson == ''){
+										html.push('<span style="color:blue">待审');
+									}else{
+										html.push('<span style="color:red">');
+										html.push(arr[i].auditPerson);
+									}
+									html.push('</span>)&nbsp;&nbsp;');
+								  }
+								  html.push('</div>');
+								  _this.bbar.update(html.join(''));
+						   }
+						});
+			},scope:this
+      
 		})
 	}
 })

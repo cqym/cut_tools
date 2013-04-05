@@ -608,7 +608,8 @@ public class SelfOrderServiceImpl implements SelfOrderService {
       quotationProductDetailDAO.updateQuotationDetailOrderAmount(para);
     }
 
-    if (OrderInfoDto.ORDER_TYPE_SCHEDLE_SELF.equals(order.getOrderType().toString())) {
+    if (OrderInfoDto.ORDER_TYPE_SCHEDLE_SELF.equals(order.getOrderType().toString())
+      || OrderInfoDto.ORDER_TYPE_TRY_SELF.equals(order.getOrderType().toString())) {
       contractProductDetailDao.sycContractOrderDetail(order.getQuotationCode());
     }
   }

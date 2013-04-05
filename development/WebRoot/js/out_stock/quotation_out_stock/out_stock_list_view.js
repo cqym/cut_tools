@@ -338,7 +338,7 @@ Ext.apply(_config, getConfig());
 						var ids = [];
 						for(var i = 0 ;i < arr.length;i++){
 						     ids.push(arr[i].id);
-							 if((arr[i].get("status") != 0 && arr[i].get("status") != 3) || arr[i].get("outStockType") * 1 == 2){
+							 if((arr[i].get("status") != 0 && arr[i].get("status") != 3)){
 								Ext.Msg.alert("消息", "所选择出库单不允许删除!");
 							    return ;
 							 }

@@ -151,12 +151,10 @@ var  cOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 			this.flag = false;
 			this.selectForm2 = new cOSupplierSelectForm();
 			this.supplier_grid = new cOSupplierGrid();
-			this.supplier_grid.getStore().load({
-						params : {
-							start : 0,
-							limit : 15
-						}
-					});
+		  this.supplier_grid.getStore().setBaseParam("start", 0);
+      this.supplier_grid.getStore().setBaseParam("limit", 15);
+ 
+			this.supplier_grid.getStore().load();
 			this.supplier_grid.on('rowdblclick',function(grid,rowIndex,e)
 			{
 				var s = grid.getStore();
@@ -182,10 +180,9 @@ var  cOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 						//监听搜索事件。
 						this.selectForm2.on({
 							'search' : function(_form, _values) {
-								var _grid = this.supplier_grid.store;
-								var searchStr = _values;
-								_grid.baseParams.searchStr = Ext.encode(searchStr);
-								_grid.reload();
+								var _store = this.supplier_grid.store;
+								_store.baseParams.searchStr = Ext.encode(_values);
+								_store.load();
 								this.flag = true;
 							},
 							scope : this

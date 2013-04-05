@@ -59,7 +59,7 @@ Ext.zhj.OrderPriceProductGrid = Ext.extend(Ext.grid.GridPanel, {
 								singleSelect : true
 							}),
 					tbar : [{
-								text : "增加历史价格",
+								text : "录入采购价格",
 								handler : function() {
 										var toolsId = this.productId;
 										var productBrand = this.productBrand;

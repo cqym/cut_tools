@@ -167,7 +167,78 @@ store.baseParams.year = new Date().format('Y');
 				iconCls:'icon-add',
 				listeners: {
 					'click' : function(){
-						var win = new tsOContractWin();
+						var win = new Ext.ffc.PurchaseOrder.QuotationSelectWindow({
+							  quotationType:4,
+							  leaf:0,
+							  outStockType:6,
+						    callBackMethod:function(quotationId,customerCode,quotationCode,brand){
+						      if(!brand){
+						          brand = '';	
+						      }
+						    	checkCustomerAccount({
+										customerCode:customerCode,
+										callBackMethod:function(config){
+												try{
+													Ext.Ajax.request({
+														method: "post",
+														params: { 'quotationInforId' : quotationId,"leaf":0},
+														url: PATH + '/outStock/outStockEditAction.do?ffc=getWillOutStockQuotationDetail',
+														success: function(response){
+																eval("var detail=" + response.responseText);
+																if(detail.length == 0){
+																	var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+																		quotationId:quotationId,
+																		brand:brand,
+																		leaf:0,
+																		callBackMethod:function(suppid){
+																			win.close();
+																			loadOrderWindowByConsult({
+																					    title:'预定采购订单',
+																					    listGrid:cut_tools.ts_order.index_grid,
+																					    loadDataParam:{quotationId:quotationId,supplierId:suppid,brand:brand,leaf:0,loadActionMethod:'consultTryQuo'}
+																			});
+																		}
+																	});
+																	win.show();  
+																	return ;
+																}
+																var conEditWin = new Ext.ffc.ContractOutStockEditWindow({
+																	outStockInfor:{quotationId:quotationId,outStockType:6,status:0,quotationCode:quotationCode,outStockDetails:detail},
+																	nextStepButtonTitle: '直接采购',
+																	listeners :{
+																		close : function(p){
+																			var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+																				quotationId:quotationId,
+																				brand:brand,
+																				leaf:0,
+																				callBackMethod:function(suppid){
+																			     win.close();
+																			     loadOrderWindowByConsult({
+																					    title:'预定采购订单',
+																					    listGrid:cut_tools.ts_order.index_grid,
+																					    loadDataParam:{quotationId:quotationId,supplierId:suppid,brand:brand,leaf:0,loadActionMethod:'consultTryQuo'
+																					    }
+																				   });
+																			     
+																		    }
+																			});
+																			win.show();  
+																		}
+																	}	
+																}
+															);
+															conEditWin.show();
+															config.callBackMethod();
+														}
+													});
+											}catch(e){
+												alert(e);
+											}
+											win.close();
+										}
+									});
+						    }
+						})
 						win.show();
 					}
 				}
@@ -175,7 +246,7 @@ store.baseParams.year = new Date().format('Y');
 				xtype:'tbseparator',
 				hidden : _config.isDetailHide
 			},{
-				text:'查看订单明细',
+				text:'查看订单',
 				hidden : _config.isDetailHide,
 				iconCls:'icon-detail',
 				listeners: {
@@ -189,23 +260,13 @@ store.baseParams.year = new Date().format('Y');
 							Ext.Msg.show({title: '系统提示',msg: '请选择要查看的一条订单',width: 300,buttons: Ext.MessageBox.OK,icon: Ext.MessageBox.INFO});
 							return;
 						}
-						/**订单修改页面**/
-						var win = new  Ext.ls.trySelfOrder.addWin({orderId:arr[0].id,detailFlag:true,URL:Ext.ls.trySelfOrder.updateUrl});
-						/**订单信息**/
-						var store = new contractOrderStore();
-						store.baseParams.orderId = arr[0].id;
-						store.load();
-						store.on('load',function(){
-							win.setTitle('查看试刀订单明细');
-							win.form.getForm().loadRecord(store.getAt(0));
-						});
-
-						var tree = win.grid;
-						var tl = tree.getLoader();
-						tl.on("beforeload", function(tl, node) {
-							tl.baseParams.orderId = arr[0].id;
-						}, this);
-						win.show();
+						loadOrderWindowById({
+							    title:'试刀加工订单',
+							    SaveBtnHidden : true,
+							    btToolsHidden:true,
+							    auditButtonHiden:true,
+							    loadDataParam:{orderId:arr[0].id}
+							});
 					}
 		 		}
 			},{
@@ -251,22 +312,14 @@ store.baseParams.year = new Date().format('Y');
 							});
 							return;
 						}
-						/**订单修改页面**/
-						var win = new  Ext.ls.trySelfOrder.addWin({orderId:record.get('id'),quotationCode:record.get('quotationCode'),supplierId:record.get('supplierId'),updateFlag:true,URL:Ext.ls.trySelfOrder.updateUrl});
-						/**订单信息**/
-						var store = new contractOrderStore();
-						store.baseParams.orderId = record.get('id');
-						store.load();
-						store.on('load',function(){
-							win.setTitle('修改试刀加工订单');
-							win.form.getForm().loadRecord(store.getAt(0));
-						});
-						var tree = win.grid;
-						var tl = tree.getLoader();
-						tl.on("beforeload", function(tl, node) {
-							tl.baseParams.orderId = record.get('id');
-						}, this);
-						win.show();
+						loadOrderWindowById({
+							    title:'试刀加工订单',
+							    SaveBtnHidden : false,
+							    btToolsHidden:false,
+							    auditButtonHiden:true,
+							    listGrid:cut_tools.ts_order.index_grid,
+							    loadDataParam:{orderId:record.get('id')}
+							});
 					}
 				}
 			},{
@@ -308,8 +361,8 @@ store.baseParams.year = new Date().format('Y');
 								if(btn == 'ok') {	
 									Ext.Ajax.request({
 										method: "post",
-										url: PATH + '/selfOrder/deleteOrder.do',
-										params: { ids: ids },
+										url: PATH + '/purchaseOrder/PurchaseOrderEditAction.do',
+										params: { method:'deletePurchaseOrder',ids: ids },
 										success: function(response){
 											ds.reload();
 										}

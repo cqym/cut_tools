@@ -41,6 +41,9 @@
     <result column="will_formal_date" jdbcType="VARCHAR" property="willFormalDate" />
     
     <result column="imp_to_quo_code" jdbcType="VARCHAR" property="impToQuoCode" />
+    <result column="exemplar_Invoice"  property="exemplarInvoice" />
+    <result column="transfer_contract"  property="transferContract" />
+    
   </resultMap>
   
   <resultMap id="withSlaveResultMap" class="quotation" extends="BaseResultMap">
@@ -197,6 +200,11 @@
           t.memo like '%$memo$%'
         ]]>
       </isNotEmpty>
+       <isNotEmpty prepend="and" property="transferContract">
+        <![CDATA[
+          t.transfer_Contract in ($transferContract$)
+        ]]>
+    </isNotEmpty>
       <isNotEmpty prepend="and" property="yuDingWeiZhuanHeTong">
         <![CDATA[
           EXISTS (
@@ -330,6 +338,11 @@
 	<isNotEmpty prepend="and" property="memo">
         <![CDATA[
           t.memo like '%$memo$%'
+        ]]>
+    </isNotEmpty>
+    <isNotEmpty prepend="and" property="transferContract">
+        <![CDATA[
+          t.transfer_Contract in ($transferContract$)
         ]]>
     </isNotEmpty>
       <isNotEmpty prepend="and" property="yuDingWeiZhuanHeTong">

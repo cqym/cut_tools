@@ -31,8 +31,8 @@ var	searchForm = new Ext.FormPanel({
 						}					
 					}],
            items:[
-			  {items: [{xtype:'textfield',fieldLabel: '加工订单编号',name: 'orderCode',anchor:'100%'},
-					   {xtype:'hidden', readOnly : true, name: 'planStatus',value:"2"}]},
+			  {items: [{xtype:'textfield',fieldLabel: '计划编号',name: 'planCode',anchor:'100%'},
+					   {xtype:'hidden', readOnly : true, name: 'status',value:"2"}]},
               {columnWidth:0.6,items: [{xtype:'textfield',fieldLabel: '合同编号',name: 'contractCode',anchor:'65%'}]},
               {items: [{xtype : 'datefield', vtype: 'daterange', endDateField: 'endDate', fieldLabel: '日期起',name: 'startTime', format:'Y-m-d', emptyText:'',anchor:'100%'}]},
               {items: [{xtype : 'datefield', vtype: 'daterange',startDateField: 'beginDate',fieldLabel: '至',name: 'endTime', format:'Y-m-d', emptyText:'',labelSeparator:'',anchor:'100%'}]}
@@ -278,9 +278,7 @@ var planDetialInstance = new PlanDetail();
 						Ext.Msg.alert("消息", "请选择加工订单!");
 						return ;
 					}
-
-					callBackMethod(arr,select_quotations_win);
-					
+					callBackMethod(arr,select_quotations_win,'');
 				}
 	         },{
 				text : "取  消",

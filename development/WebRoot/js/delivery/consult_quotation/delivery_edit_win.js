@@ -385,7 +385,7 @@ Ext.ffc.DeliveryEditCenterPanel = Ext.extend(Ext.grid.EditorGridPanel, {
 									}
 								},scope:this});	
 							},scope:this
-						},
+						}
 					]
 		})
 	}

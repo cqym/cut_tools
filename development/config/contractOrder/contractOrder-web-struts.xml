@@ -26,6 +26,10 @@
 		<action path="/contractOrder/OrderTotalMoneysAction" scope="request" validate="false" parameter="mydear"></action>
 		<action path="/contractOrder/SupHisPriceAction" scope="request" validate="false" parameter="mydear"></action>
 		<action path="/contractOrder/CheckOrderAmountAction" scope="request" validate="false"></action>
+		
+		<action path="/purchaseOrder/PurchaseOrderViewAction" scope="request" validate="false" parameter="method"></action>
+		<action path="/purchaseOrder/PurchaseOrderEditAction" scope="request" validate="false" parameter="method"></action>
+		
 	</action-mappings>
 
 	<controller>

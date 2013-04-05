@@ -44,6 +44,8 @@
     <result column="will_formal_date" jdbcType="VARCHAR" property="willFormalDate" />
     
     <result column="imp_to_quo_code" jdbcType="VARCHAR" property="impToQuoCode" />
+    <result column="exemplar_Invoice"  property="exemplarInvoice" />
+    <result column="transfer_contract"  property="transferContract" />
   </resultMap>
   
   <resultMap class="com.tl.resource.dao.pojo.TQuotationInfor" id="QuotationInfor_groupby">
@@ -98,7 +100,7 @@
       cus_contact_person, status, delivery_type, tax_money, product_money, total_money, edit_time,
       editor_id, editor_name, edit_date, user_name, memo, overall_rebate, final_money ,customer_phone,customer_fax,
       urgent_level,valid_start_date,valid_end_date,
-      will_order_expected,will_formal_date,imp_to_quo_code
+      will_order_expected,will_formal_date,imp_to_quo_code,exemplar_Invoice,transfer_contract
     from t_quotation_infor
     <isParameterPresent>
       <include refid="t_quotation_infor.ibatorgenerated_Example_Where_Clause" />
@@ -128,7 +130,7 @@
       cus_contact_person, status, delivery_type, tax_money, product_money, total_money, edit_time,
       editor_id, editor_name, edit_date, user_name, memo, overall_rebate, final_money,customer_fax,customer_phone,
       urgent_level,valid_start_date,valid_end_date,
-      will_order_expected,will_formal_date,imp_to_quo_code
+      will_order_expected,will_formal_date,imp_to_quo_code,exemplar_Invoice,transfer_contract
     from t_quotation_infor
     where id = #id:VARCHAR#
   </select>
@@ -158,7 +160,7 @@
       tax_rate, quotation_type, cus_contact_person, status, delivery_type, tax_money, product_money,
       total_money, edit_time, editor_id, editor_name, edit_date, user_name, memo,
       overall_rebate, final_money,customer_phone,customer_fax,urgent_level,valid_start_date,valid_end_date,
-      will_order_expected,will_formal_date,imp_to_quo_code)
+      will_order_expected,will_formal_date,imp_to_quo_code,exemplar_Invoice,transfer_contract)
     values (#id:VARCHAR#, #contractInforId:VARCHAR#, #quotationCode:VARCHAR#,
       #customerCode:VARCHAR#, #customerName:VARCHAR#, #quotationDate:VARCHAR#, #sellerName:VARCHAR#,
       #currency:VARCHAR#, #currencyName:VARCHAR#, #paymentCondition:VARCHAR#, #taxRate:DECIMAL#,
@@ -167,7 +169,7 @@
       #editorId:VARCHAR#, #editorName:VARCHAR#, #editDate:TIMESTAMP#,
       #userName:VARCHAR#, #memo:VARCHAR#, #overallRebate:DECIMAL#, #finalMoney:DECIMAL#,#customerPhone:VARCHAR#, 
       #customerFax:VARCHAR#,#urgentLevel:INTEGER#,#validStartDate:VARCHAR#,#validEndDate:VARCHAR#,
-      #willOrderExpected:INTEGER#,#willFormalDate:VARCHAR#,#impToQuoCode:VARCHAR#)
+      #willOrderExpected:INTEGER#,#willFormalDate:VARCHAR#,#impToQuoCode:VARCHAR#,#exemplarInvoice#,#transferContract#)
   </insert>
   <insert id="ibatorgenerated_insertSelective" parameterClass="com.tl.resource.dao.pojo.TQuotationInfor">
     <!--
@@ -280,6 +282,13 @@
       <isNotNull prepend="," property="impToQuoCode">
         imp_to_quo_code
       </isNotNull>
+      <isNotNull prepend="," property="exemplarInvoice">
+        exemplar_Invoice
+      </isNotNull>
+      <isNotNull prepend="," property="transferContract">
+        transfer_contract
+      </isNotNull>
+      
       )
     </dynamic>
     values
@@ -388,6 +397,14 @@
       <isNotNull prepend="," property="impToQuoCode">
         #impToQuoCode:VARCHAR#
       </isNotNull>
+      
+      <isNotNull prepend="," property="exemplarInvoice">
+        #exemplarInvoice#
+      </isNotNull>
+      <isNotNull prepend="," property="transferContract">
+        #transferContract#
+      </isNotNull>
+      
       )
     </dynamic>
   </insert>
@@ -510,6 +527,13 @@
       <isNotNull prepend="," property="record.impToQuoCode">
         imp_to_quo_code = #record.impToQuoCode:VARCHAR#
       </isNotNull>
+      <isNotNull prepend="," property="record.exemplarInvoice">
+        exemplar_Invoice = #record.exemplarInvoice#
+      </isNotNull>
+      <isNotNull prepend="," property="record.transferContract">
+        transfer_contract = #record.transferContract#
+      </isNotNull>
+      
     </dynamic>
     <isParameterPresent>
       <include refid="t_quotation_infor.ibatorgenerated_Example_Where_Clause" />
@@ -556,7 +580,9 @@
       will_order_expected = #record.willOrderExpected:INTEGER#,
       will_formal_date = #record.willFormalDate:VARCHAR#,
       
-      imp_to_quo_code = #record.impToQuoCode:VARCHAR#
+      imp_to_quo_code = #record.impToQuoCode:VARCHAR#,
+      exemplar_Invoice = #record.exemplarInvoice#,
+      transfer_Contract = #record.transferContract#
     <isParameterPresent>
       <include refid="t_quotation_infor.ibatorgenerated_Example_Where_Clause" />
     </isParameterPresent>
@@ -669,6 +695,14 @@
       <isNotNull prepend="," property="impToQuoCode">
         imp_to_quo_code = #impToQuoCode:VARCHAR#
       </isNotNull>
+      
+      <isNotNull prepend="," property="exemplarInvoice">
+        exemplar_Invoice = #exemplarInvoice#
+      </isNotNull>
+       <isNotNull prepend="," property="transferContract">
+        transfer_Contract = #transferContract#
+      </isNotNull>
+      
     </dynamic>
     where id = #id:VARCHAR#
   </update>
@@ -712,7 +746,9 @@
       will_order_expected = #willOrderExpected:INTEGER#,
       will_formal_date = #willFormalDate:VARCHAR#,
       
-      imp_to_quo_code = #impToQuoCode:VARCHAR#
+      imp_to_quo_code = #impToQuoCode:VARCHAR#,
+      exemplar_Invoice = #exemplarInvoice#,
+      transfer_Contract = #transferContract#
     where id = #id:VARCHAR#
   </update>
   <update id="updateStatus" parameterClass="com.tl.resource.dao.pojo.TQuotationInfor">

@@ -4,11 +4,10 @@ String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
 <script type="text/javascript" src="<%=path %>/js/contractOrder/orderCommon.js"></script>
-<script type="text/javascript" src="<%=path %>/js/reserveOrder/selectQuoProductWindow.js"></script>
-<script type="text/javascript" src="<%=path %>/js/reserveOrder/addReserveOrder.js"></script>
-<script type="text/javascript" src="<%=path %>/js/reserveOrder/supplier.js"></script>
+
 <script type="text/javascript" src="<%=path %>/js/reserveOrder/reserveOrder.js"></script>
 <script type="text/javascript" src="<%=path%>/js/contractOrder/SupHisPrice_win.js"></script>
+<script type="text/javascript" src="<%=path%>/js/purchaseOrder/purchaseProductsWindow.js"></script>
 
 <script type="text/javascript" src="<%=path%>/js/contract/invoiceEdit.js"></script>
 <script type="text/javascript" src="<%=path%>/js/contract/contract_account_edit.js"></script>
@@ -19,7 +18,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="<%=path%>/js/upload/SlaveManager.js"></script>
 <script type="text/javascript" src="<%=path%>/extjs/plugins/SwfUploadPanel/SwfUploadPanel.js"></script>
 
-<div id="reserve_order"></div>
-			
-		
+<script type="text/javascript" src="<%=path%>/js/purchaseOrder/purchaseOrderWin.js"></script>
+<script type="text/javascript" src="<%=path%>/js/purchaseOrder/purchaseSupplier.js"></script>
 
+<div id="reserve_order"></div>

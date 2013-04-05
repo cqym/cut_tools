@@ -44,9 +44,7 @@ Ext.onReady(function(){
 										    break;
 										}
 									}
-									var t = [];
-									t.push(currentType);
-									var w = new Ext.ffc.WaitOfficeWindow({auditTypes:t,waitWorks:null,
+									var w = new Ext.ffc.WaitOfficeWindow({auditType:currentType,waitWorks:null,
 										listeners : {
 											"close" : function(){
 												var tabp = Ext.getCmp('auditBusinessId')

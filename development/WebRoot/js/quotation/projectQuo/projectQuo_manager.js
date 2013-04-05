@@ -373,12 +373,12 @@ ProQuomanager.GetNewTree = Ext.extend(Ext.tree.ColumnTree, {
 				width : 80,
 				dataIndex : 'productBrand',
 				disEnableEdit : true
-			},{header:'附件',width:100,dataIndex:'slaveFile', renderer : function(colValue, node, data) {
+			},{header:'客户确认方案图',width:100,dataIndex:'slaveFile', renderer : function(colValue, node, data) {
         		if(data.parentToolsId != 'root')
         			return;
         		if(colValue > 0) {
         			var id = data.toolsId
-        			var str = "<a href=\"#\" onclick=ProQuomanager.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
+        			var str = "<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
 					return str;
         		}
         	}}, {
@@ -701,7 +701,7 @@ ProQuomanager.QuotationForm = Ext.extend(Ext.FormPanel, {
 			xtype:'hidden',fieldLabel: 'currency',name: 'currency',hidden : true, hideLabel : true
 		})
 		this.currCombox = new CurrencyCombox({disabled : this.isReadOnly,x:600,y:93,width:170});
-		this.taxRateCombox = new TaxrateCombox({disabled : this.isReadOnly,width:170,x:860,y:33});
+		this.taxRateCombox = new TaxrateCombox({disabled : this.isReadOnly,width:170,x:860,y:33,listeners:{"change":taxRateComboxChange}});
 		this.sallerCombox = new SallerCombox({disabled : this.isReadOnly,x:600,y:3,width:170});
 		this.paymentCombox = new Ext.zhj.PaymentConditionComboBox({width : 680,disabled : this.isReadOnly, x:90,y:153});
 		this.quoDateField = new Ext.form.DateField({
@@ -764,7 +764,9 @@ ProQuomanager.QuotationForm = Ext.extend(Ext.FormPanel, {
 			xtype:'datefield',name: 'willFormalDate', format:'Y-m-d',allowBlank : true,
 			x:860,y:213, width:170,validationEvent : false,disabled : this.isReadOnly,
 			hidden : true, hideLabel : true
-		})
+		});
+		
+
 		
 		this.currCombox.on({
 			'change' : function() {
@@ -810,6 +812,8 @@ ProQuomanager.QuotationForm = Ext.extend(Ext.FormPanel, {
 		    {xtype:'textfield',  name: 'userName',readOnly : true,x:600,y:33,width:170},
 			{xtype:'label',text: '税率:',x:770,y:35,style:this.lableStyle_},
 			this.taxRateCombox,
+
+
 			//3
 			{xtype:'label',text: '紧急程度:',x:0,y:65,style:this.lableStyle_},
 			new Ext.ffc.UrgentLevelCombox({x:90,y:63, width:170,disabled : this.isReadOnly}),
@@ -857,7 +861,8 @@ ProQuomanager.QuotationForm = Ext.extend(Ext.FormPanel, {
              {xtype:'numberfield', name: 'finalMoney', allowBlank : false, x:860,y:153,width:170},
              //7
              {xtype:'label',text: '交货方式:',x:0,y:185,style:this.lableStyle_},
-             {xtype:'textfield' ,name: 'deliveryType', width : 680, readOnly : this.isReadOnly, allowBlank : false,x:90,y:183},
+             //{xtype:'textfield' ,name: 'deliveryType', width : 680, readOnly : this.isReadOnly, allowBlank : false,x:90,y:183},
+             new Ext.ffc.DeliveryTypeComboBox({width : 680, readOnly : this.isReadOnly, allowBlank : false,x:90,y:183}),
              {xtype:'label',text: '是否预订:',x:770,y:185,style:this.lableStyle_,hidden : true, hideLabel : true},
              this.checkBox,
              //8

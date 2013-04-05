@@ -1,5 +1,6 @@
 package com.tl.resource.business.exceltemplete;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -135,7 +136,7 @@ public class ExpTempleteServiceImp implements ExpTempleteService {
       throw new RuntimeException("没有找到模板类型数据！");
     }
 
-    String path = basePath + acc.getPath().replaceAll("\\/", "\\\\");
+    String path = new File(basePath).getParent() + acc.getPath().replaceAll("\\/", "\\\\");
 
     IExportDataBusinessHandler param = (IExportDataBusinessHandler) Class.forName(tempType.getClassName()).newInstance();
     Map<String, Object> data = param.getBusinessData(bussinessId);
@@ -176,7 +177,7 @@ public class ExpTempleteServiceImp implements ExpTempleteService {
       throw new RuntimeException("没有找到模板类型数据！");
     }
 
-    String path = basePath + acc.getPath().replaceAll("\\/", "\\\\");
+    String path = new File(basePath).getParent() + acc.getPath().replaceAll("\\/", "\\\\");
 
     IExportListDataBusinessHandler param = (IExportListDataBusinessHandler) Class.forName(tempType.getClassName()).newInstance();
     Map<String, Object> data = param.getBusinessData(para);

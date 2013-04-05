@@ -1,10 +1,5 @@
 Ext.ffc.WaitOfficeChildPanel = Ext.extend(Ext.grid.GridPanel, {  
 	auditType : null,
-	pageInfoLabel : null,
-	pageObject : {pageSize:10},
-	gridCheckSele : null,
-	storeDef :  null,
-	view : null,
 	loadData : function(pstartIndex,ppageSize){
 			var gridPanel = this;
 			Ext.Ajax.request({
@@ -42,14 +37,14 @@ Ext.ffc.WaitOfficeChildPanel = Ext.extend(Ext.grid.GridPanel, {
 						pcolumns.push(new Ext.grid.RowNumberer());
 						pcolumns.push(gridPanel.gridCheckSele);
 						pcolumns = pcolumns.concat(pageInfor.headers);
-						pcolumns.push(
+						/*pcolumns.push(
 							{"dataIndex":"auditInfor","header":"查看详细","hidden":false,"sortable":false,"width":80,
 								"renderer":function(value, cellmeta, record, rowIndex, columnIndex, store){
 												var str = "<a href=\"javascript:loadBusinessInfor(\'" + record.get('url') + "\',\'" + record.get('id') + "\');\">查看</a>";
 												return str;
 											}
 							}
-						);
+						);*/
 						pcolumns.push(
 							{"dataIndex":"auditInfor","header":"审批信息","hidden":false,"sortable":false,"width":80,
 								"renderer":function(value, cellmeta, record, rowIndex, columnIndex, store) {
@@ -75,7 +70,7 @@ Ext.ffc.WaitOfficeChildPanel = Ext.extend(Ext.grid.GridPanel, {
 					    //alert("ssss:" + e);
 					}
 					gridPanel.pageObject = pageInfor;
-					gridPanel.pageInfoLabel['setInfor'](gridPanel.pageObject);
+					//gridPanel.pageInfoLabel['setInfor'](gridPanel.pageObject);
 				}
 		   });	
 
@@ -87,172 +82,37 @@ Ext.ffc.WaitOfficeChildPanel = Ext.extend(Ext.grid.GridPanel, {
 		Ext.apply(this, _cfg);
 		this.gridCheckSele = new Ext.grid.CheckboxSelectionModel();
 		this.storeDef =  new Ext.data.Store();
-		this.view = new Ext.grid.GridView();
+		//this.view = new Ext.grid.GridView();
 		this.pageInfoLabel = new Ext.form.Label();
-		this.pageInfoLabel['setInfor'] = function(pageObject){
-			this.setText("共[" + pageObject.totalCount + "]条记录  当前页: " + pageObject.currentPage + "/" + pageObject.pageCount);
-		}
-		this.loadData(0,15);
+		
+		this.loadData(0,100);
 		Ext.ffc.WaitOfficeChildPanel.superclass.constructor.call(this, {
-			cm : new Ext.grid.ColumnModel([]),
+			//cm : new Ext.grid.ColumnModel(),
+	    columns:[],
 			store : this.storeDef,
 			ds : this.storeDef,
-			view : this.view,
+			//view : this.view,
 			sm:this.gridCheckSele,
-			bbar: new Ext.Toolbar({
-					items: [{
-						text: '首页',
-						listeners : {
-							'click' : function() {
-								var gridP = this.ownerCt.ownerCt;
-								gridP.loadData(0,15);
-							}
-						}
-					},{
-						text: '上一页',
-						listeners : {
-							'click' : function() {
-								var gridP = this.ownerCt.ownerCt;
-								gridP.loadData(gridP.pageObject.previousIndex,gridP.pageObject.pageSize);
-							}
-						}
-					},{
-						text: '下一页',
-						listeners : {
-							'click' : function() {
-								var gridP = this.ownerCt.ownerCt;
-								gridP.loadData(gridP.pageObject.nextIndex,gridP.pageObject.pageSize);
-							}
-						}
-					},{
-						text: '末页',
-						listeners : {
-							'click' : function() {
-								var gridP = this.ownerCt.ownerCt;
-								gridP.loadData(gridP.pageObject.indexes[gridP.pageObject.indexes.length - 1],gridP.pageObject.pageSize);
-							}
-						}
-					},'->',this.pageInfoLabel]
-				})
+			listeners : {
+			    rowdblclick:function(grid, rowIndex, e){
+			    	var rec = grid.getStore().getAt(rowIndex);
+			    	
+			    	loadBusinessInfor(rec.get('url'),rec.get('id'),this.auditType,grid);
+			    },scope:this
+		  }
 		});
 	}
 });  
 
 
-Ext.ffc.AuditOfficeForm = Ext.extend(Ext.FormPanel, {
-        labelWidth: 75, 
-        frame:true,
-        bodyStyle:'padding:5px 5px 0',
-        width: 850,
-        defaults: {width: 740},
-        defaultType: 'textfield',
-        buttons: [{
-            text: '审批通过',
-		    handler:function(){
-				var auditForm = this.ownerCt.ownerCt;
-				var auditTypes = auditForm.auditTypes;
-				var grid = auditForm.ownerCt.grids[0];
-				var gridCheckSele = grid.gridCheckSele;
-
-				var auditType = grid.auditType;
-				var arr = gridCheckSele.getSelections();
-				if(arr.length == 0){
-					Ext.MessageBox.alert('系统提示', '请选择要审批的记录!', function(){});
-				    return false;
-				}
-				var msg = auditForm.findByType("textfield")[0].getEl().dom.value;
-				if(msg == ''){
-					msg = "同意";
-				}
-				var pbussinessIds = [];
-				for(var i = 0 ;i < arr.length;i++){
-				    pbussinessIds.push(arr[i].get("id"));
-				}
-				
-			    Ext.MessageBox.confirm('系统提示', '请确认是否要要将所选记录,审批通过!', function(btn){
-					if(btn != 'yes'){return ;}
-					auditForm.executeAudit(grid,auditForm,pbussinessIds,auditType.auditTypeId,auditType.auditFlowId,msg,1);
-				});
-			}
-        },{
-            text: '审批退回',
-		    handler:function(){
-				var auditForm = this.ownerCt.ownerCt;
-				var auditTypes = auditForm.auditTypes;
-				var grid = auditForm.ownerCt.grids[0];
-				var gridCheckSele = grid.gridCheckSele;
-
-				var auditType = grid.auditType;
-				var arr = gridCheckSele.getSelections();
-				if(arr.length == 0){
-					Ext.MessageBox.alert('系统提示', '请选择要审批的记录!', function(){});
-				    return false;
-				}
-				var msg = auditForm.findByType("textfield")[0].getEl().dom.value;
-				if(msg == ''){
-					Ext.MessageBox.alert('系统提示', '请填写审批意见!', function(){});
-				    return false;
-				}
-				var pbussinessIds = [];
-				for(var i = 0 ;i < arr.length;i++){
-				    pbussinessIds.push(arr[i].get("id"));
-				}
-				
-				Ext.MessageBox.confirm('系统提示', '请确认是否要要将所选记录,审批退回!', function(btn){
-					if(btn != 'yes'){return ;}
-					auditForm.executeAudit(grid,auditForm,pbussinessIds,auditType.auditTypeId,auditType.auditFlowId,msg,0);
-				});
-			}
-        }],
-		auditTypes : null,
-		executeAudit : function(grid,auditForm,pbussinessIds,auditTypeId,auditFlowId,pcomment,popType){
-			Ext.Ajax.request({
-					method: "post",
-					params: { bussinessIds:pbussinessIds,auditType: auditTypeId,auditInforId:auditFlowId,comment:pcomment,opType:popType},
-					url: PATH + "/manage/audit/auditInforMangeAction.do?ffc=executeAudit",
-					success: function(response){
-						Ext.MessageBox.alert('系统提示', '审批成功!', function(){
-							grid.loadData(0,15);
-							auditForm.findByType("textfield")[0].getEl().dom.value = '';
-						});
-						
-					}
-			});
-		},
-		constructor : function(_cfg) {
-			if(_cfg == null) {
-				_cfg = {};
-			}
-			Ext.apply(this, _cfg);
-			this.items = new Ext.form.TextArea({
-			   fieldLabel: '审批意见',
-			   name:'auditMessage',
-			   width: 800
-			});
-			Ext.ffc.AuditOfficeForm.superclass.constructor.call(this, {
-				//region: 'south',
-                split: true,
-                height: 100,
-                minSize: 100,
-                maxSize: 200,
-                collapsible: true,
-                margins: '-5 5 5 5',
-                items : this.items
-			})
-		}
-    });
-
-
 Ext.ffc.WaitOfficeWindow = Ext.extend(Ext.Window, {  
-	auditTypes : null,
 	waitWorks : null,
 	auditTypeItems : null,
 	grids : null,
 	itemsDef : null,
-	auditOfficeForm : null,
 	loadData : function(){
 	    for(var i = 0;i < this.grids.length ; i++){
-			this.grids[i].loadData(0,15);
+			this.grids[i].loadData(0,100);
 	    }
 	},
 	constructor : function(_cfg) {
@@ -260,48 +120,136 @@ Ext.ffc.WaitOfficeWindow = Ext.extend(Ext.Window, {
 			_cfg = {};
 		}
 		Ext.apply(this, _cfg);
-		this.auditTypeItems = [];
 		this.grids = [];
 		this.itemsDef = [];
-		if(this.auditTypes && this.auditTypes.length > 0){
-			for(var i = 0; i < this.auditTypes.length ; i++){
 				var it = new Ext.ffc.WaitOfficeChildPanel({
-									auditType : this.auditTypes[i],
-									height:300
-								});
-				this.grids.push(it);
-				this.auditTypeItems.push(
+									auditType : this.auditType,
+									//height:200
+	
+									});
+		this.grids.push(it);
+		this.auditTypeItems = [
 					{
-						id : this.auditTypes[i].auditFlowId,
-						layout : 'fit',
-						title : this.auditTypes[i].auditFlowName,
+						layout:'fit',
+						height:200,
+						id : this.auditType.auditFlowId,
+						title : this.auditType.auditFlowName,
 						items : it
 					}
-				);
-			}
-		}
-		
-		if(this.auditTypeItems.length == 0) {
-			var template = new Ext.Template(
-			      '<font size="3">&nbsp;您没有待办工作!</font>'
-			)
-			this.auditTypeItems.push(template);
-		}
-		
-		if(this.auditTypes && this.auditTypes.length > 0){
-			this.auditOfficeForm =  new Ext.ffc.AuditOfficeForm({auditTypes:this.auditTypes});
-			this.auditTypeItems.push(this.auditOfficeForm);
-		}
-		
+				];
 		Ext.ffc.WaitOfficeWindow.superclass.constructor.call(this, {
 			constrainHeader : true,
 			maximizable :true,
 			width : Ext.getBody().getWidth() - 100,
 			height : 500,
 			title :  '待办工作',
-			//layout :  'border',
+			layout :  'fit',
 			//closeAction:'hide',
 			items : this.auditTypeItems
 		});
+	}
+});  
+
+Ext.ffc.AuditBusinessDetailWindow = Ext.extend(Ext.Window, {  
+	constructor : function(_cfg) {
+		if(_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
+		
+		Ext.ffc.AuditBusinessDetailWindow.superclass.constructor.call(this, {
+			constrainHeader : true,
+			maximizable :true,
+			bbar :[{xtype:'label'}],
+			buttons : [{
+				text : "审   核",
+				hidden:this.auditButtonHiden,
+				handler : function() {
+					var arr = Ext.DomQuery.select('input[name=auditContent]',Ext.getDom(this.getBottomToolbar().getEl())[0]);
+					var win = new Ext.ffc.AuditMsgWindow({busId:this._id,auditContentsObj:arr,auditType:this.auditType,grid:this._grid,bussinessWindow:this});
+					win.show();
+				},scope : this
+			},{
+				text : "关闭",
+				handler : function() {
+					this.close();
+				},scope : this
+			}],
+			listeners : {
+				'beforeshow' : function() {
+					//重新载入报价产品树
+					this.setAuditContent(this._id);
+					
+					var _id = this._id;
+					Ext.Ajax.request({
+						url: PATH + '/generalQuo/getQuoAction.do',
+						params: { quoId: _id },
+						success : function(response) {
+							var responseArray = Ext.util.JSON.decode(response.responseText); 
+							if(responseArray.success == true){
+								this.northPanel.simpleForm.setValues(new Ext.data.Record(responseArray.data));
+							}
+						},scope : this
+					});
+					
+					Ext.Ajax.request({
+						url: PATH + '/generalQuo/excelAction.do?method=getOrderPrice4Quo' ,
+						params: { quoId: _id },
+						success : function(response) {
+							//var responseArray = Ext.util.JSON.decode(response.responseText);
+							if(response.responseText.length == 0)
+								return;
+							Ext.Msg.show({
+								title:'净价低于或者等于采购价格产品：',
+								msg: response.responseText,
+								buttons: Ext.Msg.OK,
+								icon: Ext.MessageBox.INFO,
+								width : 700
+							});
+						},scope : this
+					});
+				},scope:this
+			},
+			setAuditContent:function(_id){
+				      var _this = this;
+		              var busId = _id;
+					Ext.Ajax.request({
+							   url: PATH + '/manage/audit/auditContentAction.do',
+							   params: { busId: busId,m:'findWaitAuditContent' },
+							   success: function(response){
+									  eval("var arr = " + response.responseText);
+									  var html = [];
+									  html.push('<div>审批内容：');
+									  for(var i = 0;i < arr.length;i++){
+										html.push('<span style="color:green">');
+										html.push(arr[i].auditContentName);
+										html.push('</span>(');
+										if(arr[i].auditPerson == ''){
+											  if(arr[i].waitAudit){
+												  html.push('<span style="color:blue"><input type="checkbox" name="auditContent" value="' + arr[i].id + '">');
+											  }else{
+												  html.push('<span style="color:blue">待审');
+											  }
+										}else{
+											html.push('<span style="color:red">');
+											html.push(arr[i].auditPerson);
+										}
+										html.push('</span>)&nbsp;&nbsp;');
+									  }
+									  html.push('</div>');
+									  _this.bbar.update(html.join(''));
+								}
+						});
+			},scope:this
+		});
+	},
+	setId : function(id) {
+	   this._id = id;
+	},
+	setAuditType : function(auditType){
+	  this.auditType = auditType;
+	},
+	setGrid : function(_grid){
+	   this._grid = _grid;
 	}
 });  

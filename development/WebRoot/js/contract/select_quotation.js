@@ -7,6 +7,7 @@ var statusCombox = new StatusCombox();
 var _quotationType = -1;
 var _yuDingWeiZhuanHeTong = null;
 var _status = '4';
+var _transferContract = '0';//未转，和部分转
 var quoTypeComboBox = new Ext.ffc.QuoTypeComboBox({
 	listeners : {
 		'change' : function(combox,newValue,oldValue) {
@@ -15,19 +16,21 @@ var quoTypeComboBox = new Ext.ffc.QuoTypeComboBox({
 			if(arr.length > 0){
 			    objStatus = arr[0];
 			}
-		    if(newValue == 1){//预订报价
+		  if(newValue == 3 || newValue == 4){//预订报价，试刀报价
 			    if(objStatus != null){
 				     objStatus.setValue('2,6,7');
-					 _status =  '2,5,6,7';
-					 _quotationType = 3;
-					 _yuDingWeiZhuanHeTong = '1';
-				}
+						 _status =  '2,5,6,7';
+						 _quotationType = newValue;
+						 _yuDingWeiZhuanHeTong = '1';
+						 _transferContract = '0,1';
+				  }
 			}else{
 				 if(objStatus != null){
 				     objStatus.setValue('4');
 					  _status =  '4';
 					 _quotationType = -1;
 					 _yuDingWeiZhuanHeTong = null;
+					 _transferContract = '0';
 				 }
 			}
 			loadData();
@@ -60,11 +63,11 @@ var	searchForm = new Ext.FormPanel({
 					}],
            items:[
               {items: [{xtype:'textfield',fieldLabel: '报价单号',name: 'quotationCode',anchor:'90%'}]},
-			  {items: [{xtype:'textfield',fieldLabel: '客户',name: 'customerName',anchor:'90%'}]},
+			        {items: [{xtype:'textfield',fieldLabel: '客户',name: 'customerName',anchor:'90%'}]},
               {items: [statusCombox]},
               {items: [{xtype : 'datefield', vtype: 'daterange', endDateField: 'endDate', fieldLabel: '日期起',name: 'beginDate', format:'Y-m-d', id:'beginDate',emptyText:'',anchor:'90%'}]},
               {items: [{xtype : 'datefield', vtype: 'daterange',startDateField: 'beginDate',fieldLabel: '至',name: 'endDate', format:'Y-m-d', id:'endDate', emptyText:'',labelSeparator:'',anchor:'90%'}]},
-			  {items: [quoTypeComboBox]}
+			        {items: [quoTypeComboBox]}
            ]//items
           }
         ]//items
@@ -293,6 +296,7 @@ var grid = new Ext.grid.GridPanel({
 				obj2['userName'] = '';
 				obj2['memo'] = '';
 				obj2['status'] = _status;
+				obj2['transferContract'] = _transferContract;
 				
 			var seachParams = {start : 0, limit : 10,searchStr:Ext.encode({data:obj2}),quotationType:_quotationType,yuDingWeiZhuanHeTong:_yuDingWeiZhuanHeTong};
 			for(var i in seachParams){

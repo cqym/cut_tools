@@ -41,6 +41,8 @@
 			this.store.baseParams.contractCode = this.contractCode;
 			this.store.baseParams.supplierId = this.supplierId;
 			this.store.baseParams.productBrand = this.productBrand;
+			this.store.baseParams.orderType = this.orderType;
+			
 			this.store.load({params:{start:0,limit:20}});	
 			cOContractDetailTree.superclass.constructor.call(this, {
 				height:520,
@@ -174,7 +176,11 @@ var  cOProductSelectForm = Ext.extend(Ext.FormPanel, {
 			}
 			Ext.apply(this, _cfg);
 			this.selectForm2 = new cOProductSelectForm({contractCode:this.contractCode});
-			this.detail_list = new cOContractDetailTree({contractCode:this.contractCode,supplierId:this.supplierId,productBrand:this.productBrand});
+			this.detail_list = new cOContractDetailTree({
+				contractCode:this.contractCode,
+				supplierId:this.supplierId,
+				productBrand:this.productBrand,
+				orderType:this.orderType});
 			cOProductPanel.superclass.constructor.call(this, {
 				iconCls:'icon-grid',
 				split: true,

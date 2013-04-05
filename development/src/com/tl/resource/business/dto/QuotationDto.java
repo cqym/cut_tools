@@ -9,13 +9,19 @@ import java.util.List;
 public class QuotationDto {
   private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-  public static final String QUO_TYPE_GENERAL = "1";
+  public static final String QUO_TYPE_GENERAL = "0";
 
   public static final String QUO_TYPE_PROJECT = "2";
 
   public static final String QUO_TYPE_SCHEDULE = "3";
 
   public static final String QUO_TYPE_TRY = "4";
+
+  public static final Integer TRANSFER_CONTRACT_ALL = 2;
+
+  public static final Integer TRANSFER_CONTRACT_PART = 1;
+
+  public static final Integer TRANSFER_CONTRACT_NEVER = 0;
 
   private String id;
 
@@ -106,6 +112,10 @@ public class QuotationDto {
    * 试刀报告
    */
   private String testReport;
+
+  private Integer exemplarInvoice;
+
+  private Integer transferContract;
 
   private List detail;
 
@@ -430,6 +440,22 @@ public class QuotationDto {
 
   public void setDetail(List detail) {
     this.detail = detail;
+  }
+
+  public Integer getExemplarInvoice() {
+    return exemplarInvoice;
+  }
+
+  public void setExemplarInvoice(Integer exemplarInvoice) {
+    this.exemplarInvoice = exemplarInvoice;
+  }
+
+  public Integer getTransferContract() {
+    return transferContract;
+  }
+
+  public void setTransferContract(Integer transferContract) {
+    this.transferContract = transferContract;
   }
 
 }

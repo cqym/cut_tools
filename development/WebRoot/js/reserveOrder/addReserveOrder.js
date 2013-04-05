@@ -174,23 +174,10 @@ Ext.ls.reserveOrder.queryHistory = function(btn,e)
 					 new Ext.grid.RowNumberer(),
 					 Ext.ls.reserveOrder.addChek,
 					{header:'ID',width:100,dataIndex:'id',hidden:true},
+					{header:'货品编号',width:100,dataIndex:'productCode',sortable:true},
 					{header:'名称',width:125,dataIndex:'productName',sortable:true},
-					{header:'工具牌号',width:190,dataIndex:'brandCode',sortable:true},
+					{header:'牌号',width:190,dataIndex:'brandCode',sortable:true},
 					{header:'计量单位',width:60,dataIndex:'productUnit',sortable:true},
-					{header:'单价',width:60,dataIndex:'price',editor: new Ext.form.NumberField({
-						   allowBlank: false,
-						   allowNegative: false,
-						   style: 'text-align:left',
-						   gridObj:this,
-						   listeners : {
-								focus : function(f){
-										f.selectText(0,f.getValue().length);
-									}
-								,'specialkey' : Ext.ftl.gridEditorkeyMove
-							}
-						})
-					},
-					{header:'品牌',width:80,dataIndex:'productBrand',sortable:true},
 					{header:'采购数量',width:80,dataIndex:'orderAmount',sortable:true,editor: new Ext.form.NumberField({
 						   allowBlank: false,
 						   allowNegative: false,
@@ -204,12 +191,28 @@ Ext.ls.reserveOrder.queryHistory = function(btn,e)
 							}
 						})
 					},
-					{header:'货品金额',width:100,dataIndex:'productMoney',sortable:true},
-					{header:'交货日期',width:100,dataIndex:'deliveryDate'},
+					{header:'采购单价',width:60,dataIndex:'price',editor: new Ext.form.NumberField({
+						   allowBlank: false,
+						   allowNegative: false,
+						   style: 'text-align:left',
+						   gridObj:this,
+						   listeners : {
+								focus : function(f){
+										f.selectText(0,f.getValue().length);
+									}
+								,'specialkey' : Ext.ftl.gridEditorkeyMove
+							}
+						})
+					},
+					{header:'小计金额',width:100,dataIndex:'productMoney',sortable:true},
+					{header:'品牌',width:80,dataIndex:'productBrand',sortable:true},
+					
+					
+					{header:'采购交货期',width:100,dataIndex:'deliveryDate'},
 					{header:'货品工具主键',width:0,hidden : true,dataIndex:'toolsId',sortable:true},
 					{header:'货品工具父节点id',width:0,hidden : true,dataIndex:'parentToolsId',sortable:true},
 					{header:'货品工具叶子节点',width:0,hidden : true,dataIndex:'leaf',sortable:true},
-					{header:'货品编号',width:100,dataIndex:'productCode',sortable:true},
+					
 					{header:'备注',width:100,dataIndex:'memo',editor: new Ext.form.TextField()}
 			],
 			tbar : [{text : "添加",iconCls:'icon-add',handler :Ext.ls.reserveOrder.add,scope : this,hidden:this.tbarHidden},
@@ -219,15 +222,6 @@ Ext.ls.reserveOrder.queryHistory = function(btn,e)
 					{text : '统一设置交货期限',iconCls : 'icon-date',handler :Ext.ls.reserveOrder.setupDate,scope : this,hidden:this.tbarHidden},
 					{xtype:'tbseparator',hidden:this.tbarHidden},
 					{text : '历史价格查询',iconCls : 'icon-date',handler :Ext.ls.reserveOrder.queryHistory,scope : this,hidden:this.tbarHidden}],
-			/**分页信息，当页面显示明细信息时显示**/
-			bbar: new Ext.PagingToolbar({
-				hidden:this.bbarHidden,
-				store: this.store,
-				pageSize: 15,
-				displayInfo: true,
-				displayMsg: "当前显示第{0}条到第{1}条，共{2}条",
-				emptyMsg: "<i>没有数据</i>"
-			}),
 			listeners : {
 				'cellclick':function(grid,rowIndex,columnIndex,e){
 					var record = grid.getStore().getAt(rowIndex);  // Get the Record
@@ -366,7 +360,7 @@ Ext.ls.reserveOrder.addForm = Ext.extend(Ext.FormPanel,{
 					 {xtype:'label',text: '最终金额:',x:800,y:155,style:this.lableStyle_},
 					 {xtype:'numberfield', name: 'finalMoney', allowBlank : false, x:900,y:152,width:170,value:0},
 					 //7
-					 {xtype:'label',text: '运输方式及费用:',x:0,y:185,style:this.lableStyle_},
+					 {xtype:'label',text: '交货方式:',x:0,y:185,style:this.lableStyle_},
 					 new Ext.ffc.TrafficModeComboBox({x:100,y:182, width : 420,disabled : this.isReadOnly}),
 					 {xtype:'label',text: '合同违约责任:',x:530,y:185,style:this.lableStyle_},
 					 {xtype:'textfield' ,name: 'defaultDuty', readOnly : this.isReadOnly,value:'无。', allowBlank : false,blankText:'该项为必填项!',x:630,y:182, width : 440},

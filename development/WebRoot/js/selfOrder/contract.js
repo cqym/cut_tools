@@ -262,9 +262,9 @@
 								eval("var detail=" + response.responseText);
 								if(detail.length == 0){
 									if(node == null){
-										var win = new sOSupplierWin({contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),memo:memo});
+										var win = new sOSupplierWin({contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),memo:memo,deliveryAddressType:record.get('deliveryAddressType'),trafficMode:record.get('trafficMode')});
 									}else{
-										var win = new sOSupplierWin({contractId:record.get('id'),contract_code:record.get('contractCode'),node:Ext.tree.toNewTreeNode(node.attributes,{},true),ownContactPerson:record.get('ownContactPerson'),memo:memo});
+										var win = new sOSupplierWin({contractId:record.get('id'),contract_code:record.get('contractCode'),node:Ext.tree.toNewTreeNode(node.attributes,{},true),ownContactPerson:record.get('ownContactPerson'),memo:memo,deliveryAddressType:record.get('deliveryAddressType'),trafficMode:record.get('trafficMode')});
 									}
 									var store = win.supplier_grid.getStore();
 									store.baseParams = {contractId:record.get('id')};                   
@@ -277,9 +277,9 @@
 												listeners :{
 													close : function(p){
 														if(node == null){
-															var win = new sOSupplierWin({contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),memo:memo});
+															var win = new sOSupplierWin({contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),memo:memo,deliveryAddressType:record.get('deliveryAddressType'),trafficMode:record.get('trafficMode')});
 														}else{
-															var win = new sOSupplierWin({contractId:record.get('id'),contract_code:record.get('contractCode'),node:Ext.tree.toNewTreeNode(node.attributes,{},true),ownContactPerson:record.get('ownContactPerson'),memo:memo});
+															var win = new sOSupplierWin({contractId:record.get('id'),contract_code:record.get('contractCode'),node:Ext.tree.toNewTreeNode(node.attributes,{},true),ownContactPerson:record.get('ownContactPerson'),memo:memo,deliveryAddressType:record.get('deliveryAddressType'),trafficMode:record.get('trafficMode')});
 														}
 														var store = win.supplier_grid.getStore();
 														store.baseParams = {contractId:record.get('id')};                   
@@ -375,9 +375,9 @@
 								eval("var detail=" + response.responseText);
 								if(detail.length == 0){
 									if(node == null){
-										var win = new sOSupplierWin({contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),memo:memo});
+										var win = new sOSupplierWin({contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),memo:memo,deliveryAddressType:record.get('deliveryAddressType'),trafficMode:record.get('trafficMode')});
 									}else{
-										var win = new sOSupplierWin({contractId:record.get('id'),contract_code:record.get('contractCode'),node:Ext.tree.toNewTreeNode(node.attributes,{},true),ownContactPerson:record.get('ownContactPerson'),memo:memo});
+										var win = new sOSupplierWin({contractId:record.get('id'),contract_code:record.get('contractCode'),node:Ext.tree.toNewTreeNode(node.attributes,{},true),ownContactPerson:record.get('ownContactPerson'),memo:memo,deliveryAddressType:record.get('deliveryAddressType'),trafficMode:record.get('trafficMode')});
 									}
 									var store = win.supplier_grid.getStore();
 									store.baseParams = {contractId:record.get('id')};                   
@@ -390,9 +390,9 @@
 												listeners :{
 													close : function(p){
 														if(node == null){
-															var win = new sOSupplierWin({contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),memo:memo});
+															var win = new sOSupplierWin({contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),memo:memo,deliveryAddressType:record.get('deliveryAddressType'),trafficMode:record.get('trafficMode')});
 														}else{
-															var win = new sOSupplierWin({contractId:record.get('id'),contract_code:record.get('contractCode'),node:Ext.tree.toNewTreeNode(node.attributes,{},true),ownContactPerson:record.get('ownContactPerson'),memo:memo});
+															var win = new sOSupplierWin({contractId:record.get('id'),contract_code:record.get('contractCode'),node:Ext.tree.toNewTreeNode(node.attributes,{},true),ownContactPerson:record.get('ownContactPerson'),memo:memo,deliveryAddressType:record.get('deliveryAddressType'),trafficMode:record.get('trafficMode')});
 														}
 														var store = win.supplier_grid.getStore();
 														store.baseParams = {contractId:record.get('id')};                   

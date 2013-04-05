@@ -128,7 +128,8 @@ public class OutStockServiceImp implements OutStockService {
       para.put("quotationCode", dto.getQuotationCode());
       quotationProductDetailDAO.updateQuotationDetailOutAmount(para);
     }
-    if (OutStockInforDto.OUT_STOCK_TYPE_SCHEDULE_TQ.equals(dto.getOutStockType().toString())) {
+    if (OutStockInforDto.OUT_STOCK_TYPE_SCHEDULE_TQ.equals(dto.getOutStockType().toString())
+      || OutStockInforDto.OUT_STOCK_TYPE_TRY_TQ.equals(dto.getOutStockType().toString())) {
       contractProductDetailDAO.sycContractOutDetail(dto.getQuotationCode());
     }
   }
@@ -545,9 +546,9 @@ public class OutStockServiceImp implements OutStockService {
   }
 
   @Override
-  public List<OutStockDetailDto> getWillOutStockContractDetail(String contractId) {
+  public List<OutStockDetailDto> getWillOutStockContractDetail(String contractId, String leaf) {
     // TODO Auto-generated method stub
-    List<ContractProductDetailDto> list = contractProductDetailDAO.getWillOutStockContractDetail(contractId);
+    List<ContractProductDetailDto> list = contractProductDetailDAO.getWillOutStockContractDetail(contractId, leaf);
     List<OutStockDetailDto> outList = new ArrayList<OutStockDetailDto>();
     try {
       for (Iterator iterator = list.iterator(); iterator.hasNext();) {
@@ -575,8 +576,8 @@ public class OutStockServiceImp implements OutStockService {
   }
 
   @Override
-  public List<OutStockDetailDto> getWillOutStockQuotationDetail(String quotationInforId) {
-    List<QuotationDetailOutStockDto> list = quotationProductDetailDAO.getQuotationProductionsWillOutStock(quotationInforId);
+  public List<OutStockDetailDto> getWillOutStockQuotationDetail(String quotationInforId, String leaf) {
+    List<QuotationDetailOutStockDto> list = quotationProductDetailDAO.getQuotationProductionsWillOutStock(quotationInforId, leaf);
     List<OutStockDetailDto> outList = new ArrayList<OutStockDetailDto>();
     try {
       for (Iterator iterator = list.iterator(); iterator.hasNext();) {

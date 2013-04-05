@@ -79,6 +79,8 @@ public class OutStockEditAction extends DispatchAction {
     mparams.put("productName", request.getParameter("productName"));
     mparams.put("productBrand", request.getParameter("productBrand"));
     mparams.put("contractId", request.getParameter("contractId"));
+    mparams.put("notHasYd", "yes");
+    mparams.put("leaf", request.getParameter("leaf"));
 
     PaginationSupport ps = outStockService.consultContractProducts(mparams, Integer.valueOf(startIndex), Integer.valueOf(pageSize));
 
@@ -95,7 +97,9 @@ public class OutStockEditAction extends DispatchAction {
     PrintWriter out = response.getWriter();
 
     String contractId = request.getParameter("contractId");
-    List<OutStockDetailDto> list = outStockService.getWillOutStockContractDetail(contractId);
+    String leaf = request.getParameter("leaf");
+
+    List<OutStockDetailDto> list = outStockService.getWillOutStockContractDetail(contractId, leaf);
 
     out.println(JSONArray.fromObject(list));
     out.flush();
@@ -122,6 +126,7 @@ public class OutStockEditAction extends DispatchAction {
     mparams.put("productName", request.getParameter("productName"));
     mparams.put("productBrand", request.getParameter("productBrand"));
     mparams.put("quotationInforId", request.getParameter("quotationInforId"));
+    mparams.put("leaf", request.getParameter("leaf"));
     PaginationSupport ps = outStockService.consultQuotationProducts(mparams, Integer.valueOf(startIndex), Integer.valueOf(pageSize));
 
     out.println(JSONObject.fromObject(ps));
@@ -137,7 +142,9 @@ public class OutStockEditAction extends DispatchAction {
     PrintWriter out = response.getWriter();
 
     String quotationInforId = request.getParameter("quotationInforId");
-    List<OutStockDetailDto> list = outStockService.getWillOutStockQuotationDetail(quotationInforId);
+    String leaf = request.getParameter("leaf");
+
+    List<OutStockDetailDto> list = outStockService.getWillOutStockQuotationDetail(quotationInforId,leaf);
 
     out.println(JSONArray.fromObject(list));
     out.flush();

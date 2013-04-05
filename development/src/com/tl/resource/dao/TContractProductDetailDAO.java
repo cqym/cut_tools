@@ -130,7 +130,7 @@ public interface TContractProductDetailDAO {
 
   public Integer getCOrderContractDetailListCount(Map<String, Object> parmMap);
 
-  public List<ContractProductDetailDto> getWillOutStockContractDetail(String contractId);
+  public List<ContractProductDetailDto> getWillOutStockContractDetail(String contractId, String leaf);
 
   /**
    * 加工订单（将合同中加工品带入订单）

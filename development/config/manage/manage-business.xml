@@ -86,4 +86,17 @@
 			</bean>
 	  </property>
  </bean>
+ 
+ <bean id="CompanyReportServiceImp"
+		class="com.tl.resource.business.manage.CompanyReportServiceImp">
+		<property name="companyReportsDAO">
+			<ref bean="CompanyReportsDAOImpl" />
+		</property>
+	</bean>
+	<bean id="ForumServiceImp"
+		class="com.tl.resource.business.manage.ForumServiceImp">
+		<property name="forumDao">
+			<ref bean="TForumDAOImpl" />
+		</property>
+	</bean>
 </beans>

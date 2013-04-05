@@ -182,7 +182,7 @@ public class TrySelfOrderAuditImp implements IAuditBusinessObject {
     bo.addProperty("totalMoney", vo.getTotalMoney());
     bo.addProperty("editDate", vo.getEditDateCopy());
     bo.addProperty("userName", vo.getUserName());
-    bo.addProperty("url", "/js/trySelfOrder/addTrySelfOrder.js");
+    bo.addProperty("url", "/js/purchaseOrder/purchaseOrderWin.js");
   }
 
   @Override

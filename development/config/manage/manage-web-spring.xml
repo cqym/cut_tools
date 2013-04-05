@@ -69,4 +69,15 @@
 			<ref bean="WorkTrustService" />
 		</property>
 	</bean>
+	
+	<bean name="/manage/mainPage/CompanyReportAction" class="com.tl.resource.web.manage.mainPage.CompanyReportAction">
+		<property name="companyReportService">
+			<ref bean="CompanyReportServiceImp" />
+		</property>
+	</bean>
+	<bean name="/manage/forum/ForumAction" class="com.tl.resource.web.manage.forum.ForumAction">
+		<property name="forumService">
+			<ref bean="ForumServiceImp" />
+		</property>
+	</bean>
 </beans>

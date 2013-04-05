@@ -24,6 +24,9 @@
 		<property name="billsCodeDefService">
 			<ref bean="BillsCodeDefService"/>
 		</property>
+		<property name="outStockService">
+			<ref bean="OutStockService"/>
+		</property>
 	</bean>
 	
 	<!-- Excel导出service -->

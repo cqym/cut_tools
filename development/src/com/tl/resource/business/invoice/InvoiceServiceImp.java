@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.tl.common.util.GenerateSerial;
 import com.tl.common.util.PaginationSupport;
@@ -17,6 +18,7 @@ import com.tl.resource.dao.TCustomersInforDAO;
 import com.tl.resource.dao.TInvoiceDetailDAO;
 import com.tl.resource.dao.TInvoiceInfoDAO;
 import com.tl.resource.dao.TSuppliersInforDAO;
+import com.tl.resource.dao.pojo.TContractInfor;
 import com.tl.resource.dao.pojo.TCustomersInfor;
 import com.tl.resource.dao.pojo.TCustomersInforExample;
 import com.tl.resource.dao.pojo.TInvoiceDetail;
@@ -55,8 +57,12 @@ public class InvoiceServiceImp implements InvoiceService {
         BeanUtils.copyProperties(detailPo, invoiceDetailDto);
         detailPo.setEditDate(new Date());
         detailPo.setAmount(invoiceDetailDto.getInvoiceAmount());
-        if (detailPo.getId() != null && !"".equals(detailPo.getId()) && detailPo.getId() != null && !detailPo.getId().startsWith("temp")) {
-          invoiceDetailDAO.updateByPrimaryKey(detailPo);
+        if (StringUtils.isNotEmpty(detailPo.getId()) && !detailPo.getId().startsWith("temp")) {
+          if (detailPo.getAmount().doubleValue() == 0) {
+            invoiceDetailDAO.deleteByPrimaryKey(detailPo.getId());
+          } else {
+            invoiceDetailDAO.updateByPrimaryKey(detailPo);
+          }
         } else {
           detailPo.setId(GenerateSerial.getUUID());
           detailPo.setInvoiceInfoId(po.getId());
@@ -183,13 +189,27 @@ public class InvoiceServiceImp implements InvoiceService {
 
   @Override
   public String deleteInvoiceInfor(String id, String conDetailId) {
-    TInvoiceDetailExample example = new TInvoiceDetailExample();
-    example.createCriteria().andContractDetailIdEqualTo(conDetailId);
-    int c = invoiceDetailDAO.countByExample(example);
-    if (c <= 1) {
-      return "非复制行不能删除！";
-    }
+    //    TInvoiceDetailExample example = new TInvoiceDetailExample();
+    //    example.createCriteria().andContractDetailIdEqualTo(conDetailId);
+    //    int c = invoiceDetailDAO.countByExample(example);
+    //if (c <= 1) {
+    //  return "非复制行不能删除！";
+    //    }
+    TInvoiceDetail detail = invoiceDetailDAO.selectByPrimaryKey(id);
+    TInvoiceInfo inv = invoiceInfoDAO.selectByPrimaryKey(detail.getInvoiceInfoId());
+
     invoiceDetailDAO.deleteByPrimaryKey(id);
+
+    TInvoiceDetailExample example = new TInvoiceDetailExample();
+    example.createCriteria().andInvoiceInfoIdEqualTo(inv.getId());
+    int c = invoiceDetailDAO.countByExample(example);
+    if (c == 0) {
+      invoiceInfoDAO.deleteByPrimaryKey(inv.getId());
+    }
+    if (inv.getInvoiceType() == 0) {
+      TContractInfor contract = contractInforDAO.selectByPrimaryKey(inv.getContractId());
+      contractInforDAO.checkSetContractOver(contract.getId());
+    }
     return null;
   }
 

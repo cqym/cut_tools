@@ -146,7 +146,7 @@ public interface TQuotationProductDetailDAO {
 
   PaginationSupport getProducts4OutStock(Map params, int startIndex, int pageSize);
 
-  public List<com.tl.resource.business.dto.QuotationDetailOutStockDto> getQuotationProductionsWillOutStock(String quotationInforId);
+  public List<com.tl.resource.business.dto.QuotationDetailOutStockDto> getQuotationProductionsWillOutStock(String quotationInforId, String leaf);
 
   /**
    * 根据报价单删除报价单产品(ftl)
@@ -267,4 +267,6 @@ public interface TQuotationProductDetailDAO {
    * @return
    */
   List<QuotationDetailDto> getYuDingQuoDetail2CreateContract(String id);
+
+  Integer getYuDingQuoDetail2CreateContractCount(String id);
 }

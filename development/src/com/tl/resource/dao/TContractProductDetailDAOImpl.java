@@ -223,10 +223,13 @@ public class TContractProductDetailDAOImpl extends SqlMapClientDaoSupport implem
   }
 
   @Override
-  public List<ContractProductDetailDto> getWillOutStockContractDetail(String contractId) {
+  public List<ContractProductDetailDto> getWillOutStockContractDetail(String contractId, String leaf) {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("willOutStock", new Object());
     params.put("contractId", contractId);
+    params.put("notHasYd", "yes");
+    params.put("leaf", leaf);
+
     List<ContractProductDetailDto> list = getSqlMapClientTemplate().queryForList("contract_product_detail.getProductArrivalDeliveryRootDetail",
       params);
     return list;

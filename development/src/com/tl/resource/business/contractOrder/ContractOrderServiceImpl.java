@@ -264,7 +264,8 @@ public class ContractOrderServiceImpl implements ContractOrderService {
       para.put("quotationCode", order.getQuotationCode());
       quotationProductDetailDAO.updateQuotationDetailOrderAmount(para);
     }
-    if (OrderInfoDto.ORDER_TYPE_SCHEDLE.equals(order.getOrderType().toString())) {
+    if (OrderInfoDto.ORDER_TYPE_SCHEDLE.equals(order.getOrderType().toString())
+      || OrderInfoDto.ORDER_TYPE_TRY.equals(order.getOrderType().toString())) {
       contractProductDetailDao.sycContractOrderDetail(order.getQuotationCode());
     }
   }

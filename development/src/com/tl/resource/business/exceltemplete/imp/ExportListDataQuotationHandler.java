@@ -19,6 +19,9 @@ public class ExportListDataQuotationHandler implements IExportListDataBusinessHa
     para.put("start", 0);
     para.put("limit", Integer.MAX_VALUE);
     para.put("resourceType", 1);
+    if ("全部".equals(para.get("transferContract"))) {
+      para.remove("transferContract");
+    }
     List inforList = generalQuoService.getQuotationByPage(para);
     for (Iterator iterator = inforList.iterator(); iterator.hasNext();) {
       QuotationDto quoInfor = (QuotationDto) iterator.next();

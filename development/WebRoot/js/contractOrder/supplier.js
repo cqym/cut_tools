@@ -178,15 +178,16 @@ var  cOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 					supplierFax:record.get('faxFirst'),
 					customerCode:this.customerCode,
 					customerName:this.customerName,
-						mome:this.memo
+					mome:this.memo
 				});
-				var addParam ;
-				addParam = {
+				var addParam = {
 							contractId:this.contractId,
 							contractCode:this.contract_code,
 							supplierId:record.get('id'),
 							deliveryAddressType:this.deliveryAddressType,
-							URL:Ext.ls.contractOrder.addUrl
+							trafficMode:this.trafficMode,
+							URL:Ext.ls.contractOrder.addUrl,
+							openType:'add'
 						};
 				var win = new  Ext.ls.contractOrder.addWin(addParam);
 				/**设置窗口的标题**/
@@ -298,7 +299,9 @@ var  cOSupplierSelectForm = Ext.extend(Ext.FormPanel, {
 									contractCode:this.contract_code,
 									supplierId:record.get('id'),
 									deliveryAddressType:this.deliveryAddressType,
-									URL:Ext.ls.contractOrder.addUrl
+									trafficMode:this.trafficMode,
+									URL:Ext.ls.contractOrder.addUrl,
+									openType:'add'
 								};
 							var win = new  Ext.ls.contractOrder.addWin(addParam);
 							/**设置窗口的标题**/

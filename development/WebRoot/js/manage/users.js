@@ -5,7 +5,7 @@ function onItemUsers(item, pressed){
         labelWidth: 75, 
         //url:'save-form.php',
         frame:true,
-		region: 'center',
+		    region: 'center',
         bodyStyle:'padding:5px 5px 0',
         width: 100,
         defaults: {width: 100},
@@ -65,7 +65,7 @@ var addNodeWin = new Ext.Window({
 				height:250,
 				plain:true,
 				modal : true,
-                layout: 'border',
+        layout: 'border',
 				items: addForm,
 				listeners: {
 					'show':function(win){
@@ -83,12 +83,12 @@ var addNodeWin = new Ext.Window({
         labelWidth: 75, 
         //url:'save-form.php',
         frame:true,
-		region: 'center',
+        layout:'form',
+		    region: 'center',
         bodyStyle:'padding:5px 5px 0',
         width: 100,
         defaults: {width: 100},
         defaultType: 'textfield',
-
         items: [{
                 fieldLabel: '用户名',
                 name: 'userName',

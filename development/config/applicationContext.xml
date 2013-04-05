@@ -105,6 +105,8 @@
 				<prop key="remove*">PROPAGATION_REQUIRED,-Exception</prop>
 				<prop key="create*">PROPAGATION_REQUIRED,-Exception</prop>
 				<prop key="commit*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="execute*">PROPAGATION_REQUIRED,-Exception</prop>
+				<prop key="send*">PROPAGATION_REQUIRED,-Exception</prop>
 				<prop key="*">PROPAGATION_SUPPORTS,readOnly</prop>
 			</props>
 		</property>

@@ -1,4 +1,5 @@
- 
+Ext.namespace('Ext.ffc.PurchaseOrder');
+
 cut_tools.contract_order.index_grid = null;    
 
 Ext.onReady(function(){
@@ -210,7 +211,78 @@ Ext.apply(_config, getConfig());
 				iconCls:'icon-add',
 				listeners: {
 					'click' : function(){
-						var win = new cOContractWin()
+						var win = new Ext.ffc.PurchaseOrder.cOContractWin({
+							  leaf:1,
+						    callBackMethod:function(contractId,customerCode,contractCode,brand){
+						      if(!brand){
+						          brand = '';	
+						      }
+						    	checkCustomerAccount({
+										customerCode:customerCode,
+										callBackMethod:function(config){
+												try{
+													Ext.Ajax.request({
+														method: "post",
+														params: { 'contractId' : contractId,"leaf":1},
+														url: PATH + '/outStock/outStockEditAction.do?ffc=getWillOutStockContractDetail',
+														success: function(response){
+																eval("var detail=" + response.responseText);
+																if(detail.length == 0){
+																	var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+																		contractId:contractId,
+																		brand:brand,
+																		leaf:1,
+																		callBackMethod:function(suppid){
+																			win.close();
+																			loadOrderWindowByConsult({
+																					    title:'合同采购订单',
+																					    listGrid:cut_tools.contract_order.index_grid,
+																					    loadDataParam:{contractId:contractId,supplierId:suppid,brand:brand,leaf:1,loadActionMethod:'consultContractInfor'}
+																			});
+																			     
+																		}
+																	});
+																	win.show();  
+																	return ;
+																}
+																var conEditWin = new Ext.ffc.ContractOutStockEditWindow(
+																{
+																	outStockInfor:{contractId:contractId,outStockType:1,status:0,contractCode:contractCode,outStockDetails:detail},
+																	listeners :{
+																		close : function(p){
+																			var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+																				contractId:contractId,
+																				brand:brand,
+																				leaf:1,
+																				callBackMethod:function(suppid){
+																			     win.close();
+																			     loadOrderWindowByConsult({
+																					    title:'合同采购订单',
+																					    listGrid:cut_tools.contract_order.index_grid,
+																					    loadDataParam:{
+																					    	contractId:contractId,supplierId:suppid,brand:brand,leaf:1,loadActionMethod:'consultContractInfor'																					    
+																					    }
+																				   });
+																			     
+																		    }
+																			});
+																			win.show();  
+																		}
+																	}	
+																}
+															);
+															conEditWin.show();
+															config.callBackMethod();
+														}
+													});
+											}catch(e){
+												alert(e);
+											}
+											win.close();
+										}
+									});
+						    }
+						})
 						win.show();
 					}
 				}
@@ -223,27 +295,20 @@ Ext.apply(_config, getConfig());
 				iconCls:'icon-detail',
 				listeners: {
 					'click' : function(){
+						
 					 var arr = gridCheckSele.getSelections();
 						if(arr.length != 1){
 							Ext.Msg.show({title: '系统提示',msg: '请选择要查看的一条订单',width: 300,buttons: Ext.MessageBox.OK,icon: Ext.MessageBox.INFO});
 							return;
 						}	  
-						/**订单信息**/
-						var store = new contractOrderStore();
-						store.baseParams.orderId = arr[0].id;
-						store.load();
-						/**订单修改页面**/
-						var win = new Ext.ls.contractOrder.addWin({orderId:arr[0].id,detailFlag:true,URL:Ext.ls.contractOrder.detailUrl});
-						/**设置窗口的标题**/
-						win.setTitle('查看合同订单明细');
-						/**将store的数据加载到页面**/
-						store.on('load',function(){
-								win.form.getForm().loadRecord(store.getAt(0));
-								win.form.deliveryAddressType = store.getAt(0).data.deliveryAddress;
-								win.getBottomToolbar().items.first().getEl().dom.innerHTML = "销售合同交货地点及运输方式:<font color = 'red'>"+store.getAt(0).data.deliveryAddress+"</font>";
-						},this);
-						win.show();
-					}
+						loadOrderWindowById({
+							    title:'合同采购订单',
+							    SaveBtnHidden : true,
+							    btToolsHidden:true,
+							    auditButtonHiden:true,
+							    loadDataParam:{orderId:arr[0].id}
+							});
+					},scope:this
 		 		}
 			},{
 				xtype:'tbseparator',
@@ -270,22 +335,15 @@ Ext.apply(_config, getConfig());
 							Ext.Msg.show({title: '系统提示',msg: '该状态下订单不能被修改！',width: 300,buttons: Ext.MessageBox.OK,icon: Ext.MessageBox.INFO});
 							return;
 						}
-						/**订单信息**/
-						var store = new contractOrderStore();
-						store.baseParams.orderId = record.get('id');
-						store.load();
-						/**订单修改页面**/
-						var win = new Ext.ls.contractOrder.addWin({orderId:record.get('id'),contractCode:record.get('contractCode'),supplierId:record.get('supplierId'),updateFlag:true,URL:Ext.ls.contractOrder.updateUrl});
-						/**设置窗口的标题**/
-						win.setTitle('修改合同订单');
-						/**将store的数据加载到页面**/
-						store.on('load',function(){
-								win.form.getForm().loadRecord(store.getAt(0));
-								win.form.deliveryAddressType = store.getAt(0).data.deliveryAddress;
-								win.getBottomToolbar().items.first().getEl().dom.innerHTML = "销售合同交货地点及运输方式:<font color = 'red'>"+store.getAt(0).data.deliveryAddress+"</font>";
-						},this);
-						win.show();
 						
+						loadOrderWindowById({
+							    title:'合同采购订单',
+							    SaveBtnHidden : false,
+							    btToolsHidden:false,
+							    auditButtonHiden:true,
+							    listGrid:cut_tools.contract_order.index_grid,
+							    loadDataParam:{orderId:record.get('id')}
+							});
 					}
 				}
 			},{
@@ -327,8 +385,8 @@ Ext.apply(_config, getConfig());
 								if(btn == 'ok') {	
 									Ext.Ajax.request({
 										method: "post",
-										url: PATH + '/contractOrder/deleteOrder.do',
-										params: { ids: ids },
+										url: PATH + '/purchaseOrder/PurchaseOrderEditAction.do',
+										params: { method:'deletePurchaseOrder',ids: ids },
 										success: function(response){
 											ds.reload();
 										}

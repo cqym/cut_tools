@@ -93,7 +93,10 @@ Ext.ftl.quoDetail.SimpleForm = Ext.extend(Ext.FormPanel, {
 		this.willFormalDateField = new Ext.form.DateField({
 			xtype:'datefield',name: 'willFormalDate', format:'Y-m-d',allowBlank : true,
 			x:860,y:213, width:170,validationEvent : false,disabled : this.isReadOnly
-		})
+		});
+		this.exemplarInvoiceField = new Ext.form.Checkbox({
+			name: 'exemplarInvoice', x:1090,y:35
+		});
 		
 		this.currCombox.on({
 			'change' : function() {
@@ -138,6 +141,9 @@ Ext.ftl.quoDetail.SimpleForm = Ext.extend(Ext.FormPanel, {
 		    {xtype:'textfield',  name: 'userName',readOnly : true,x:600,y:33,width:170},
 			{xtype:'label',text: '税率:',x:770,y:35,style:this.lableStyle_},
 			this.taxRateCombox,
+			{xtype:'label',text: '形式发票:',x:1000,y:35,style:this.lableStyle_},
+			this.exemplarInvoiceField,
+
 			//3
 			{xtype:'label',text: '紧急程度:',x:0,y:65,style:this.lableStyle_},
 			new Ext.ffc.UrgentLevelCombox({x:90,y:63, width:170,disabled : this.isReadOnly}),
@@ -467,6 +473,33 @@ Ext.ftl.QuoInfoDetailWindow = Ext.extend(Ext.Window, {
 			maximizable : true,
 			modal : true,
 			layout : "border",
+			bbar :[{xtype:'label',html : "审批内容:<font color = 'red'></font>,<font color='green'></font>"}],
+			setAuditContent:function(){
+				      var _this = this;
+		          var busId = _this._id;
+			    	  	Ext.Ajax.request({
+									   url: PATH + '/manage/audit/auditContentAction.do',
+									   params: { busId: busId,m:'findAllAuditContentList' },
+									   success: function(response){
+											  eval("var arr = " + response.responseText);
+											  var html = [];
+											  html.push('<div>审批内容：');
+											  for(var i = 0;i < arr.length;i++){
+											  	html.push('<span style="color:green">');
+											  	html.push(arr[i].auditContentName);
+											  	html.push('</span>(<span style="color:red">');
+											  	if(arr[i].auditPerson == ''){
+											  	    html.push('待审');
+											    }else{
+											        html.push(arr[i].auditPerson);
+											    }
+											  	html.push('</span>)&nbsp;&nbsp;');
+											  }
+											  html.push('</div>');
+											  _this.bbar.update(html.join(''));//setTitle('dfdsfds','');
+									   }
+									});
+			},scope:this,
 			buttons : [{
 				text : "关闭",
 				handler : function() {
@@ -501,7 +534,12 @@ Ext.ftl.QuoInfoDetailWindow = Ext.extend(Ext.Window, {
 							margins : '0 2 0 2',
 							items : [this.workOrderList]
 						}, this.workOrderProductTapPanel]
-				}]
+				}],
+				listeners : {
+					'show' : function() {
+						this.setAuditContent();
+					},scope:this
+			  }
 		})
 	}
 })

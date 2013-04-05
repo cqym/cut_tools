@@ -85,6 +85,8 @@ var PAGESIZE = parseInt((Ext.getBody().getHeight()-300)/24);
 <div id="cusSalesProductGird"></div>
 <link rel="stylesheet" type="text/css" href="<%=path%>/css/file-upload.css" />
 <script type="text/javascript" 	src="<%=path%>/js/baseInfo/ux/FileUploadField.js"></script>
+<script type="text/javascript" src="<%=path%>/js/query_statistics/products_query/view_sale_bill.js"></script>
+
 <script type="text/javascript" 	src="<%=path%>/js/baseInfo/productCorrelation/importSalesPrice.js"></script>
 <script type="text/javascript" 	src="<%=path%>/js/baseInfo/productCorrelation/salesPriceHistoryDetailWindow.js"></script>
 <script type="text/javascript" 	src="<%=path%>/js/baseInfo/productCorrelation/cusSalesHistorySearch.js"></script>

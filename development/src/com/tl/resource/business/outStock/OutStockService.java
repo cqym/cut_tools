@@ -34,7 +34,8 @@ public interface OutStockService {
 
   public void affirmOutStock(String id, UserDto user);
 
-  public List<OutStockDetailDto> getWillOutStockContractDetail(String contractId);
+  public List<OutStockDetailDto> getWillOutStockContractDetail(String contractId, String leaf);
 
-  public List<OutStockDetailDto> getWillOutStockQuotationDetail(String quotationInforId);
+  public List<OutStockDetailDto> getWillOutStockQuotationDetail(String quotationInforId, String leaf);
+
 }

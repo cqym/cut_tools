@@ -93,8 +93,11 @@ Ext.zhj.quoDetail.SimpleForm = Ext.extend(Ext.FormPanel, {
 		this.willFormalDateField = new Ext.form.DateField({
 			xtype:'datefield',name: 'willFormalDate', format:'Y-m-d',allowBlank : true,
 			x:860,y:213, width:170,validationEvent : false,disabled : this.isReadOnly
-		})
+		});
 		
+		this.exemplarInvoiceField = new Ext.form.Checkbox({
+			name: 'exemplarInvoice', x:1090,y:35
+		});
 		this.currCombox.on({
 			'change' : function() {
 				this.currIdField.setValue(this.currCombox.curid);
@@ -138,6 +141,8 @@ Ext.zhj.quoDetail.SimpleForm = Ext.extend(Ext.FormPanel, {
 		    {xtype:'textfield',  name: 'userName',readOnly : true,x:600,y:33,width:170},
 			{xtype:'label',text: '税率:',x:770,y:35,style:this.lableStyle_},
 			this.taxRateCombox,
+			{xtype:'label',text: '形式发票:',x:1000,y:35,style:this.lableStyle_},
+			this.exemplarInvoiceField,
 			//3
 			{xtype:'label',text: '紧急程度:',x:0,y:65,style:this.lableStyle_},
 			new Ext.ffc.UrgentLevelCombox({x:90,y:63, width:170,disabled : this.isReadOnly}),
@@ -495,7 +500,11 @@ Ext.zhj.QuoInfoDetailWindow = Ext.extend(Ext.Window, {
 							});
 						},scope : this
 					});
-				}
+					
+					if(this.setAuditContent){
+					    this.setAuditContent();	
+					}
+				},scope:this
 			},
 			items : [{
 					title : '项目报价',
@@ -533,7 +542,7 @@ Ext.zhj.QuoInfoDetailWindow = Ext.extend(Ext.Window, {
 /**
 the function will be calling by audit
 */
-DetailWindow = function(){
+/*DetailWindow = function(){
    this.method = null;
    this.id = null;
    this.on = function(paraString,fun){
@@ -548,8 +557,120 @@ DetailWindow = function(){
 		   new Ext.zhj.QuoInfoDetailWindow({quoId:this.id}).show();
 	   }
    }
-}
+}*/
 
+DetailWindow = Ext.extend(Ext.Window, {
+	quoId : null,
+	simpleForm : null,
+	workOrderList : null,
+	workOrderProductTapPanel : null,
+	historyPriceGrid : null,
+	constructor : function(_cfg) {
+		if (_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
+		this.quoId = this._id;
+		this.workOrderProductTapPanel = new Ext.zhj.quoDetail.WorkOrderProductTapPanel({region : "center"});
+		this.simpleForm = new Ext.zhj.quoDetail.SimpleForm({
+					quoId : this.quoId
+				});
+		// 转载数据
+		this.simpleForm.loadFormDate();
+		this.historyPriceGrid = new Ext.ftl.CusSalesProductGrid();
+		this.workOrderList = new Ext.zhj.quoDetail.WorkOrderList({
+			quoId : this.quoId,
+			productTapPanel : this.workOrderProductTapPanel,
+			quoForm : this.simpleForm,
+			historyPriceGrid : this.historyPriceGrid
+		});
+		this.workOrderList.getStore().reload();
+
+		Ext.zhj.QuoInfoDetailWindow.superclass.constructor.call(this, {
+			title : "查看项目报价单详细",
+			width : 1080,
+			height : 600,
+			plain : true,
+			closable : true,
+			closeAction : 'hide',
+			constrain : true,
+			maximizable : true,
+			modal : true,
+			layout : "border",
+			buttons : [{
+				text : "关闭",
+				handler : function() {
+					this.hide();
+				},
+				scope : this
+			}],
+			listeners : {
+				'beforeshow' : function() {
+					Ext.Ajax.request({
+						url: PATH + '/generalQuo/excelAction.do?method=getOrderPrice4Quo' ,
+						params: { quoId: this.quoId },
+						success : function(response) {
+							//var responseArray = Ext.util.JSON.decode(response.responseText);
+							if(response.responseText.length == 0)
+								return;
+							Ext.Msg.show({
+								title:'净价低于采购价格产品：',
+								msg: response.responseText,
+								buttons: Ext.Msg.OK,
+								icon: Ext.MessageBox.INFO,
+								width : 700
+							});
+						},scope : this
+					});
+					
+					if(this.setAuditContent){
+					    this.setAuditContent();	
+					}
+				},scope:this
+			},
+			items : [{
+					title : '项目报价',
+					region : "north",
+					frame : true,
+					height : 290,
+					layout : 'fit',
+					collapsible : true,
+					split:true,
+					margins : '2 2 0 2',
+					items : [this.simpleForm]
+				}, {
+					region : "center",
+					collapsible : true,
+					height : 350,
+					split:true,
+					layout : 'border',
+					margins : '0 2 0 2',
+					items : [{
+							title : '工序列表',
+							region : "north",
+							collapsible : true,
+							height : 100,
+							split:true,
+							layout : 'fit',
+							margins : '0 2 0 2',
+							items : [this.workOrderList]
+						}, this.workOrderProductTapPanel,this.historyPriceGrid]
+				}]
+		})
+	},
+	reload : function() {
+		this.centerPanel.quoProductTree.getRootNode().reload();
+	},
+	setId : function(id) {
+	   this._id = id;
+	},
+	setAuditType : function(auditType){
+	  this.auditType = auditType;
+	},
+	setGrid : function(_grid){
+	   this._grid = _grid;
+	}
+})
 
 Ext.zhj.quoDetail.GetNewTree = function(pId, workOrderId) {
 	return new Ext.tree.ColumnTree({

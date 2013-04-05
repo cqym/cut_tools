@@ -50,6 +50,7 @@ public class ListAction extends Action {
     String userName = "";
     String memo = "";
     String year = null;
+    String transferContract = null;
     String yuDingWeiZhuanHeTong = request.getParameter("yuDingWeiZhuanHeTong");
     if (searchStr != null && !"null".equals(searchStr)) {
       searchJson = JSONObject.fromObject(searchStr);
@@ -61,6 +62,12 @@ public class ListAction extends Action {
           status = null;
         } else {
           status = s;
+        }
+        String st = search.has("transferContract") ? search.getString("transferContract") : null;
+        if ("全部".equals(st) || "".equals(st)) {
+          transferContract = null;
+        } else {
+          transferContract = st;
         }
         editorName = search.has("editorName") ? search.getString("editorName") : null;
         customerName = search.has("customerName") ? search.getString("customerName") : null;
@@ -91,6 +98,7 @@ public class ListAction extends Action {
     parmMap.put("userName", userName);
     parmMap.put("memo", memo);
     parmMap.put("year", year);
+    parmMap.put("transferContract", transferContract);
     parmMap.put("yuDingWeiZhuanHeTong", yuDingWeiZhuanHeTong);
     int total = generalQuoService.getQuotaionTotal(parmMap);
 

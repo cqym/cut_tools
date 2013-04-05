@@ -60,7 +60,8 @@
      <result property="companyPhone" column="company_phone" jdbcType="VARCHAR"/>
      <result property="companyFax" column="company_fax" jdbcType="VARCHAR"/>
      <result property="taxMoney" column="tax_money" jdbcType="DECIMAL"/>
-     <result property="deliveryAddress" column="delivery_address" jdbcType="VARCHAR"/>
+     <result property="contractTrafficMode" column="contract_traffic_mode" jdbcType="VARCHAR"/>
+     <result property="contractDeliveryAddress" column="contract_delivery_address" jdbcType="VARCHAR"/>
   </resultMap>
   
   <resultMap id="resultHasFlag" class="com.tl.resource.dao.pojo.TOrderInfor" extends="ibatorgenerated_BaseResultMap">
@@ -617,7 +618,7 @@ from (
         #quotationCode:VARCHAR#
       </isNotNull>
        <isNotNull prepend="," property="editedPlan">
-        #edited_plan#
+        #editedPlan#
       </isNotNull>
       )
     </dynamic>
@@ -1047,7 +1048,9 @@ select t.id, t.order_code, t.contract_code,t.currency_id, t.currency_name,t.orde
 		t.supplier_contact_person,t.supplier_phone,t.supplier_fax,t.quality_standard,t.delivery_address_type,t.traffic_mode,t.closing_account_mode_id,t.closing_account_mode,
 	t.other_convention,t.default_duty,t.effect_conditions,t.quotation_id,t.quotation_code,
 		s.phone_first phone,s.fax_first fax,(t.total_money-t.product_money) tax_money,0 file_count,
-		(select delivery_address_type from t_contract_infor where contract_code = t.contract_code) delivery_address,edited_Plan
+		(select delivery_address_type from t_contract_infor where contract_code = t.contract_code) contract_delivery_address,
+		(select traffic_mode from t_contract_infor where contract_code = t.contract_code) contract_traffic_mode,
+		edited_Plan
     from t_order_infor t,t_suppliers_infor s
     where t.supplier_id = s.id 
     and  t.id =  #id:VARCHAR#)mi

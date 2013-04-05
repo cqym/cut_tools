@@ -388,10 +388,10 @@ Ext.ffc.DeliveryEditCenterPanel = Ext.extend(Ext.grid.EditorGridPanel, {
 									}
 								},scope:this});	
 							},scope:this
-						},
+						}
 					],
 			bbar : [
-					{xtype:'label',html: "<span>合同交货地点：</span><span style=\"color:green\">" + this.deliveryAddressType + "</span>"}
+					{xtype:'label',html: "<span>合同交货地点及运输方式：</span><span style=\"color:green\">" + this.deliveryAddressType + "</span>,<span style=\"color:red\">" + this.trafficMode + "</span>"}
 				]
 		})
 	}
@@ -442,7 +442,8 @@ Ext.ffc.DeliveryEditWindow = Ext.extend(Ext.Window, {
 			readOnly:_cfg.readOnly,
 			ds : this.DeliveryEditCenterGridStore,
 			store: this.DeliveryEditCenterGridStore,
-			deliveryAddressType:this.deliveryInfor.deliveryAddressType
+			deliveryAddressType:this.deliveryInfor.deliveryAddressType,
+			trafficMode:this.deliveryInfor.trafficMode
 		});
 		this.DeliveryEditCenterGridStore.load();
 		
@@ -512,6 +513,56 @@ Ext.ffc.DeliveryEditWindow = Ext.extend(Ext.Window, {
 	}
 });  
 
+Ext.ffc.DeliveryAuditWindow = Ext.extend(Ext.ffc.AuditBusinessDetailWindow, {  
+	topPanel : null,
+	centerPanel : null,
+	deliveryInfor : null,
+	readOnly : false,
+	DeliveryEditCenterGridStore : null,
+	addDetailTabPanel:function(sortArr){
+		var centerPanels = [];
+		for(var i = 0 ;i < sortArr.length;i++){
+			var pan = new Ext.ffc.CenterPanel({
+				'title' :  sortArr[i].name,
+				'id' : sortArr[i].id,
+				'proDetail' :  sortArr[i].conProductDetail
+			});
+		    centerPanels.push(pan);
+		}
+
+		this.centerPanel.add(centerPanels);
+		return centerPanels;
+	},
+	constructor : function(_cfg) {
+
+		if(_cfg == null) {
+			_cfg = {};
+		}
+		Ext.apply(this, _cfg);
+		
+		this.topPanel = new Ext.ffc.DeliveryNorthPanel({readOnly:_cfg.readOnly});
+		this.DeliveryEditCenterGridStore = Ext.ffc.getDeliveryEditCenterGridStore(this.deliveryInfor);
+		this.centerPanel = new Ext.ffc.DeliveryEditCenterPanel({
+			readOnly:_cfg.readOnly,
+			ds : this.DeliveryEditCenterGridStore,
+			store: this.DeliveryEditCenterGridStore,
+			deliveryAddressType:this.deliveryInfor.deliveryAddressType,
+			trafficMode:this.deliveryInfor.trafficMode
+		});
+		this.DeliveryEditCenterGridStore.load();
+		
+		Ext.ffc.DeliveryAuditWindow.superclass.constructor.call(this, {
+			//el:'contractEditWinEl',
+			width : 1050,
+			height : 600,
+			maximizable :true,
+			//title :  '交货单编制',
+			layout :  'border',
+			//closeAction:'hide',
+			items : [this.topPanel,this.centerPanel]
+		});
+	}
+});  
 
  DetailWindow = function(){
    this.method = null;
@@ -522,21 +573,30 @@ Ext.ffc.DeliveryEditWindow = Ext.extend(Ext.Window, {
    this.setId = function(tid){
 		this.id = tid;
    };
+   this.setAuditType = function(_auditType){
+     this.auditType = _auditType;	
+   };
+   this.setGrid = function(_grid){
+   	 this.grid = _grid
+   };
    this.show = function(){
        if(this.method != null){
 	       this.method();
 			var conId = this.id;
-			
+			var _this = this;
 			Ext.Ajax.request({
 				method: "post",
 				params: { id : conId},
 				url: PATH + '/delivery/deliveryViewAction.do?ffc=deliveryViewById',
 				success: function(response){
 						eval("var temp = " + response.responseText);
-						var conEditWin = new Ext.ffc.DeliveryEditWindow({
+						var conEditWin = new Ext.ffc.DeliveryAuditWindow({
 							deliveryInfor : temp,
 							readOnly:true,
-							title :  '查看交货单'
+							title :  '查看交货单',
+							auditType:_this.auditType,
+							_grid:_this.grid,
+							_id:_this.id
 						});
 						conEditWin.show();	
 				}

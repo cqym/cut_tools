@@ -22,118 +22,115 @@ import com.tl.resource.dao.pojo.TProductSort;
 import com.tl.resource.dao.pojo.TProductSource;
 
 public class LoadComboDataAction extends DispatchAction {
-	private ProToolsInforService proToolsInforService;
-	
-	public ProToolsInforService getProToolsInforService() {
-		return proToolsInforService;
-	}
+  private ProToolsInforService proToolsInforService;
 
-	public void setProToolsInforService(ProToolsInforService proToolsInforService) {
-		this.proToolsInforService = proToolsInforService;
-	}
+  public ProToolsInforService getProToolsInforService() {
+    return proToolsInforService;
+  }
 
-	@Override
-	public ActionForward execute(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
-		String method = request.getParameter("method");
-		
-		if("getProSort".equals(method)) {
-			return getProSort(mapping, form, request, response);
-		} else if("getProBrand".equals(method)) {
-			return getproBrand(mapping, form, request, response);
-		} else if("getProSource".equals(method)) {
-			return getProSource(mapping, form, request, response);
-		} else if("getTreeDto".equals(method)) {
-			return getTreeDto(mapping, form, request, response);
-		} else {
-			return null;
-		}
-	}
+  public void setProToolsInforService(ProToolsInforService proToolsInforService) {
+    this.proToolsInforService = proToolsInforService;
+  }
 
-	//根据产品牌号 名称 品牌 来源 查找产品 判断该产品是否已经存在
-	private ActionForward getTreeDto(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		
-		response.setContentType("text/html;charset=utf-8");
-		String treeDtoStr = request.getParameter("treeDto");
-		
-		JSONObject treeJsonObj = JSONObject.fromObject(treeDtoStr);
-		
-		TreeDto treeDto = (TreeDto)JSONObject.toBean(treeJsonObj, TreeDto.class);
-		
-		List<TreeDto> proDto = proToolsInforService.getTreeDto(treeDto);
-		boolean flag = false;
-		if(proDto != null && proDto.size() > 0) {
-			flag = true;
-		}
-		
-		//返回前台字符串
-		String resultStr = "{success : "  + flag + "}";
-		
-		PrintWriter out = response.getWriter();
-		out.write(resultStr);
-		out.flush();
-		out.close();
-		return null;
-	}
+  @Override
+  public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    String method = request.getParameter("method");
 
-	//产品来源
-	private ActionForward getProSource(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		response.setContentType("text/html;charset=utf-8");
-		String name = request.getParameter("name");
-		
-		List<TProductSource> list = proToolsInforService.getProSourceByAll();
-		String jsonStr = JSONArray.fromObject(list).toString();
-		
-		//返回前台字符串
-		String resultStr = "{proSource : "  + jsonStr + "}";
-		
-		PrintWriter out = response.getWriter();
-		out.write(resultStr);
-		out.flush();
-		out.close();
-		return null;
-	}
+    if ("getProSort".equals(method)) {
+      return getProSort(mapping, form, request, response);
+    } else if ("getProBrand".equals(method)) {
+      return getproBrand(mapping, form, request, response);
+    } else if ("getProSource".equals(method)) {
+      return getProSource(mapping, form, request, response);
+    } else if ("getTreeDto".equals(method)) {
+      return getTreeDto(mapping, form, request, response);
+    } else {
+      return null;
+    }
+  }
 
-	//产品品牌
-	private ActionForward getproBrand(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		response.setContentType("text/html;charset=utf-8");
-		String sourceName = request.getParameter("name");
-		String brandName = request.getParameter("brandName");
-		List<TProductBrand> list = proToolsInforService.getProBrandBySorce(sourceName, brandName);
-		String jsonStr = JSONArray.fromObject(list).toString();
-		
-		//返回前台字符串
-		String resultStr = "{proBrand : "  + jsonStr + "}";
-		
-		PrintWriter out = response.getWriter();
-		out.write(resultStr);
-		out.flush();
-		out.close();
-		return null;
-	}
+  //根据产品牌号 名称 品牌 来源 查找产品 判断该产品是否已经存在
+  private ActionForward getTreeDto(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
+    throws IOException {
 
-	//产品组别
-	private ActionForward getProSort(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) throws Exception{
-		response.setContentType("text/html;charset=utf-8");
-		String brand = request.getParameter("name");
-		
-		List<TProductSort> list = proToolsInforService.getProSortByBrand(brand);
-		
-		String jsonStr = JSONArray.fromObject(list).toString();
-		
-		//返回前台字符串
-		String resultStr = "{proSort : "  + jsonStr + "}";
-		
-		PrintWriter out = response.getWriter();
-		out.write(resultStr);
-		out.flush();
-		out.close();
-		return null;
-	}
-	
+    response.setContentType("text/html;charset=utf-8");
+    String treeDtoStr = request.getParameter("treeDto");
+
+    JSONObject treeJsonObj = JSONObject.fromObject(treeDtoStr);
+
+    TreeDto treeDto = (TreeDto) JSONObject.toBean(treeJsonObj, TreeDto.class);
+
+    List<TreeDto> proDto = proToolsInforService.getTreeDto(treeDto);
+    boolean flag = false;
+    if (proDto != null && proDto.size() > 0) {
+      flag = true;
+    }
+
+    //返回前台字符串
+    String resultStr = "{success : " + flag + "}";
+
+    PrintWriter out = response.getWriter();
+    out.write(resultStr);
+    out.flush();
+    out.close();
+    return null;
+  }
+
+  //产品来源
+  private ActionForward getProSource(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
+    throws IOException {
+    response.setContentType("text/html;charset=utf-8");
+    String name = request.getParameter("name");
+
+    List<TProductSource> list = proToolsInforService.getProSourceByAll();
+    String jsonStr = JSONArray.fromObject(list).toString();
+
+    //返回前台字符串
+    String resultStr = "{proSource : " + jsonStr + "}";
+
+    PrintWriter out = response.getWriter();
+    out.write(resultStr);
+    out.flush();
+    out.close();
+    return null;
+  }
+
+  //产品品牌
+  private ActionForward getproBrand(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
+    throws IOException {
+    response.setContentType("text/html;charset=utf-8");
+    String sourceName = request.getParameter("name");
+    String brandName = request.getParameter("brandName");
+    List<TProductBrand> list = proToolsInforService.getProBrandBySorce(sourceName, brandName);
+    String jsonStr = JSONArray.fromObject(list).toString();
+
+    //返回前台字符串
+    String resultStr = "{proBrand : " + jsonStr + "}";
+
+    PrintWriter out = response.getWriter();
+    out.write(resultStr);
+    out.flush();
+    out.close();
+    return null;
+  }
+
+  //产品组别
+  private ActionForward getProSort(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    response.setContentType("text/html;charset=utf-8");
+    String brand = request.getParameter("name");
+
+    List<TProductSort> list = proToolsInforService.getProSortByBrand(brand);
+
+    String jsonStr = JSONArray.fromObject(list).toString();
+
+    //返回前台字符串
+    String resultStr = "{proSort : " + jsonStr + "}";
+
+    PrintWriter out = response.getWriter();
+    out.write(resultStr);
+    out.flush();
+    out.close();
+    return null;
+  }
+
 }

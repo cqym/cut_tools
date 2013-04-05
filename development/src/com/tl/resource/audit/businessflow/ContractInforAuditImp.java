@@ -145,7 +145,7 @@ public class ContractInforAuditImp implements IAuditBusinessObject, IAuditConten
     bo.addProperty("editorName", vo.getUserName());
     bo.addProperty("editDate", vo.getEditDateString());
     bo.addProperty("memo", vo.getMemo());
-    bo.addProperty("url", "/js/contract/contract_edit_win.js");
+    bo.addProperty("url", "/js/contract/contract_view_win.js");
   }
 
   @Override

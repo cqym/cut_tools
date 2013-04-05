@@ -39,7 +39,7 @@
     <result column="tool_code" jdbcType="VARCHAR" property="toolCode" />
     <result column="tool_description" jdbcType="VARCHAR" property="toolDescription" />
     
-    <!-- <result column="slave_file" jdbcType="VARCHAR" property="slaveFile" /> -->
+   <result column="slave_file" jdbcType="VARCHAR" property="slaveFile" /> 
   </resultMap>
   
   <!-- 子节点不需要附件 -->
@@ -276,7 +276,7 @@
       serial_number, product_brand, product_code, brand_code, product_name,
       amount, price, product_unit, rebate,
       net_price, money, tax_net_price, tax_money, price_change, workshop,tool_description,tool_code,
-      process_code, report_code,single_set_assembly_amount,single_set_stock_amount,project_code,delivery_date,memo
+      process_code, report_code,single_set_assembly_amount,single_set_stock_amount,project_code,delivery_date,memo,'0' slave_file
       from t_quotation_product_detail t where t.quotation_infor_id = #value# order by t.serial_number
     ]]>
   </select>
@@ -330,6 +330,9 @@
 			<isNotEmpty prepend="and" property="productBrand">
 			quo.product_brand LIKE '%$productBrand$%'
 			</isNotEmpty>	
+			<isNotEmpty prepend="and" property="leaf">
+			quo.leaf = #leaf#
+			</isNotEmpty>	
 		) t
 		LEFT JOIN t_reserve_infor res  
 		ON t.product_code = res.product_code
@@ -367,6 +370,9 @@
 			<isNotEmpty prepend="and" property="productBrand">
 			quo.product_brand like '%$productBrand$%'
 			</isNotEmpty>
+			<isNotEmpty prepend="and" property="leaf">
+			quo.leaf = #leaf#
+			</isNotEmpty>	
   </select>
   
   
@@ -378,7 +384,21 @@
 		pd.net_price, (pd.amount - IFNULL(cpd.amount,0))*pd.net_price money, pd.tax_net_price, (pd.amount - IFNULL(cpd.amount,0)) * pd.tax_net_price tax_money, pd.price_change, pd.delivery_date, pd.workshop,
 		pd.process_code, pd.report_code, pd.tool_code, pd.tool_description, pd.memo, 
 		pd.quotation_project_sort_id sortid,
-		pd.sum_order_amount,pd.sum_arrival_amount,pd.sum_out_amount,pd.sum_delivery_amount 
+		pd.sum_order_amount,pd.sum_arrival_amount,pd.sum_out_amount,pd.sum_delivery_amount,(select count(*) from t_accessories s where s.business_id = pd.tools_id) slave_file 
+		FROM t_quotation_product_detail pd LEFT JOIN (
+			   SELECT SUM(amount) amount,LEFT(ccd.id,32) id 
+			   FROM  t_contract_product_detail ccd,t_contract_project_sort_infor si
+			   WHERE ccd.contract_project_sort_id = si.id
+			   AND si.pro_sort_name = (select quotation_code from t_quotation_infor where id = #value#)
+			   GROUP BY LEFT(ccd.id,32)			
+			) cpd
+			ON pd.id = cpd.id
+			WHERE pd.quotation_infor_id = #value#
+			AND pd.amount - IFNULL(cpd.amount,0) > 0
+			ORDER BY serial_number
+  </select>
+  <select id="getYuDingQuoDetail2CreateContractCount" parameterClass="string" resultClass="java.lang.Integer" >
+		SELECT count(*)
 		FROM t_quotation_product_detail pd LEFT JOIN (
 			   SELECT SUM(amount) amount,LEFT(ccd.id,32) id 
 			   FROM  t_contract_product_detail ccd,t_contract_project_sort_infor si

@@ -524,7 +524,9 @@ Ext.ffc.ContractOutStockEditWindow = Ext.extend(Ext.Window, {
 					text : "保  存",
 					hidden : this.readOnly,
 					handler : function() {
-						var form = this.topPanel.simpleForm;//obj.ownerCt.ownerCt;
+						this.buttons[0].disabled = true;
+						var self = this;
+						var form = self.topPanel.simpleForm;//obj.ownerCt.ownerCt;
 						var currWin = form.ownerCt.ownerCt;
 						var formValues = form.getForm().getValues();
 						var gridStore = currWin.ContractOutStockEditCenterGridStore;
@@ -558,7 +560,6 @@ Ext.ffc.ContractOutStockEditWindow = Ext.extend(Ext.Window, {
 								params: { OutStockInfor : Ext.encode(formValues)},
 								url: serUrl,
 								success: function(response){
-									
 									if(response.responseText * 1 == 1){
 									    Ext.Msg.alert("消息", "保存成功!");	
 										currWin.close();
@@ -576,12 +577,13 @@ Ext.ffc.ContractOutStockEditWindow = Ext.extend(Ext.Window, {
 											}
 										}
 										Ext.Msg.alert("消息", "有超量出库!");	
+										self.buttons[0].disabled = false;
 									}
 								}
 						});
 					},scope : this
 				},{
-					text : this.nextStepButtonTitle ?  this.nextStepButtonTitle : "取 消",
+					text : this.nextStepButtonTitle ?  this.nextStepButtonTitle : "关  闭",
 					handler : function() {
 						this.close();
 					},scope : this

@@ -5,7 +5,7 @@
  */
 Ext.namespace('Ext.ls.contractOrder');
 /**详细列表url(添加)**/
-Ext.ls.contractOrder.addUrl = PATH + "/contractOrder/contractDetailList.do";
+Ext.ls.contractOrder.addUrl = PATH + "/contractOrder/contractDetailList.do?limit=99999999";
 /**详细列表url(修改)**/
 Ext.ls.contractOrder.updateUrl = PATH + "/contractOrder/orderDetail.do";
 /**详细列表url(查看明细)**/
@@ -27,7 +27,7 @@ Ext.ls.reserveOrder.detailUrl = PATH + "/reserveOrder/orderDetailsList.do"
  */
 Ext.namespace('Ext.ls.scheduleOrder');
 /**详细列表url(添加)**/
-Ext.ls.scheduleOrder.addUrl = PATH + "/scheduleOrder/product.do?outStockType=5";
+Ext.ls.scheduleOrder.addUrl = PATH + "/scheduleOrder/product.do?outStockType=5&limit=99999999";
 /**详细列表url(修改)**/
 Ext.ls.scheduleOrder.updateUrl = PATH + "/scheduleOrder/OrderDetail.do?outStockType=5";
 /**详细列表url(查看明细)**/
@@ -38,7 +38,7 @@ Ext.ls.scheduleOrder.detailUrl = PATH + "/scheduleOrder/OrderDetailList.do?outSt
  */
 Ext.namespace('Ext.ls.tryOrder');
 /**详细列表url(添加)**/
-Ext.ls.tryOrder.addUrl = PATH + "/scheduleOrder/product.do?outStockType=6";
+Ext.ls.tryOrder.addUrl = PATH + "/scheduleOrder/product.do?outStockType=6&limit=99999999";
 /**详细列表url(修改)**/
 Ext.ls.tryOrder.updateUrl = PATH + "/scheduleOrder/OrderDetail.do?outStockType=6";
 /**详细列表url(查看明细)**/
@@ -54,29 +54,29 @@ Ext.ls.selfOrder.addUrl = PATH + "/selfOrder/partContractDetailList.do";
 /**详细列表url(修改)**/
 Ext.ls.selfOrder.updateUrl = PATH + "/selfOrder/orderDetail.do";
 /**详细列表url(查看明细)**/
-Ext.ls.selfOrder.detailUrl = PATH + "/selfOrder/orderDetailsList.do"
+Ext.ls.selfOrder.detailUrl = PATH + "/selfOrder/orderDetailsList.do?limit=99999999"
 
 /**
  * 预定加工订单
  */
 Ext.namespace('Ext.ls.scheduleSelfOrder');
 /**详细列表url(添加)**/
-Ext.ls.scheduleSelfOrder.addUrl = PATH + "/scheduleSelfOrder/product.do?outStockType=5";
+Ext.ls.scheduleSelfOrder.addUrl = PATH + "/scheduleSelfOrder/product.do?outStockType=5&limit=99999999";
 /**详细列表url(修改)**/
-Ext.ls.scheduleSelfOrder.updateUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outStockType=5";
+Ext.ls.scheduleSelfOrder.updateUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outStockType=5&limit=99999999";
 /**详细列表url(查看明细)**/
-Ext.ls.scheduleSelfOrder.detailUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outStockType=5"
+Ext.ls.scheduleSelfOrder.detailUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outStockType=5&limit=99999999"
 
 /**
  * 试刀加工订单
  */
 Ext.namespace('Ext.ls.trySelfOrder');
 /**详细列表url(添加)**/
-Ext.ls.trySelfOrder.addUrl = PATH + "/scheduleSelfOrder/product.do?outStockType=6";
+Ext.ls.trySelfOrder.addUrl = PATH + "/scheduleSelfOrder/product.do?outStockType=6&limit=99999999";
 /**详细列表url(修改)**/
-Ext.ls.trySelfOrder.updateUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outStockType=6";
+Ext.ls.trySelfOrder.updateUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outStockType=6&limit=99999999";
 /**详细列表url(查看明细)**/
-Ext.ls.trySelfOrder.detailUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outStockType=6"
+Ext.ls.trySelfOrder.detailUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outStockType=6&limit=99999999"
 
 
 
@@ -131,8 +131,9 @@ Ext.ls.trySelfOrder.detailUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outSto
 				{name: 'otherConvention', type: 'string',mapping:"otherConvention"},
 				{name: 'defaultDuty', type: 'string',mapping:"defaultDuty"},
 				{name: 'effectConditions', type: 'string',mapping:"effectConditions"},
-				{name: 'deliveryAddress', type: 'string',mapping:"deliveryAddress"},
-				{name: 'taxMoney', type: 'string',mapping:"taxMoney"}
+				{name: 'contractDeliveryAddress', type: 'string',mapping:"contractDeliveryAddress"},
+				{name: 'taxMoney', type: 'string',mapping:"taxMoney"},
+				{name: 'contractTrafficMode', type: 'string',mapping:"contractTrafficMode"}
 			]
 		})}
 	});
@@ -166,7 +167,7 @@ Ext.ls.trySelfOrder.detailUrl = PATH + "/scheduleSelfOrder/orderDetail.do?outSto
 			})
 		}
 	})
-
+ 
 
 	orderUrgentLevelCombox =Ext.extend(Ext.form.ComboBox, {
 		store : null,
@@ -495,8 +496,7 @@ function change_overallRebate(form,newValue)
 }
 
 //删除详细
-function delete_detail(form,store)
-{
+function delete_detail(form,store){
 	var prom = 0;
 	store.each(function(record){
 		prom += record.get('price')*record.get('orderAmount')*1;
@@ -624,10 +624,122 @@ function checkCustomerAccount(config){
 			}
 
 			config.callBackMethod({
-			    callBackMethod:function(){
+			  callBackMethod:function(){
 					
 				}
 			});
 		}
 	});
 }
+
+function loadOrderWindowById(param){
+			var win = this;
+		    Ext.Ajax.request({
+				method: "post",
+				params: { id : param.loadDataParam.orderId,method:'orderViewById'},
+				url: PATH + "/purchaseOrder/PurchaseOrderViewAction.do",
+				success: function(response){
+					  eval("var orderInfor =" + response.responseText);
+					  var winInitParam = {orderInfor:orderInfor};
+					  Ext.apply(winInitParam,param);
+					  var conEditWin = new Ext.ffc.PurchaseOrder.editWin(winInitParam);
+				  conEditWin.show();	
+				}
+			});
+}
+
+function loadOrderWindowByConsult(param){//参照 获取数据
+			var win = this;
+			var dataparam = param.loadDataParam;
+		  Ext.Ajax.request({
+							method: "post",
+							params: { 
+								contractId : dataparam.contractId,
+								quotationId : dataparam.quotationId,
+								supplierId : dataparam.supplierId,
+								brand : dataparam.brand,
+								planId: dataparam.planId,
+								leaf:   dataparam.leaf,
+								method:dataparam.loadActionMethod},
+							url: PATH + "/purchaseOrder/PurchaseOrderEditAction.do",
+							success: function(response){
+								  eval("var orderInfor =" + response.responseText);
+								  
+								  var conEditWin = new Ext.ffc.PurchaseOrder.editWin({
+																			   title:param.title,
+																				 orderInfor:orderInfor,
+																				 auditButtonHiden:true,
+																				 SaveBtnHidden : false,
+																				 listGrid:param.listGrid
+																		});
+									conEditWin.show();
+							}
+			});
+}
+
+function loadOrderAuditWindowById(param){
+					Ext.Ajax.request({
+							method: "post",
+							params: { id : param.loadDataParam.orderId,method:'orderViewById'},
+							url: PATH + "/purchaseOrder/PurchaseOrderViewAction.do",
+							success: function(response){
+								  eval("var orderInfor =" + response.responseText);
+								  var winInitParam = {orderInfor:orderInfor};
+								  Ext.apply(winInitParam,param);
+								  var conEditWin = new Ext.ffc.PurchaseOrder.AuditWin(winInitParam);
+						      conEditWin.show();	
+							}
+						});
+}
+
+function getOrderTypeTitlePart(type){
+	if(type == 1 || type == 3){
+	    return "合同";
+	}else if(type == 5 || type == 6 || type == 7 || type == 8){
+	    return "报价单";
+	}
+	return '';
+}
+
+function isOrderTypeColHidden(orderType,colName){
+	if(orderType == 1 || orderType == 3){
+		if(colName == 'quotationCode'){
+		    return true;	
+		}
+	}else if(orderType == 5 || orderType == 6 || orderType == 7 || orderType == 8){
+		if(colName == 'proSortName' || colName == 'contractCode'){
+	     return true;	
+		}
+  }else if(orderType == 2 || orderType == 4){
+     if(colName == 'proSortName' || colName == 'contractDeliveryDate' || colName == 'remainAmount' 
+     || colName == 'contractAmount' || colName == 'serialNumber' || colName == 'projectCode' 
+    || colName == 'ownContactPerson' || colName == 'quotationCode' || colName == 'contractCode'){
+	     return true;	
+		 }
+  }
+	return false;
+}
+
+function isNotReserveOrder(orderType){
+	return orderType != 2;
+}
+
+function isCaiGou(orderType){
+	if(orderType == 1 || orderType == 5 || orderType == 6){
+		return true;
+	}
+	return false;
+}
+
+function isJiaGong(orderType){
+	if(orderType == 3 || orderType == 7 || orderType == 8){
+		return true;
+	}
+	return false;
+}
+
+
+function isContractOrder(orderType){
+	return orderType == 1 || orderType == 3;
+}
+

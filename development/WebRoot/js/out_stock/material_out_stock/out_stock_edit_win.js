@@ -249,6 +249,12 @@ Ext.ffc.getMaterialOutStockEditTree = function (_id){
 	            dataIndex:'matOldAmount',
 				hidden : true,
 				disEnableEdit:true
+	        },{
+	            header:'',
+	            width:80,
+	            dataIndex:'contractProductDetailId',
+				hidden : true,
+				disEnableEdit:true
 	        }],
 	        loader: new Ext.tree.TreeLoader({
 	            uiProviders:{

@@ -160,6 +160,15 @@ Ext.zhj.ReserveGrid = Ext.extend(Ext.grid.GridPanel, {
 							}
 						},scope : this
 					});
+		ds.on({'load' : function(sto) {
+							var totalPrice = sto.reader.jsonData.totalPrice;
+							if(Ext.DomQuery.select('TD[ID=totalPriceEl]',Ext.getDom(this.getBottomToolbar().getEl())).length){
+								  Ext.DomHelper.overwrite(Ext.DomQuery.select('TD[ID=totalPriceEl]',Ext.getDom(this.getBottomToolbar().getEl()))[0],{tag:'td',id:'totalPriceEl',html:'总价：'+ totalPrice},false);
+						  }else{
+							    Ext.DomHelper.insertAfter(Ext.DomQuery.select('TD:first',Ext.getDom(this.getBottomToolbar().getEl()))[0],{tag:'td',id:'totalPriceEl',html:'总价：'+ totalPrice},false);
+						  }
+						},scope : this
+					});
 		Ext.zhj.ReserveGrid.superclass.constructor.call(this, {
 			bodyStyle : 'width:100%',
 			layout: 'fit',

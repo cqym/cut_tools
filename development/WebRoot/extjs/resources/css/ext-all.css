@@ -3126,6 +3126,7 @@ input.x-tree-node-cb {
     border: 1px solid;
     border-top:0 none;
 	position:relative;
+	width: 185px;
 }
 
 .x-date-picker a {

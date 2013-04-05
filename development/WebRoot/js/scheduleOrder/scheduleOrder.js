@@ -209,8 +209,79 @@ Ext.apply(_config, getConfig());
 				hidden : _config.isAddHide,
 				iconCls:'icon-add',
 				listeners: {
-					'click' : function(){
-						var win = new qOContractWin()
+					'click' : function(){		
+						var win = new Ext.ffc.PurchaseOrder.QuotationSelectWindow({
+							  quotationType:3,
+							  leaf:1,
+							  outStockType:5,
+						    callBackMethod:function(quotationId,customerCode,quotationCode,brand){
+						      if(!brand){
+						          brand = '';	
+						      }
+						    	checkCustomerAccount({
+										customerCode:customerCode,
+										callBackMethod:function(config){
+												try{
+													Ext.Ajax.request({
+														method: "post",
+														params: { 'quotationInforId' : quotationId,"leaf":1},
+														url: PATH + '/outStock/outStockEditAction.do?ffc=getWillOutStockQuotationDetail',
+														success: function(response){
+																eval("var detail=" + response.responseText);
+																if(detail.length == 0){
+																	var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+																		quotationId:quotationId,
+																		brand:brand,
+																		leaf:1,
+																		callBackMethod:function(suppid){
+																			win.close();
+																			loadOrderWindowByConsult({
+																					    title:'预定采购订单',
+																					    listGrid:cut_tools.q_order.index_grid,
+																					    loadDataParam:{quotationId:quotationId,supplierId:suppid,brand:brand,leaf:1,loadActionMethod:'consultScheduleQuo'}
+																			});
+																		}
+																	});
+																	win.show();  
+																	return ;
+																}
+																var conEditWin = new Ext.ffc.ContractOutStockEditWindow({
+																	outStockInfor:{quotationId:quotationId,outStockType:5,status:0,quotationCode:quotationCode,outStockDetails:detail},
+																	nextStepButtonTitle: '直接采购',
+																	listeners :{
+																		close : function(p){
+																			var win = new Ext.ffc.PurchaseOrder.cOSupplierWin({
+																				quotationId:quotationId,
+																				brand:brand,
+																				leaf:1,
+																				callBackMethod:function(suppid){
+																			     win.close();
+																			     loadOrderWindowByConsult({
+																					    title:'预定采购订单',
+																					    listGrid:cut_tools.q_order.index_grid,
+																					    loadDataParam:{quotationId:quotationId,supplierId:suppid,brand:brand,leaf:1,loadActionMethod:'consultScheduleQuo'
+																					    }
+																				   });
+																			     
+																		    }
+																			});
+																			win.show();  
+																		}
+																	}	
+																}
+															);
+															conEditWin.show();
+															config.callBackMethod();
+														}
+													});
+											}catch(e){
+												alert(e);
+											}
+											win.close();
+										}
+									});
+						    }
+						})
 						win.show();
 					}
 				}
@@ -225,39 +296,16 @@ Ext.apply(_config, getConfig());
 					'click' : function(){
 					 var arr = qgridCheckSele.getSelections();
 						if(arr.length != 1){
-							Ext.Msg.show({
-							   title: '系统提示',
-							   msg: '请选择要查看的一条订单',
-							   width: 300,
-							   buttons: Ext.MessageBox.OK,
-							   icon: Ext.MessageBox.INFO
-							});
+							Ext.Msg.show({title: '系统提示',msg: '请选择要查看的一条订单',width: 300,buttons: Ext.MessageBox.OK,icon: Ext.MessageBox.INFO});
 							return;
 						}	  
-//						var win = new qDetailWindow({orderId:arr[0].id});
-//						win.nav3.updateGrid.on('afterrender',function(){
-//						  try
-//						  {
-//								win.nav3.updateGrid.getForm().loadRecord(arr[0]);
-//						  }catch(error)
-//						  {
-//							  alert(error);
-//						  }
-//					  });
-//						win.show();
-						/**订单信息**/
-						var store = new contractOrderStore();
-						store.baseParams.orderId = arr[0].id;
-						store.load();
-						/**订单修改页面**/
-						var win = new Ext.ls.scheduleOrder.addWin({orderId:arr[0].id,detailFlag:true,URL:Ext.ls.scheduleOrder.detailUrl});
-						/**设置窗口的标题**/
-						win.setTitle('查看预定订单明细');
-						/**将store的数据加载到页面**/
-						store.on('load',function(){
-								win.form.getForm().loadRecord(store.getAt(0));
-						},this);
-						win.show();
+						loadOrderWindowById({
+							    title:'预定采购订单',
+							    SaveBtnHidden : true,
+							    btToolsHidden:true,
+							    auditButtonHiden:true,
+							    loadDataParam:{orderId:arr[0].id}
+							});
 					}
 		 		}
 			},{
@@ -303,26 +351,14 @@ Ext.apply(_config, getConfig());
 							});
 							return;
 						}
-
-
-						/**订单信息**/
-						var store = new contractOrderStore();
-						store.baseParams.orderId = record.get('id');
-						store.load();
-						/**订单修改页面**/
-						var win = new Ext.ls.scheduleOrder.addWin({orderId:record.get('id'),quotationCode:record.get('quotationCode'),supplierId:record.get('supplierId'),updateFlag:true,URL:Ext.ls.scheduleOrder.updateUrl});
-						/**设置窗口的标题**/
-						win.setTitle('修改预定订单');
-						/**将store的数据加载到页面**/
-						store.on('load',function(){
-								win.form.getForm().loadRecord(store.getAt(0));
-//								win.form.deliveryAddressType = store.getAt(0).data.deliveryAddress;
-//								win.getBottomToolbar().items.first().getEl().dom.innerHTML = "销售合同交货地点及运输方式:<font color = 'red'>"+store.getAt(0).data.deliveryAddress+"</font>";
-						},this);
-						win.show();
-//					  var win = new qOUpdateWin({orderId:record.get('id'),quotationCode:record.get('quotationCode'),supplierId:record.get('supplierId')});
-//					  win.show();
-						
+						loadOrderWindowById({
+							    title:'合同采购订单',
+							    SaveBtnHidden : false,
+							    btToolsHidden:false,
+							    auditButtonHiden:true,
+							    listGrid:cut_tools.q_order.index_grid,
+							    loadDataParam:{orderId:record.get('id')}
+							});
 					}
 				}
 			},{
@@ -351,7 +387,7 @@ Ext.apply(_config, getConfig());
 								 if(arr[i].get("status") != 0 && arr[i].get("status") != 3){
 									Ext.Msg.show({
 									   title: '系统提示',
-									   msg: '所选择订单不允许删除',
+									   msg: '所选择订单在当前状态不允许删除',
 									   width: 300,
 									   buttons: Ext.MessageBox.OK,
 									   icon: Ext.MessageBox.INFO
@@ -364,8 +400,8 @@ Ext.apply(_config, getConfig());
 								if(btn == 'ok') {	
 									Ext.Ajax.request({
 										method: "post",
-										url: PATH + '/contractOrder/deleteOrder.do',
-										params: { ids: ids },
+										url: PATH + '/purchaseOrder/PurchaseOrderEditAction.do',
+										params: { method:'deletePurchaseOrder',ids: ids },
 										success: function(response){
 											ds.reload();
 										}

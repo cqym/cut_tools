@@ -9,6 +9,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>刀具销售管理系统</title>
+<link rel="stylesheet" type="text/css" href="<%=path%>/css/editable-column-tree.css" />
+<link rel="stylesheet" type="text/css" href="<%=path%>/extjs/resources/css/ext-all.css" />
+<link rel="stylesheet" type="text/css" href="<%=path %>/css/ext-patch.css" />
+<link rel="stylesheet" type="text/css" href="<%=path%>/css/row-plugin.css" />
+<link rel="stylesheet" type="text/css" href="<%=path%>/css/grid-examples.css" />
+
+<script type="text/javascript" src="<%=path%>/extjs/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="<%=path%>/extjs/ext-all.js"></script>
 <SCRIPT LANGUAGE="JavaScript">
 <!--
 var PATH = '<%=path%>';
@@ -19,20 +27,80 @@ function backspace(e){
        ev.returnValue=false; 
    }
 }
+
+Ext.ffc = function(){};
+Ext.ftl = function(){};
+Ext.zhj = function(){};
+
+//1、命名空间注册工具类
+var Namespace = new Object();
+
+Namespace.register = function(path) {
+var arr = path.split(".");
+var ns = "";
+for ( var i = 0; i < arr.length; i++) {
+ if (i > 0)
+  ns += ".";
+ ns += arr[i];
+ eval("if(typeof(" + ns + ") == 'undefined') " + ns + " = new Object();");
+}
+}
+
+Namespace.register("cut_tools.reserve_order");
+
+Namespace.register("cut_tools.contract_order");
+Namespace.register("cut_tools.self_order");
+Namespace.register("cut_tools.plan_order");
+Namespace.register("cut_tools.q_order");
+Namespace.register("cut_tools.t_order");
+Namespace.register("cut_tools.qs_order");
+Namespace.register("cut_tools.ts_order");
+Namespace.register("cut_tools.contract_account");
+
+Ext.ffc.util = {
+	toObjectString:function(obj){
+	    var str = '';
+		for(var i in obj){
+		    str += i + ':' + obj[i] + ",\n";
+		}
+		return str;
+	},
+	showDebugString:function(str){
+		Ext.MessageBox.show({
+			   title: 'Debug Window',
+			   msg: '程序测试窗口：',
+			   width:300,
+			   value:str,
+			   buttons: Ext.MessageBox.OKCANCEL,
+			   multiline: true,
+			   animEl: 'mb3'
+		   });
+	},
+	debug:function(obj){
+		Ext.ffc.util.showDebugString(Ext.ffc.util.toObjectString(obj));
+	}
+}
+
+Ext.ffc.PasteEdition = function(callBackMethod){
+	Ext.ffc.a$ = document.createElement('TEXTAREA');
+	document.body.appendChild(Ext.ffc.a$);
+	Ext.ffc.a$.focus();
+	setTimeout(Ext.ffc.wgzmb,10,callBackMethod);
+}
+Ext.ffc.wgzmb = function (callBackMethod){
+	var str = Ext.ffc.a$.value;
+	document.body.removeChild(Ext.ffc.a$);
+	Ext.ffc.a$ = null;
+	callBackMethod(str);
+}
+
 //-->
 </SCRIPT>
 <script type='text/javascript' src='<%=path%>/dwr/engine.js'></script>
 <script type='text/javascript' src='<%=path%>/dwr/util.js'></script>
 <script type='text/javascript' src='<%=path%>/dwr/interface/NoticeMessageUtil.js'></script>
 
-<link rel="stylesheet" type="text/css" href="<%=path%>/css/editable-column-tree.css" />
-<link rel="stylesheet" type="text/css" href="<%=path%>/extjs/resources/css/ext-all.css" />
-<link rel="stylesheet" type="text/css" href="<%=path %>/css/ext-patch.css" />
-<link rel="stylesheet" type="text/css" href="<%=path%>/css/row-plugin.css" />
-<link rel="stylesheet" type="text/css" href="<%=path%>/css/grid-examples.css" />
 
-<script type="text/javascript" src="<%=path%>/extjs/adapter/ext/ext-base.js"></script>
-<script type="text/javascript" src="<%=path%>/extjs/ext-all.js"></script>
 
 <script type="text/javascript" src="<%=path%>/js/manage/states.js"></script>
 <script type="text/javascript" src="<%=path%>/js/manage/ComboTree.js"></script>
@@ -54,28 +122,9 @@ function backspace(e){
 <script type="text/javascript" src="<%=path %>/js/quotation/generalQuo/generalQuo_index.js"></script>
 
 <script type="text/javascript" src="<%=path %>/js/contractOrder/orderCommon.js"></script>
-<script type="text/javascript" src="<%=path %>/js/contractOrder/contract.js"></script>
-<script type="text/javascript" src="<%=path %>/js/contractOrder/addContractOrder.js"></script>
 <script type="text/javascript" src="<%=path%>/js/out_stock/contract_out_stock/out_stock_edit_win.js"></script>
 <script type="text/javascript" src="<%=path%>/js/delivery/consult_contract/select_contract_products.js"></script>
-<script type="text/javascript" src="<%=path %>/js/contractOrder/supplier.js"></script>
-<script type="text/javascript" src="<%=path %>/js/contractOrder/selectContractDetailWindow.js"></script>
 
-<script type="text/javascript" src="<%=path %>/js/scheduleOrder/supplier.js"></script>
-<script type="text/javascript" src="<%=path %>/js/scheduleOrder/addScheduleOrder.js"></script>
-<script type="text/javascript" src="<%=path %>/js/out_stock/quotation_out_stock/out_stock_edit_win.js"></script>
-
-<script type="text/javascript" src="<%=path %>/js/tryOrder/supplier.js"></script>
-<script type="text/javascript" src="<%=path %>/js/tryOrder/addTryOrder.js"></script>
-
-<script type="text/javascript" src="<%=path %>/js/selfOrder/addSelfOrder.js"></script>
-<script type="text/javascript" src="<%=path %>/js/selfOrder/supplier.js"></script>
-
-<script type="text/javascript" src="<%=path %>/js/scheduleSelfOrder/addScheduleSelfOrder.js"></script>
-<script type="text/javascript" src="<%=path %>/js/scheduleSelfOrder/supplier.js"></script>
-
-<script type="text/javascript" src="<%=path %>/js/trySelfOrder/addTrySelfOrder.js"></script>
-<script type="text/javascript" src="<%=path %>/js/trySelfOrder/supplier.js"></script>
 
 <script type="text/javascript" src="<%=path %>/js/reserve_plan/reserve_plan_edit_win_new.js"></script>
 

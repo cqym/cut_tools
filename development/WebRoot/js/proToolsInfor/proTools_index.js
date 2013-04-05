@@ -283,7 +283,8 @@ Ext.ftl.protools.ProBrandCombo = Ext.extend(Ext.ftl.protools.AutoCompleteCombo, 
 			valueField : 'name',
 			//mode: 'remote',
 			flagName : 'name',
-			emptyText:'请选择品牌'
+			emptyText:'请选择品牌',
+			typeAhead: true
 		})
 	}
 })
@@ -394,7 +395,8 @@ Ext.ftl.ProductForm = Ext.extend(Ext.FormPanel, {
 					this.proSort, 
 					{fieldLabel : "备注", name : 'memo'},
 					{fieldLabel : "leaf", name : 'leaf', hidden : true, hideLabel : true},
-					{fieldLabel : "id", name : 'id', hidden : true, hideLabel : true}]
+					{fieldLabel : "id", name : 'id', hidden : true, hideLabel : true},
+					{xtype:'hidden',fieldLabel: '是否同步单据', name: 'sycQuoToosInfor'}]
 		})
 	},
 	
@@ -479,10 +481,7 @@ Ext.ftl.ProductWindow = Ext.extend(Ext.Window, {
 	}
 })
 
-Ext.ftl.protools.onSlaveClick = function(_id) {
-	var slaveWindow = new Slave.SlaveManageWindow({busId : _id, busType : 1});
-	slaveWindow.show();
-}
+
 
 /**
  * 产品工具信息树
@@ -513,7 +512,7 @@ Ext.ftl.protools.ProToolsTree = Ext.extend(Ext.tree.ColumnTree, {
 		});
 		Ext.ftl.protools.ProToolsTree.superclass.constructor.call(this, {
 			//el:'tree-ct',
-	        width : Ext.getBody().getWidth(),
+	        width : Ext.getBody().getWidth()+100,
         	height : Ext.getBody().getHeight()-50,
 	        //autoHeight:true,
 	        rootVisible:false,
@@ -590,10 +589,10 @@ Ext.ftl.protools.ProToolsTree = Ext.extend(Ext.tree.ColumnTree, {
 	        	{header:'品牌',width:100,dataIndex:'productBrand'},
 	        	{header:'来源',width:100,dataIndex:'productSource'},
 	        	{header:'创建日期',width:110,dataIndex:'createDateStr'},
-	        	{header:'附件',width:100,dataIndex:'slaveFile', renderer : function(colValue, node, data) {
+	        	{header:'客户确认方案图',width:120,datadex:'slaveFile', renderer : function(colValue, node, data) {
 	        		if(data.parentId != 'root')
 	        			return;
-	        		if(colValue > 0) {
+	        		if(data.slaveFile*1 > 0) {
 	        			var id = data.id
 	        			var str = "<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick('" + id + "');><span style='color:blue;font-weight:bold;'>查看</span></a>";
 						return str;
@@ -749,7 +748,8 @@ Ext.ftl.protools.ProToolsTree = Ext.extend(Ext.tree.ColumnTree, {
 	onNonStandSubmit : function() {
 		//打开添加非标产品窗口
 		var nonStandWindow = new Ext.ftl.protools.AddNonStandProWindow({
-			hideModify : true
+			hideModify : true,
+			sycQuoToosInfor :false
 		});
 		
 		nonStandWindow.centerPanel.proToolsTree.on({
@@ -879,9 +879,12 @@ Ext.ftl.protools.ProToolsTree = Ext.extend(Ext.tree.ColumnTree, {
 						    return ;
 						}
 						if((response.responseText == 'true' || response.responseText == true) && qx){
-							Ext.MessageBox.confirm('系统提示', '当前工具信息，已被报价单引用过，如果继续修改，系统将同步修改其对应业务单据中的数据，是否继续？', function(btn){
-								if(btn != 'yes'){return ;}
-								_this.onModify();
+							Ext.MessageBox.confirm('系统提示', '当前工具信息，已被报价单引用过，是否同时修改单据？', function(btn){
+								if(btn != 'yes'){
+									_this.onModify({sycQuoToosInfor:false});
+								}else{
+								  _this.onModify({sycQuoToosInfor:true});
+							}
 							});
 						}else{
 						    _this.onModify();
@@ -889,7 +892,10 @@ Ext.ftl.protools.ProToolsTree = Ext.extend(Ext.tree.ColumnTree, {
 					},scope : this
 				});
 	},
-	onModify : function(){
+	onModify : function(conf){
+		if(!conf){
+			conf = {sycQuoToosInfor:false};
+		}
 		var modifyWindow = new Ext.ftl.ProductWindow({
 			title : '修改产品信息'
 		});
@@ -917,14 +923,16 @@ Ext.ftl.protools.ProToolsTree = Ext.extend(Ext.tree.ColumnTree, {
 				    productBrand : selNode.attributes.productBrand,
 				    productSource : selNode.attributes.productSource,
 				    leaf : selNode.attributes.leaf,
-				    memo : selNode.attributes.memo
+				    memo : selNode.attributes.memo,
+				    sycQuoToosInfor :conf.sycQuoToosInfor
 				});
 				modifyWindow.show();
 				modifyWindow.productForm.setValues(_record);//应在窗口show之后调用设值方法
 				//modifyWindow.productForm.proBrand.store.load();
 			} else {
 				var nonStandModifyWindow = new Ext.ftl.protools.ModifyNonStandProWindow({
-					hideAdd : true
+					hideAdd : true,
+					sycQuoToosInfor :conf.sycQuoToosInfor
 				});
 				
 				nonStandModifyWindow.on('onsubmit' , function() {
@@ -1327,7 +1335,7 @@ Ext.ftl.protools.NewTree = Ext.extend(Ext.tree.ColumnTree, {
 				}
 				this.setNodeValue(_node, 'productBrand', _modifyRecord.get('productBrand'));
 				this.setNodeValue(_node, 'productSource', _modifyRecord.get('productSource'));
-				
+				this.setNodeValue(_node, 'memo', _modifyRecord.get('memo'));
 			},this)
 			updateProWindow.show();
 			updateProWindow.productForm.proSource.store.isNonStand = true;
@@ -1848,7 +1856,7 @@ Ext.ftl.protools.AddNonStandProWindow = Ext.extend(Ext.ftl.protools.ManagerNonSt
 		//_temp = Ext.tree.toNewTreeNode(selectedNode.attributes,{'uiProvider':'col'},false);
 		//alert(Ext.encode(_temp));
 		
-		var parmStr = "{proTools : " + rootCode.toJsonString() + "}";
+		var parmStr = "{proTools : " + rootCode.toJsonString() + ",sycQuoToosInfor :" + this.sycQuoToosInfor + "}";
 		//alert(parmStr);
 		//return;
 		var postUrl = PATH + '/proTools/addNonStandAction.do';
@@ -1890,7 +1898,7 @@ Ext.ftl.protools.ModifyNonStandProWindow = Ext.extend(Ext.ftl.protools.ManagerNo
 		var _temp = null;
 		_temp = Ext.tree.toNewTreeNode(selectedNode.attributes,{'uiProvider':'col'},true);
 		
-		var parmStr = "{proTools : " + rootCode.toJsonString() + "}";
+		var parmStr = "{proTools : " + rootCode.toJsonString() + ",sycQuoToosInfor:" + this.sycQuoToosInfor + "}";
 		//alert(rootCode.toJsonString());
 		//return;
 		var postUrl = PATH + '/proTools/updateNonStandAction.do';

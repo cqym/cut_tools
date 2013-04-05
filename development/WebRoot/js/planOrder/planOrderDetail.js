@@ -11,10 +11,10 @@ var pODetailTree =  Ext.extend(Ext.grid.GridPanel,{
 											{name: 'productName', type: 'string',mapping:"productName"},
 											{name: 'productBrand', type: 'string',mapping:"productBrand"},
 											{name: 'productCode', type: 'string',mapping:"productCode"},
-											{name: 'orderAmount', type: 'string',mapping:"orderAmount"},
+											{name: 'orderAmount', type: 'float',mapping:"orderAmount"},
 											{name: 'productUnit' , type: 'string',mapping:"productUnit"},
-											{name: 'price', type: 'string',mapping:"price"},
-											{name: 'productMoney', type: 'int',mapping:"productMoney"},
+											{name: 'price', type: 'float',mapping:"price"},
+											{name: 'productMoney', type: 'float',mapping:"productMoney"},
 											{name: 'deliveryDate', type: 'string',mapping:"deliveryDate"},
 											{name: 'memo', type: 'string',mapping:"memo"}
 											]);
@@ -30,37 +30,37 @@ var pODetailTree =  Ext.extend(Ext.grid.GridPanel,{
 				columns:[
 					 new Ext.grid.RowNumberer(),
 					{
-						header:'牌号',
-						width:190,
-						dataIndex:'brandCode'
+						header:'货品编号',
+						width:120,
+						dataIndex:'productCode'
 					},{
 						header:'名称',
 						width:120,
 						dataIndex:'productName'
 					},{
-						header:'品牌',
-						width:80,
-						dataIndex:'productBrand'
-					},{
-						header:'货品编号',
-						width:120,
-						dataIndex:'productCode'
-					},{
-						header:'采购数量',
-						width:70,
-						dataIndex:'orderAmount'
+						header:'牌号',
+						width:190,
+						dataIndex:'brandCode'
 					},{
 						header:'计量单位',
 						width:60,
 						dataIndex:'productUnit'
 					},{
-						header:'单价',
+						header:'采购数量',
+						width:70,
+						dataIndex:'orderAmount'
+					},{
+						header:'采购单价',
 						width:80,
 						dataIndex:'price'
 					},{
-						header:'货品金额',
+						header:'小计金额',
 						width:80,
 						dataIndex:'productMoney'
+					},{
+						header:'品牌',
+						width:80,
+						dataIndex:'productBrand'
 					},{
 						header:'交货日期',
 						width:120,
@@ -82,14 +82,7 @@ var pODetailTree =  Ext.extend(Ext.grid.GridPanel,{
 						width:80,
 						dataIndex:'memo'
 					}
-				],    
-				bbar: new Ext.PagingToolbar({
-					store: this.store,
-					pageSize:15,
-					displayInfo: true,
-					displayMsg: "当前显示第{0}条到第{1}条，共{2}条",
-					emptyMsg: "<i>没有数据</i>"
-				})
+				]
 			})
 		}
 	})
@@ -155,7 +148,7 @@ var pODetailTree =  Ext.extend(Ext.grid.GridPanel,{
 					 {xtype:'label',text: '最终金额:',x:800,y:155,style:this.lableStyle_},
 					 {xtype:'numberfield', name: 'finalMoney', x:900,y:152,width:170,readOnly : true},
 					 //7
-					 {xtype:'label',text: '运输方式及费用:',x:0,y:185,style:this.lableStyle_},
+					 {xtype:'label',text: '交货方式:',x:0,y:185,style:this.lableStyle_},
 					 {xtype:'textfield' ,name: 'trafficMode', x:100,y:182, width : 420,readOnly : true},
 					 {xtype:'label',text: '合同违约责任:',x:530,y:185,style:this.lableStyle_},
 					 {xtype:'textfield' ,name: 'defaultDuty', readOnly : true,x:630,y:182, width : 440},
@@ -230,12 +223,7 @@ var pODetailTree =  Ext.extend(Ext.grid.GridPanel,{
 			}
 			Ext.apply(this, _cfg);
 			this.nav3 = new  pODetailPnaelo();
-			var store = new contractOrderStore();
-			store.baseParams.orderId = this.orderId;
-			store.load();
-			store.on('load',function(){
-				this.nav3.updateGrid.getForm().loadRecord(store.getAt(0));
-			},this);
+			
 			this.nav4 = new pODetailPnaelt();
 			DetailWindow.superclass.constructor.call(this, {
 				title:"查看材料储备订单",  
@@ -256,8 +244,14 @@ var pODetailTree =  Ext.extend(Ext.grid.GridPanel,{
 			items : [this.nav3, this.nav4],
 			listeners:{
 				'beforeshow':function(component){
+					var store = new contractOrderStore();
+					store.baseParams.orderId = this.orderId;
+					store.load();
+					store.on('load',function(){
+						this.nav3.updateGrid.getForm().loadRecord(store.getAt(0));
+					},this);
 					this.nav4.updateTree.store.baseParams.orderId = this.orderId;
-					this.nav4.updateTree.store.load({params:{start:0,limit:15}});
+					this.nav4.updateTree.store.load();
 				},scope:this
 			}
 			})

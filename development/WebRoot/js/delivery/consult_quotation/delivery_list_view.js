@@ -233,6 +233,7 @@ Ext.apply(_config, getConfig());
 												var conEditWin = new Ext.ffc.DeliveryEditWindow({
 													title : '查看交货单',
 													deliveryInfor : temp,
+													auditButtonHiden:true,
 													readOnly:true,
 													listeners :{
 														close : function(p){

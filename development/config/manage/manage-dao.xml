@@ -72,4 +72,14 @@
 			<ref bean="sqlMapClient" />
 		</property>
 	</bean>
+		<bean id="CompanyReportsDAOImpl" class="com.tl.resource.dao.CompanyReportsDAOImpl">
+		<property name="sqlMapClient">
+			<ref bean="sqlMapClient" />
+		</property>
+	</bean>
+	<bean id="TForumDAOImpl" class="com.tl.resource.dao.TForumDAOImpl">
+		<property name="sqlMapClient">
+			<ref bean="sqlMapClient" />
+		</property>
+	</bean>
 </beans>

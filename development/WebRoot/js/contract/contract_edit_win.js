@@ -39,11 +39,22 @@ Ext.ffc.ContractInfoForm = Ext.extend(Ext.FormPanel, {
 																var currConctractInfor = currWin.conctractInfor;
 																var productSorts = currConctractInfor.contractProductSorts;
 																var tabs = currWin.centerPanel.items;
+																  if(newValue * 1 == 0){
+																		form.findField('exemplarInvoice').setDisabled(false);
+																	}else{
+																	  form.findField('exemplarInvoice').setDisabled(true);
+																	  form.findField('exemplarInvoice').setValue(0);
+																	}
 																	Ext.ffc.conDetailTaxrateCalculate(productSorts,formPanel,tabs);
-																var formValues = form.getValues();
+																	var formValues = form.getValues();
 																	Ext.apply(currConctractInfor, formValues);
 															}}
 															}),
+						  new Ext.form.Checkbox({
+								name: 'exemplarInvoice', x:1000,y:35
+							}),
+							{xtype:'label',text: '形式发票',x:1020,y:35,style:"font-size:9pt;text-align:left;width:85px"},
+							
 						//3 line
 							{xtype:'label',text: '紧急程度',x:0,y:65,style:this.lableStyle_},
 							new Ext.ffc.UrgentLevelCombox({x:90,y:63,width:170}),
@@ -92,7 +103,7 @@ Ext.ffc.ContractInfoForm = Ext.extend(Ext.FormPanel, {
 							{xtype:'label',text: '最终金额',x:760,y:155,style:this.lableStyle_},
 							{xtype:'numberfield',  name: 'finalMoney',x:850,y:153,width:140},
 					   //7
-							{xtype:'label',text: '运输方式',x:0,y:185,style:this.lableStyle_},
+							{xtype:'label',text: '交货方式',x:0,y:185,style:this.lableStyle_},
 							new Ext.ffc.TrafficModeComboBox({x:90,y:183,width:420,allowBlank:false,blankText:'运输方式及费用负担不能为空!'}),
 							{xtype:'label',text: '合同违约责任',x:510,y:185,style:this.lableStyle_},
 							{xtype:'textfield',  name: 'signAddress',x:600,y:183,width:390,allowBlank:false,blankText:'合同违约责任不能为空!'},
@@ -165,13 +176,20 @@ Ext.ffc.NorthPanel = Ext.extend(Ext.Panel, {
 
 			Ext.apply(recordParams,conctractInfor);
 			var myNewRecord = new RecordClum(recordParams); 
-			this.ownerCt.simpleForm.getForm().loadRecord(myNewRecord);
+			with(this.ownerCt.simpleForm.getForm()){
+			    loadRecord(myNewRecord);
+			    if(conctractInfor.taxRate > 0){
+			    	findField('exemplarInvoice').setDisabled(true);
+			    }else{
+			    	findField('exemplarInvoice').setDisabled(false);
+			    }
+		  }
 		}); 
 
 		Ext.ffc.NorthPanel.superclass.constructor.call(this, {
-			    region: 'north',
+			          region: 'north',
                 iconCls:'icon-grid',
-				layout: 'fit',
+				        layout: 'fit',
                 split: true,
                 width: 1050,
                 height : 280,
@@ -373,7 +391,7 @@ Ext.ffc.getContractDetailProTree = function (quotationType,jsonData,title,sortId
 		   proxy:new Ext.data.MemoryProxy(jsonData),
 		   reader: new Ext.data.JsonReader({}, 
 		 [
-            {name: 'id',mapping:'id',type:'string'},
+      {name: 'id',mapping:'id',type:'string'},
 			{name: 'toolsId',mapping:'toolsId',type:'string'},
 			{name: 'productCode',mapping:'productCode',type:'string'},
 			{name: 'projectCode',mapping:'projectCode',type:'float'},
@@ -396,10 +414,11 @@ Ext.ffc.getContractDetailProTree = function (quotationType,jsonData,title,sortId
 			{name: 'workshop',mapping:'workshop',type:'string'},
 			{name: 'reportCode',mapping:'reportCode',type:'string'},
 			{name: 'priceChange',mapping:'priceChange',type:'float'},
-			{name: 'leaf',mapping:'leaf',type:'float'}
+			{name: 'leaf',mapping:'leaf',type:'float'},
+			{name: 'fileCount',mapping:'fileCount',type:'float'}
         ])
     });
-		var gridCheckSele = new Ext.grid.CheckboxSelectionModel();
+var gridCheckSele = new Ext.grid.CheckboxSelectionModel();
 var rtGrid = new Ext.grid.EditorGridPanel({
 			'sortId' : sortId,
 			'title' : title,
@@ -554,15 +573,15 @@ var rtGrid = new Ext.grid.EditorGridPanel({
 		           }
 				})
 	        },{
-	            header:'附件',
-	            width:80,
+	            header:'客户确认方案图',
+	            width:100,
 	            dataIndex:'toolsId',
-				renderer : function(value, cellmeta, record, rowIndex, columnIndex, store) {
-					 if(record.get('leaf') * 1 == 1){
-					     return '';
-					 }
-					var str = '<a href=\"#\" onclick=Ext.ftl.generalQuo.onSlaveClick("' + value + '",5)><span style="color:blue;font-weight:bold;">查看</span></a>';
-					return str;
+				      renderer : function(value, cellmeta, record, rowIndex, columnIndex, store) {
+					    var fileCount = record.get('fileCount');
+							 if(fileCount > 0){
+							 	  return '<a href=\"#\" onclick=Ext.ftl.protools.onSlaveClick("' + value + '")><span style="color:blue;font-weight:bold;">查看</span></a>';
+							 }
+							 return '';
 	        	}
 	        },{
 	            dataIndex:'priceChange',
@@ -880,6 +899,11 @@ Ext.ffc.ContractEditWindow = Ext.extend(Ext.Window, {
 
 					Ext.apply(currConctractInfor, formValues);
 					
+					if(currConctractInfor.exemplarInvoice == 'on'){
+						currConctractInfor.exemplarInvoice = '1';
+					}else{
+						currConctractInfor.exemplarInvoice = '0';
+					}
 					if(currConctractInfor.id == null || currConctractInfor.id == ''){
 						Ext.ffc.addContractInfor(currConctractInfor,currWin);
 					}else{

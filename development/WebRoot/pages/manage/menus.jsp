@@ -18,6 +18,13 @@ var PATH = '<%=path%>';
 
 <script type="text/javascript" src="<%=path%>/extjs/adapter/ext/ext-base.js"></script>
 <script type="text/javascript" src="<%=path%>/extjs/ext-all.js"></script>
+<script type="text/javascript">
+<!--
+Ext.ffc = function(){};
+Ext.ftl = function(){};
+Ext.zhj = function(){};
+//-->
+</script>
 <script language="javascript" src="<%=path%>/js/quotation/generalQuo/statusCombox.js"></script>
 
 <script type="text/javascript" src="<%=path%>/js/manage/audit.js"></script>
@@ -34,6 +41,7 @@ var PATH = '<%=path%>';
 
 <script language="javascript" src="<%=path%>/js/manage/BillDocument.js"></script>
 <script type="text/javascript" src="<%=path%>/js/common.js"></script>
+
 </head>
 <body>
 <script type="text/javascript" src="<%=path%>/shared/examples.js"></script>

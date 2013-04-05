@@ -278,8 +278,14 @@ var  cOContractSelectForm = Ext.extend(Ext.FormPanel, {
 											eval("var detail=" + response.responseText);
 											if(detail.length == 0){
 												//Ext.Msg.alert("消息", "所选合同明细中，没有产品可提取库存,确定后将编制采购订单!");
-												var win = new cOSupplierWin({contractId:contractInforId,deliveryAddressType:record.get('deliveryAddressType'),
-													contractId:record.get('id'),contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),customerName:customerName,customerCode:customerCode});
+												var win = new cOSupplierWin({
+													contractId:contractInforId,
+													deliveryAddressType:record.get('deliveryAddressType'),
+													contractId:record.get('id'),
+													contract_code:record.get('contractCode'),
+													ownContactPerson:record.get('ownContactPerson'),
+													customerName:customerName,customerCode:customerCode,
+													trafficMode:record.get('trafficMode')});
 												var store = win.supplier_grid.getStore();
 												store.baseParams.contractId = record.get('id');                   
 												store.load({params: {start: 0, limit: 15}}); 
@@ -293,7 +299,7 @@ var  cOContractSelectForm = Ext.extend(Ext.FormPanel, {
 												listeners :{
 													close : function(p){
 														var win = new cOSupplierWin({contractId:contractInforId,deliveryAddressType:record.get('deliveryAddressType'),
-															contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),customerName:customerName,customerCode:customerCode,memo:memo});
+															contract_code:record.get('contractCode'),ownContactPerson:record.get('ownContactPerson'),customerName:customerName,customerCode:customerCode,memo:memo,trafficMode:record.get('trafficMode')});
 														var store = win.supplier_grid.getStore();
 														store.baseParams.contractId = record.get('id');                   
 														store.load({params: {start: 0, limit: 15}}); 
@@ -335,7 +341,7 @@ var  cOContractSelectForm = Ext.extend(Ext.FormPanel, {
 											if(detail.length == 0){
 												//Ext.Msg.alert("消息", "所选合同明细中，没有产品可提取库存,确定后将编制采购订单!");
 												var win = new cOSupplierWin({deliveryAddressType:record.get('deliveryAddressType'),contract_code:record.get('contractCode'),
-													node:r,ownContactPerson:record.get('ownContactPerson'),customerName:customerName,customerCode:customerCode,memo:memo});
+													node:r,ownContactPerson:record.get('ownContactPerson'),customerName:customerName,customerCode:customerCode,memo:memo,trafficMode:record.get('trafficMode')});
 												var store = win.supplier_grid.getStore();
 												store.baseParams.contractId = record.get('id');  
 												store.baseParams.brand = r.get('productBrand');
@@ -351,7 +357,7 @@ var  cOContractSelectForm = Ext.extend(Ext.FormPanel, {
 												listeners :{
 													close : function(p){
 														var win = new cOSupplierWin({deliveryAddressType:record.get('deliveryAddressType'),contract_code:record.get('contractCode'),
-															node:r,ownContactPerson:record.get('ownContactPerson'),customerName:customerName,customerCode:customerCode,memo:memo});
+															node:r,ownContactPerson:record.get('ownContactPerson'),customerName:customerName,customerCode:customerCode,memo:memo,trafficMode:record.get('trafficMode')});
 														var store = win.supplier_grid.getStore();
 														store.baseParams.contractId = record.get('id');   
 														store.baseParams.brand = r.get('productBrand');
@@ -510,5 +516,3 @@ var  cOContractSelectForm = Ext.extend(Ext.FormPanel, {
 			})
 		}
 	})
-
-	

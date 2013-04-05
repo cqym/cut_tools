@@ -511,4 +511,7 @@
   <procedure id="sycNotStandardToolsInfor" parameterClass="String">
        { call syc_not_standard_tools_infor(#value#) } 
   </procedure>
+  <procedure id="sycToolsInfor" parameterClass="String">
+       { call syc_tools_infor(#value#) } 
+  </procedure>
 </sqlMap>

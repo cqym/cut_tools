@@ -56,6 +56,10 @@ public class ListAction extends Action {
       parmMap.put("beginDate", searchJson.has("beginDate") ? searchJson.getString("beginDate") : null);
       parmMap.put("endDate", searchJson.has("endDate") ? searchJson.getString("endDate") : null);
       parmMap.put("year", searchJson.has("year") ? searchJson.getString("year") : null);
+      if (searchJson.has("transferContract") && (searchJson.getString("transferContract") != null)
+        && !"全部".equals(searchJson.getString("transferContract"))) {
+        parmMap.put("transferContract", searchJson.getString("transferContract"));
+      }
 
     }
 

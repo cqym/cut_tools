@@ -143,4 +143,16 @@
 			<ref bean="ContractOrderServiceImpl"/>
 		</property>
 	</bean>
+	
+	<bean name="/purchaseOrder/PurchaseOrderViewAction" class="com.tl.resource.web.purchaseOrder.PurchaseOrderViewAction">
+		<property name="purchaseOrderViewService">
+			<ref bean="PurchaseOrderViewService"/>
+		</property>
+	</bean>
+	
+	<bean name="/purchaseOrder/PurchaseOrderEditAction" class="com.tl.resource.web.purchaseOrder.PurchaseOrderEditAction">
+		<property name="purchaseOrderEditService">
+			<ref bean="PurchaseOrderEditService"/>
+		</property>
+	</bean>
 </beans>

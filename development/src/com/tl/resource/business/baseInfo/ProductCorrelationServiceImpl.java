@@ -863,7 +863,13 @@ public class ProductCorrelationServiceImpl implements ProductCorrelationService 
         imsDto.setProductBrand(value);
         break;
       case 4:
-        imsDto.setHistoryPrice(BigDecimal.valueOf(Double.valueOf(value.toString())));
+        try {
+          imsDto.setHistoryPrice(BigDecimal.valueOf(Double.valueOf(value.toString())));
+        } catch (NumberFormatException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+          throw new RuntimeException("工作区：" + sheetNumber + ";行：" + rowNumber + ",列：" + c + "，从excel中读取数据出错：" + e.getMessage());
+        }
         break;
       case 5:
         imsDto.setProductUnit(value);

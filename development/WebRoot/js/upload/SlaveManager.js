@@ -14,11 +14,8 @@ Slave.UploadWindow = Ext.extend(Ext.Window, {
 		Ext.apply(this, _cfg);
 		
 		this.swfUploadPanel = new Ext.ux.SwfUploadPanel({
-			title: '附件上传', 
-			width: 500, 
-			height: 300, 
+			title: '附件上传',  
 			border: false, 
-
 			// Uploader Params				
 			upload_url: PATH +　'/uploadManager/upload.do?method=upload', 
 			//, upload_url: 'http://localhost/ext/plugins/SwfUploadPanel/upload_example.php'
@@ -37,13 +34,19 @@ Slave.UploadWindow = Ext.extend(Ext.Window, {
 		
 		Slave.UploadWindow.superclass.constructor.call(this, {
 			width: 514, 
-			height: 330, 
+			height: 330,
+			
 			resizable: false, 
 			constrainHeader : true,
 			modal : true,
+			layout:'fit',
 			items: this.swfUploadPanel,
-			closeAction : 'hide',
+			//closeAction : 'hide',
 			listeners : {
+				'close' : function() {
+				  if(this.closeFunction)
+				      this.closeFunction();
+				},scope:this,
 				'render' : function() {
 					var JSESSIONID = null;
 					var cookies = document.cookie.split(";");

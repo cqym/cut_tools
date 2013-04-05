@@ -16,8 +16,18 @@
   
   <!-- 获取产品附件 -->
   <select id="getAccessoriesByBusId" parameterClass="Map" resultClass="List" resultMap="baseResultMap">
-    <![CDATA[
-      select t.* from t_accessories t where t.business_id=#busId# and t.business_type=#busType#
-    ]]>
+      select t.* from t_accessories t 
+      where 
+      1=1
+      <isNotEmpty prepend="and" property="busId" >
+       t.business_id=#busId# 
+      </isNotEmpty>
+      <isNotEmpty prepend="and" property="busType" >
+      t.business_type=#busType#
+      </isNotEmpty>
+      order by upload_time desc 
+       <isNotNull property="startIndex" >
+       limit $startIndex$,$pageSize$
+       </isNotNull>
   </select>
 </sqlMap>

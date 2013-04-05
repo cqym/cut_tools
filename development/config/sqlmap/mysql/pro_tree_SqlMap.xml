@@ -29,7 +29,7 @@
     <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
   </resultMap>
   
-  <resultMap id="resultMap" class="proDto" extends="baseResultMap">
+  <resultMap id="hasChildrenResultMap" class="proDto" extends="baseResultMap">
     <result column="stock_price_date" jdbcType="TIMESTAMP" property="stockPriceDate" />
     <result property="children" column="id" select="proTree.getProToolsChildren"/>
   </resultMap>
@@ -39,7 +39,7 @@
   </resultMap>
   
   <!-- 获取工具信息(ftl 2009-12-24) -->
-  <select id="getToolsWithChildren" parameterClass="java.util.Map" resultClass="java.util.List" resultMap="resultMap">
+  <select id="getToolsWithChildren" parameterClass="java.util.Map" resultClass="java.util.List" resultMap="hasChildrenResultMap">
     <![CDATA[
       select t.id, t.product_sort_id, t.parent_id, t.leaf, t.brand_code, t.product_code, t.product_name,
              t.product_unit, t.product_sort_code, t.product_brand, t.product_source, t.slave_file, 
@@ -92,7 +92,7 @@
         ) t 
         left join t_accessories ta on t.id=ta.business_id 
         
-         where  ta.business_type=1 or ta.business_id is null
+         where    ta.business_type in (1,4,5) or ta.business_id is null
         
         group by t.id order by id desc
         
@@ -100,12 +100,16 @@
   </select>
   
   <!-- 获取工具信息(ftl 2009-12-23) -->
-  <select id="getToolsBySearch" parameterClass="java.util.Map" resultClass="java.util.List" resultMap="resultMap">
+  <select id="getToolsBySearch" parameterClass="java.util.Map" resultClass="java.util.List" resultMap="hasChildrenResultMap">
     <![CDATA[
       select t.id, t.product_sort_id, t.parent_id, t.leaf, t.brand_code, t.product_code, t.product_name,
              t.product_unit, t.product_sort_code, t.product_brand, t.product_source, t.slave_file, 
-             t.memo, t.stock_price_date,t.amount,t.brand_code_history
-      from t_product_tools_infor t where t.parent_id=#parentId#
+             t.memo, t.stock_price_date,t.amount,t.brand_code_history,count(ta.id) as slave_file
+      from t_product_tools_infor t 
+      left join t_accessories ta 
+      on t.id=ta.business_id  
+      where t.parent_id=#parentId#
+      group by t.id 
     ]]> 
   </select>
   
@@ -255,18 +259,30 @@
   </select>
   
   <!-- 根据ID获取工具信息 -->
-  <select id="getProToolsById" parameterClass="java.lang.String" resultClass="proDto" resultMap="resultMap">
+  <select id="getProToolsById" parameterClass="java.lang.String" resultClass="proDto" resultMap="hasChildrenResultMap">
     <![CDATA[
-      select * from t_product_tools_infor t where t.id = #value#
+      select t.id, t.product_sort_id, t.parent_id, t.leaf, t.brand_code, t.product_code, t.product_name,
+             t.product_unit, t.product_sort_code, t.product_brand, t.product_source, 
+             t.memo, t.stock_price_date,t.amount,t.brand_code_history,count(ta.id) as slave_file 
+      from t_product_tools_infor t 
+      left join t_accessories ta 
+      on t.id=ta.business_id  
+      where t.id = #value#
+      group by t.id
     ]]>
   </select>
   <!-- 获取工具信息孩子节点 -->
-  <select id="getProToolsChildren" parameterClass="java.lang.String" resultClass="proDto" resultMap="resultMap">
+  <select id="getProToolsChildren" parameterClass="java.lang.String" resultClass="proDto" resultMap="hasChildrenResultMap">
     <![CDATA[
       select t.id, t.product_sort_id, t.parent_id, t.leaf, t.brand_code, t.product_code, t.product_name,
-             t.product_unit, t.product_sort_code, t.product_brand, t.product_source, t.slave_file, 
-             t.memo, t.stock_price_date,t.amount,t.brand_code_history
-      from t_product_tools_infor t where t.parent_id=#value#
+             t.product_unit, t.product_sort_code, t.product_brand, t.product_source, 
+             t.memo, t.stock_price_date,t.amount,t.brand_code_history,
+             (SELECT COUNT(*) FROM t_accessories ta,t_product_tools_infor t2 WHERE ta.business_id = t2.id AND t2.parent_id = 'root' AND t2.product_code = t.product_code) AS slave_file 
+      from t_product_tools_infor t 
+      left join t_accessories ta 
+       on t.id=ta.business_id  
+      where t.parent_id=#value#
+      group by t.id
     ]]>
   </select>
   

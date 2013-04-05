@@ -112,7 +112,12 @@ Ext.zhj.SearchProduct = Ext.extend(Ext.FormPanel, {
 //----------------产品销售历史价格--------------------
 Ext.zhj.detailProduceSalesHistoryWindow = function(proTooId) {
 	return '<a href="#" class="[color=red]demoClass[/color]" onclick="Ext.zhj.onClickProSalHisDetail(\''
-			+ proTooId + '\')">查看</a>'
+			+ proTooId + '\')">查看</a>';
+};
+
+
+Ext.zhj.detailProduceSalesAllHistoryWindow = function(value, cellmeta, record, rowIndex, columnIndex, store) {
+	return '<a href="javascript:Ext.ffc.viewSaleBill({toolsId:\'' + value + '\',brandCode:\'' + record.get('brandCode') + '\'})">查看</a>';
 };
 
 Ext.zhj.onClickProSalHisDetail = function(_iid) {
@@ -366,10 +371,15 @@ Ext.zhj.CusSalesPriceHistoryGrid = Ext.extend(Ext.grid.EditorGridPanel, {
 						dataIndex : 'productToolInforId',
 						renderer : Ext.zhj.detailSalesPriceHistoryWindow
 					}, {
-						header : '销售历史详细',
+						header : '合同销售详细',
 						// hidden : true,
 						dataIndex : 'productToolInforId',
 						renderer : Ext.zhj.detailProduceSalesHistoryWindow
+					}, {
+						header : '所有销售详细',
+						// hidden : true,
+						dataIndex : 'productToolInforId',
+						renderer : Ext.zhj.detailProduceSalesAllHistoryWindow
 					}]),
 			bbar : new Ext.PagingToolbar({
 						pageSize : PAGESIZE,

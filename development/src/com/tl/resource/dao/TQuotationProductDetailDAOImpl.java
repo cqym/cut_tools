@@ -214,10 +214,11 @@ public class TQuotationProductDetailDAOImpl extends SqlMapClientDaoSupport imple
   }
 
   @Override
-  public List<QuotationDetailOutStockDto> getQuotationProductionsWillOutStock(String quotationInforId) {
+  public List<QuotationDetailOutStockDto> getQuotationProductionsWillOutStock(String quotationInforId, String leaf) {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("quotationInforId", quotationInforId);
     params.put("willOutStock", new Object());
+    params.put("leaf", leaf);
     List<com.tl.resource.business.dto.QuotationDetailOutStockDto> list = getSqlMapClientTemplate().queryForList(
       "quotationDetail.getQuoDetailOutStockByPage", params);
     return list;
@@ -382,4 +383,12 @@ public class TQuotationProductDetailDAOImpl extends SqlMapClientDaoSupport imple
     // TODO Auto-generated method stub
     return this.getSqlMapClientTemplate().queryForList("quotationDetail.getYuDingQuoDetail2CreateContract", id);
   }
+
+  @Override
+  public Integer getYuDingQuoDetail2CreateContractCount(String id) {
+    // TODO Auto-generated method stub
+    Integer in = (Integer) this.getSqlMapClientTemplate().queryForObject("quotationDetail.getYuDingQuoDetail2CreateContractCount", id);
+    return in.intValue();
+  }
+
 }

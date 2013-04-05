@@ -29,6 +29,7 @@ import com.tl.resource.business.dto.ArrivalInforDto;
 import com.tl.resource.business.dto.ProductArrivalDetailDto;
 import com.tl.resource.business.dto.UserDto;
 import com.tl.resource.business.manage.BillsCodeDefService;
+import com.tl.resource.business.outStock.OutStockService;
 import com.tl.resource.dao.pojo.TOrderInfor;
 import com.tl.resource.dao.pojo.TProductArrivalDetail;
 import com.tl.resource.dao.pojo.TProductArrivalInfor;
@@ -44,6 +45,8 @@ public class ArrInfoManageAction extends DispatchAction {
   private ArrivalService arrivalService;
 
   private BillsCodeDefService billsCodeDefService;
+
+  private OutStockService outStockService;
 
   public ArrivalService getArrivalService() {
     return arrivalService;
@@ -287,6 +290,8 @@ public class ArrInfoManageAction extends DispatchAction {
             arrivalService.sycContractArrivalDetail(arrInfo.getQuotationCode());
           }
           arrivalService.deleteArrivalInfo(arrInfoId);
+
+          outStockService.deleteOutStockInforDto(arrInfoId);//删除入库也删除对应的出库
         }
       }
     } catch (Exception e) {
@@ -799,6 +804,14 @@ public class ArrInfoManageAction extends DispatchAction {
 
   public void setBillsCodeDefService(BillsCodeDefService billsCodeDefService) {
     this.billsCodeDefService = billsCodeDefService;
+  }
+
+  public OutStockService getOutStockService() {
+    return outStockService;
+  }
+
+  public void setOutStockService(OutStockService outStockService) {
+    this.outStockService = outStockService;
   }
 
 }

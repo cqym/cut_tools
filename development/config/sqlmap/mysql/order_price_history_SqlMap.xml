@@ -121,6 +121,7 @@
 		<isNotEmpty prepend="and" property="suppliersInforId">
 			t.suppliers_infor_id = #suppliersInforId#
 		</isNotEmpty>
+		order by t.edit_date desc
 		<isNotEmpty property="start">
 			limit #start#,#limit#
 		</isNotEmpty>

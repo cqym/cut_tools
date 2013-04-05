@@ -390,6 +390,7 @@ Ext.ffc.ReservePlanEditCenterPanel = Ext.extend(Ext.grid.EditorGridPanel, {
 												});
 												continue;
 											}else{
+											win.leftPanel.addDeleteId(_records[i].id);
 												Ext.Ajax.request({
 													method: "post",
 													params: { 'ids' : [_records[i].id]},
@@ -444,6 +445,7 @@ Ext.ffc.ReservePlanEditLeftPanel = Ext.extend(Ext.grid.GridPanel, {
 	reservePlanTree:null,
 	reservePlanEditTree:null,
 	proDetail:null,
+	deleteIds:{},
 	initPlanRows:function(){
 		var win = this.ownerCt;
 		var centerStore = win.centerPanel.getStore();
@@ -461,7 +463,7 @@ Ext.ffc.ReservePlanEditLeftPanel = Ext.extend(Ext.grid.GridPanel, {
 			var orderId = detail[i].id;
 			var arr = [];
 			for(var j = 0;j < plans.length ;j++ ){	
-				if(orderId == plans[j].parentToolsId){
+				if(orderId == plans[j].parentToolsId && !this.deleteIds[plans[j].id]){
 					arr.push(plans[j]);
 				}
 			}
@@ -521,6 +523,9 @@ Ext.ffc.ReservePlanEditLeftPanel = Ext.extend(Ext.grid.GridPanel, {
 			}
 		}
 	},
+	addDeleteId:function(id){
+	    this.deleteIds[id] = 1;
+	},scope : this,
 	refreshData:function(){
 		var win = this.ownerCt;
 		var leftStore = this.getStore();

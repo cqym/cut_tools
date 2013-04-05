@@ -1,6 +1,6 @@
 Ext.onReady(function(){
 
-Ext.chart.Chart.CHART_URL = PATH + '/extjs/resources/charts.swf';
+//Ext.chart.Chart.CHART_URL = PATH + '/extjs/resources/charts.swf';
 
 Ext.ffc.QuickTips = {
 	win : null,
@@ -160,6 +160,9 @@ Ext.Ajax.request({
 			eval("var temp=" + response.responseText);
 			if(temp){
 				for(var i = 0 ; i < temp.length ;i++){
+					if(temp[i].text == '首页权限'){
+					  continue;	
+					}
 					if(temp[i].url.match(/\/*/) != ''){
 			            tb.add({id:temp[i].id,text:temp[i].text,url:PATH + temp[i].url,enableToggle :true,
 							toggleHandler: function(){
@@ -387,7 +390,9 @@ var actionPanel = new Ext.Panel({
 			margins:'0 4 4 0', 
 			activeTab:0, 
 			items:[
-				/*{ id:'tab1', contentEl:'tabs', title: '主工作区', closable:false, autoScroll:true, }*/
+				{ id:'tab1', contentEl:'tabs', title: '主工作区', closable:false, autoScroll:true,
+				  autoLoad: {url: PATH + "/pages/main_work_view.jsp",scripts:true}
+			    }
 			]
 	}); 
 
@@ -398,7 +403,7 @@ var actionPanel = new Ext.Panel({
 		var allTabs = tabPanel.items;
 		var theTab = null;
 		allTabs.find(function(obj){
-			if(obj.autoLoad.url == targetUrl){
+			if(obj.autoLoad && obj.autoLoad.url == targetUrl){
 			    theTab = obj;
 			}
 		});

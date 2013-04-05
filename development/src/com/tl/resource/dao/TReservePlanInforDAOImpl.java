@@ -167,8 +167,8 @@ public class TReservePlanInforDAOImpl extends SqlMapClientDaoSupport implements 
   }
 
   @Override
-  public List<ReservePlanDetailDto> getReservePlanDetail(String orderId) {
-    List<ReservePlanDetailDto> list = getSqlMapClientTemplate().queryForList("t_reserve_plan_infor.getReservePlanDetail", orderId);
+  public List<ReservePlanDetailDto> getReservePlanDetail(List mainIds) {
+    List<ReservePlanDetailDto> list = getSqlMapClientTemplate().queryForList("t_reserve_plan_infor.getReservePlanDetail", mainIds);
     return list;
   }
 

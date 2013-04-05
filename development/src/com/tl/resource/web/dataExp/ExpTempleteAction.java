@@ -16,6 +16,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
+import com.tl.common.smartupload.Constant;
 import com.tl.common.util.LoginInforUtil;
 import com.tl.common.util.PaginationSupport;
 import com.tl.resource.business.dto.LoginInforDto;
@@ -127,7 +128,7 @@ public class ExpTempleteAction extends DispatchAction {
     String tempId = request.getParameter("tempId");
     response.setContentType("application/vnd.ms-excel");
     try {
-      expTempleteService.expertExce(busId, tempId, response, request.getRealPath("/"));
+      expTempleteService.expertExce(busId, tempId, response, Constant.UPLOAD_DIR);
     } catch (RuntimeException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -155,7 +156,7 @@ public class ExpTempleteAction extends DispatchAction {
         conditionMap.remove("status");
       }
 
-      expTempleteService.expertListExce(conditionMap, tempId, response, request.getRealPath("/"));
+      expTempleteService.expertListExce(conditionMap, tempId, response, Constant.UPLOAD_DIR);
     } catch (RuntimeException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

@@ -61,3 +61,6 @@
     background:url(extjs/resources/images/default/sizer/s-handle-dark.gif);
     background-position: top;
 }
+.cell_gray{
+    background-color:#000000;
+}

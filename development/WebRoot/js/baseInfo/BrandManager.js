@@ -298,7 +298,7 @@ Probrand.search = Ext.extend(Ext.FormPanel, {
 			_cfg = {};
 		}
 		Ext.apply(this, _cfg);
-		cOContractSelectForm.superclass.constructor.call(this, {
+		Probrand.search.superclass.constructor.call(this, {
 	        labelAlign:'left',buttonAlign:'right',bodyStyle:'padding:5px;', border : false,
 	        frame:true,labelWidth:70,monitorValid:false,
 	        items:[

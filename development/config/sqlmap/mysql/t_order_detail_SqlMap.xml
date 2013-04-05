@@ -864,10 +864,7 @@
 		select * from (
 		select 
 			nn.*,nn.Delivery_Date contract_Delivery_Date,pd.order_price_run_date,nc.product_sort_id product_sort_id,
-		(nn.amount-ifnull((select sum(o.order_amount) from t_order_detail o where o.contract_product_detail_id = nn.id),0)-ifnull((select sum(s.amount) from t_out_stock_detail s,t_out_stock_infor ot 
-			where s.contract_product_detail_id = nn.id and ot.id = s.out_stock_infor_id and ot.out_stock_type = 1 AND ot.status != 2),0)
-			-ifnull((select sum(p.order_amount) from t_order_detail p where CONCAT(p.contract_product_detail_id,&apos;##&apos;) = nn.id),0)
-						) as remain_amount,
+		(nn.amount-ifnull(sum_out_amount,0)-ifnull(sum_order_amount,0)) as remain_amount,
 	0 order_amount,(select pro_sort_name from t_contract_project_sort_infor where id = nn.contract_project_sort_id) as pro_sort_name,
 	(select ifnull(count(*),0) from t_accessories where business_id = nn.tools_id and business_type = 1) as file_count
 			from 
@@ -881,6 +878,9 @@
 				and nn.product_brand = b.brand
 				and nn.tools_id = nc.id
 				and nc.product_brand = pd.name 
+				<isNotEmpty property="leaf" prepend="and">
+			      <![CDATA[ nn.leaf = #leaf# ]]>
+			    </isNotEmpty>
 				<isNotEmpty property="productBrand" prepend="and">
 			      <![CDATA[ nn.product_brand like '%$productBrand$%' ]]>
 			    </isNotEmpty>
@@ -892,6 +892,9 @@
 			    </isNotEmpty>
 			    <isNotEmpty property="contractProjectSortId" prepend="and">
 			      <![CDATA[ nn.contract_project_sort_id = #contractProjectSortId# ]]>
+			    </isNotEmpty>
+			    <isNotEmpty property="noHasYd" prepend="and">
+			      <![CDATA[ nn.id not like '%##%' ]]>
 			    </isNotEmpty>
 			) m
 			where	m.remain_amount > 0
@@ -1136,4 +1139,10 @@
 		ON dd.id = i.parent_tools_id
 		WHERE dd.stock_order_infor_id = #value# AND dd.leaf=0 AND i.id  IS NULL
   </select>
+  
+  <update id="sycArrivalDetailOrderAmount" parameterClass="string">
+        UPDATE t_product_arrival_detail ad
+		SET ad.order_amount = (SELECT o.order_amount FROM t_order_detail o WHERE o.id = ad.order_detail_id) 
+		WHERE ad.order_detail_id IN ( SELECT o.id FROM t_order_detail o WHERE o.stock_order_infor_id =#value#)      
+  </update>
 </sqlMap>
