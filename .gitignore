@@ -15,6 +15,9 @@ local.properties
 .classpath
 .settings/
 .loadpath
+development/WebRoot/WEB-INF/classes
+development/WebRoot/WEB-INF/lib
+development/WebRoot/upload
 
 # External tool builders
 .externalToolBuilders/
